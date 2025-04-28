@@ -137,6 +137,9 @@ def register_routes(app):
     @app.route('/generate-report/<report_type>')
     @login_required
     def generate_report(report_type):
+        import logging
+        logger = logging.getLogger('fintelligence')
+        
         if 'file_data' not in session or 'file_id' not in session:
             flash('No data available. Please upload a file first.', 'warning')
             return redirect(url_for('upload'))
@@ -144,7 +147,13 @@ def register_routes(app):
         file_data = session['file_data']
         file_id = session['file_id']
         
+        logger.debug(f"Generating {report_type} report for file ID: {file_id}")
+        
         try:
+            # Log data before processing
+            logger.debug(f"File data format: {file_data.get('format', 'unknown')}")
+            logger.debug(f"File data columns: {file_data.get('columns', [])}")
+            
             if report_type == 'balance_sheet':
                 report_data = generate_balance_sheet(file_data)
                 template = 'balance_sheet.html'
@@ -174,6 +183,9 @@ def register_routes(app):
             return render_template(template, report=report, data=report_data)
         
         except Exception as e:
+            import traceback
+            logger.error(f"Error generating report: {str(e)}")
+            logger.error(traceback.format_exc())
             flash(f'Error generating report: {str(e)}', 'danger')
             return redirect(url_for('report_options'))
     

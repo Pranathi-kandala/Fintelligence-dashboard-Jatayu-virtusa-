@@ -1,0 +1,251 @@
+Date,Account,Category,Description,Amount,Type
+2025-01-21,Credit Card,Revenue,Commission Earned,8044,Income
+2025-01-22,Accounts Receivable,Expense,Utilities,-4489,Expense
+2025-02-13,Accounts Receivable,Expense,Utilities,-3195,Expense
+2025-03-26,Accounts Payable,Revenue,Commission Earned,4123,Income
+2025-03-23,Accounts Receivable,Revenue,Product Sales,8756,Income
+2025-03-16,Cash,Revenue,Product Sales,7955,Income
+2025-01-30,Cash,Revenue,Commission Earned,5593,Income
+2025-03-05,Bank,Expense,Rent,-1733,Expense
+2025-04-28,Accounts Receivable,Revenue,Product Sales,1926,Income
+2025-02-12,Cash,Revenue,Commission Earned,8311,Income
+2025-03-04,Credit Card,Expense,Travel,-2714,Expense
+2025-03-14,Accounts Payable,Expense,Salaries,-937,Expense
+2025-04-05,Cash,Revenue,Service Fee,1687,Income
+2025-03-09,Credit Card,Revenue,Consulting Income,4770,Income
+2025-04-19,Credit Card,Revenue,Service Fee,3886,Income
+2025-01-26,Bank,Expense,Marketing Expenses,-4326,Expense
+2025-04-20,Cash,Revenue,Commission Earned,3022,Income
+2025-04-28,Bank,Revenue,Consulting Income,2005,Income
+2025-01-14,Cash,Revenue,Subscription Revenue,7998,Income
+2025-03-22,Accounts Payable,Expense,Utilities,-1663,Expense
+2025-02-03,Cash,Revenue,Consulting Income,4654,Income
+2025-03-26,Credit Card,Expense,Rent,-2747,Expense
+2025-04-09,Bank,Revenue,Service Fee,3114,Income
+2025-04-13,Accounts Payable,Expense,Utilities,-734,Expense
+2025-04-05,Bank,Expense,Utilities,-2974,Expense
+2025-01-04,Credit Card,Revenue,Product Sales,9127,Income
+2025-02-16,Cash,Revenue,Subscription Revenue,6885,Income
+2025-02-27,Credit Card,Expense,Salaries,-3893,Expense
+2025-01-07,Bank,Revenue,Commission Earned,8962,Income
+2025-01-18,Accounts Payable,Revenue,Consulting Income,6725,Income
+2025-01-11,Credit Card,Revenue,Product Sales,4895,Income
+2025-01-08,Cash,Expense,Office Supplies,-1599,Expense
+2025-03-22,Credit Card,Revenue,Service Fee,5159,Income
+2025-01-17,Bank,Revenue,Service Fee,4193,Income
+2025-01-27,Accounts Receivable,Expense,Marketing Expenses,-2805,Expense
+2025-04-15,Cash,Expense,Travel,-2607,Expense
+2025-02-18,Accounts Receivable,Revenue,Subscription Revenue,5060,Income
+2025-03-21,Bank,Expense,Office Supplies,-3978,Expense
+2025-03-05,Accounts Payable,Expense,Salaries,-946,Expense
+2025-01-03,Credit Card,Expense,Insurance,-1364,Expense
+2025-01-05,Credit Card,Expense,Travel,-3693,Expense
+2025-04-18,Credit Card,Revenue,Service Fee,7816,Income
+2025-01-21,Cash,Expense,Utilities,-4622,Expense
+2025-02-08,Cash,Revenue,Service Fee,2892,Income
+2025-01-18,Cash,Revenue,Service Fee,6217,Income
+2025-03-19,Bank,Revenue,Service Fee,1219,Income
+2025-04-23,Accounts Receivable,Revenue,Commission Earned,3164,Income
+2025-04-28,Cash,Expense,Insurance,-1239,Expense
+2025-01-13,Credit Card,Expense,Travel,-4556,Expense
+2025-01-31,Accounts Receivable,Expense,Travel,-1638,Expense
+2025-03-03,Credit Card,Expense,Insurance,-1853,Expense
+2025-04-14,Bank,Expense,Insurance,-4021,Expense
+2025-01-15,Bank,Expense,Office Supplies,-3734,Expense
+2025-02-26,Credit Card,Expense,Office Supplies,-1298,Expense
+2025-03-15,Accounts Payable,Expense,Salaries,-460,Expense
+2025-02-09,Accounts Payable,Revenue,Service Fee,4336,Income
+2025-04-19,Accounts Payable,Expense,Utilities,-4978,Expense
+2025-01-02,Bank,Revenue,Commission Earned,5567,Income
+2025-02-03,Accounts Receivable,Revenue,Service Fee,9095,Income
+2025-03-27,Accounts Payable,Expense,Utilities,-1640,Expense
+2025-02-19,Accounts Receivable,Revenue,Subscription Revenue,5136,Income
+2025-03-04,Accounts Receivable,Expense,Office Supplies,-1569,Expense
+2025-04-05,Accounts Receivable,Revenue,Consulting Income,977,Income
+2025-01-11,Accounts Receivable,Expense,Salaries,-2778,Expense
+2025-01-21,Credit Card,Revenue,Service Fee,7299,Income
+2025-02-19,Bank,Revenue,Service Fee,8355,Income
+2025-01-30,Credit Card,Revenue,Consulting Income,9906,Income
+2025-02-09,Credit Card,Revenue,Subscription Revenue,5316,Income
+2025-01-22,Bank,Revenue,Service Fee,2934,Income
+2025-01-25,Cash,Revenue,Service Fee,4377,Income
+2025-04-08,Accounts Receivable,Expense,Utilities,-3831,Expense
+2025-02-11,Cash,Revenue,Commission Earned,6498,Income
+2025-03-01,Accounts Payable,Expense,Travel,-610,Expense
+2025-04-26,Bank,Revenue,Service Fee,3695,Income
+2025-01-07,Cash,Expense,Marketing Expenses,-364,Expense
+2025-01-08,Accounts Receivable,Revenue,Subscription Revenue,1983,Income
+2025-03-20,Accounts Payable,Expense,Marketing Expenses,-3620,Expense
+2025-04-19,Credit Card,Revenue,Consulting Income,5336,Income
+2025-03-23,Bank,Revenue,Commission Earned,7918,Income
+2025-03-31,Credit Card,Expense,Office Supplies,-1188,Expense
+2025-01-01,Bank,Expense,Insurance,-486,Expense
+2025-01-18,Accounts Payable,Expense,Utilities,-143,Expense
+2025-01-23,Accounts Payable,Revenue,Service Fee,5193,Income
+2025-01-02,Bank,Expense,Insurance,-4622,Expense
+2025-04-09,Bank,Expense,Office Supplies,-1540,Expense
+2025-02-28,Accounts Receivable,Expense,Salaries,-1180,Expense
+2025-01-28,Credit Card,Expense,Marketing Expenses,-3127,Expense
+2025-01-29,Accounts Payable,Revenue,Service Fee,7275,Income
+2025-01-17,Accounts Receivable,Revenue,Service Fee,8033,Income
+2025-02-02,Credit Card,Expense,Utilities,-620,Expense
+2025-04-18,Accounts Receivable,Expense,Rent,-1137,Expense
+2025-04-18,Accounts Receivable,Revenue,Commission Earned,4603,Income
+2025-02-14,Cash,Expense,Salaries,-2763,Expense
+2025-03-08,Bank,Revenue,Subscription Revenue,9391,Income
+2025-03-31,Bank,Revenue,Subscription Revenue,6773,Income
+2025-01-19,Accounts Payable,Expense,Travel,-3541,Expense
+2025-04-24,Credit Card,Revenue,Commission Earned,9372,Income
+2025-01-07,Cash,Expense,Salaries,-603,Expense
+2025-04-25,Accounts Receivable,Expense,Office Supplies,-2335,Expense
+2025-04-27,Credit Card,Revenue,Product Sales,7462,Income
+2025-01-11,Cash,Expense,Utilities,-4380,Expense
+2025-01-25,Accounts Receivable,Revenue,Product Sales,9299,Income
+2025-04-02,Cash,Revenue,Commission Earned,5507,Income
+2025-03-02,Credit Card,Expense,Insurance,-640,Expense
+2025-02-17,Credit Card,Expense,Marketing Expenses,-3936,Expense
+2025-04-22,Credit Card,Expense,Insurance,-1829,Expense
+2025-02-11,Cash,Expense,Rent,-4568,Expense
+2025-04-07,Credit Card,Revenue,Service Fee,1938,Income
+2025-03-09,Accounts Payable,Expense,Utilities,-117,Expense
+2025-02-01,Accounts Receivable,Expense,Travel,-3900,Expense
+2025-04-09,Credit Card,Revenue,Subscription Revenue,3541,Income
+2025-02-21,Credit Card,Revenue,Subscription Revenue,8762,Income
+2025-01-22,Accounts Receivable,Revenue,Commission Earned,1772,Income
+2025-04-02,Cash,Revenue,Commission Earned,4491,Income
+2025-01-19,Accounts Receivable,Expense,Insurance,-4878,Expense
+2025-03-03,Cash,Expense,Salaries,-4160,Expense
+2025-03-28,Credit Card,Expense,Utilities,-426,Expense
+2025-02-26,Bank,Expense,Salaries,-4849,Expense
+2025-01-24,Credit Card,Revenue,Consulting Income,3646,Income
+2025-02-21,Cash,Expense,Office Supplies,-279,Expense
+2025-03-06,Bank,Revenue,Service Fee,7843,Income
+2025-04-15,Accounts Receivable,Revenue,Service Fee,3632,Income
+2025-01-02,Accounts Receivable,Revenue,Consulting Income,3020,Income
+2025-03-17,Bank,Revenue,Service Fee,3196,Income
+2025-01-19,Cash,Expense,Travel,-1848,Expense
+2025-04-08,Accounts Payable,Expense,Office Supplies,-2342,Expense
+2025-01-07,Cash,Expense,Insurance,-2739,Expense
+2025-03-12,Accounts Payable,Revenue,Product Sales,4922,Income
+2025-03-18,Cash,Revenue,Service Fee,7506,Income
+2025-03-28,Accounts Payable,Revenue,Product Sales,7932,Income
+2025-03-05,Accounts Receivable,Expense,Marketing Expenses,-4427,Expense
+2025-03-11,Accounts Payable,Revenue,Service Fee,3256,Income
+2025-03-07,Accounts Receivable,Revenue,Service Fee,2931,Income
+2025-02-28,Credit Card,Revenue,Commission Earned,2487,Income
+2025-03-29,Credit Card,Expense,Insurance,-2407,Expense
+2025-04-19,Cash,Revenue,Product Sales,2516,Income
+2025-01-05,Accounts Payable,Expense,Rent,-3054,Expense
+2025-03-26,Accounts Payable,Revenue,Subscription Revenue,4732,Income
+2025-01-07,Credit Card,Expense,Rent,-4922,Expense
+2025-02-06,Accounts Payable,Revenue,Service Fee,3749,Income
+2025-04-18,Accounts Payable,Revenue,Consulting Income,8524,Income
+2025-04-28,Bank,Expense,Utilities,-1609,Expense
+2025-03-22,Credit Card,Revenue,Subscription Revenue,7085,Income
+2025-03-21,Accounts Receivable,Revenue,Consulting Income,4295,Income
+2025-01-11,Credit Card,Expense,Travel,-1933,Expense
+2025-03-20,Cash,Expense,Office Supplies,-2554,Expense
+2025-01-26,Accounts Receivable,Revenue,Consulting Income,6117,Income
+2025-02-04,Credit Card,Expense,Utilities,-3512,Expense
+2025-02-06,Bank,Expense,Marketing Expenses,-579,Expense
+2025-04-07,Cash,Expense,Travel,-691,Expense
+2025-03-05,Accounts Receivable,Expense,Rent,-1526,Expense
+2025-02-01,Cash,Revenue,Service Fee,2497,Income
+2025-01-05,Bank,Revenue,Commission Earned,5827,Income
+2025-01-01,Cash,Expense,Utilities,-365,Expense
+2025-03-22,Accounts Payable,Expense,Travel,-4161,Expense
+2025-03-15,Accounts Receivable,Expense,Office Supplies,-4794,Expense
+2025-02-18,Accounts Payable,Revenue,Subscription Revenue,957,Income
+2025-03-06,Credit Card,Expense,Travel,-4489,Expense
+2025-03-25,Cash,Revenue,Service Fee,9633,Income
+2025-03-05,Credit Card,Expense,Insurance,-2656,Expense
+2025-01-16,Accounts Receivable,Revenue,Service Fee,4304,Income
+2025-03-21,Accounts Payable,Revenue,Product Sales,5129,Income
+2025-01-14,Accounts Receivable,Revenue,Consulting Income,4608,Income
+2025-03-29,Accounts Payable,Expense,Insurance,-617,Expense
+2025-03-09,Cash,Revenue,Subscription Revenue,1778,Income
+2025-03-28,Bank,Revenue,Service Fee,6789,Income
+2025-03-18,Accounts Payable,Expense,Marketing Expenses,-4160,Expense
+2025-03-22,Cash,Revenue,Consulting Income,6977,Income
+2025-01-17,Credit Card,Revenue,Consulting Income,8314,Income
+2025-01-07,Accounts Payable,Revenue,Consulting Income,9654,Income
+2025-03-22,Accounts Receivable,Expense,Utilities,-268,Expense
+2025-03-08,Cash,Revenue,Consulting Income,5199,Income
+2025-03-13,Accounts Payable,Revenue,Consulting Income,5860,Income
+2025-04-27,Credit Card,Revenue,Consulting Income,9014,Income
+2025-01-04,Accounts Receivable,Revenue,Consulting Income,5656,Income
+2025-01-17,Accounts Payable,Expense,Rent,-1910,Expense
+2025-04-10,Cash,Revenue,Service Fee,5024,Income
+2025-01-26,Accounts Payable,Expense,Travel,-4051,Expense
+2025-01-24,Credit Card,Expense,Salaries,-3987,Expense
+2025-03-21,Cash,Revenue,Consulting Income,9093,Income
+2025-04-04,Bank,Expense,Marketing Expenses,-2379,Expense
+2025-03-13,Credit Card,Expense,Marketing Expenses,-937,Expense
+2025-02-10,Bank,Expense,Utilities,-975,Expense
+2025-04-23,Bank,Revenue,Product Sales,2035,Income
+2025-02-12,Cash,Expense,Rent,-2757,Expense
+2025-02-25,Cash,Revenue,Service Fee,4858,Income
+2025-01-16,Credit Card,Revenue,Service Fee,2090,Income
+2025-01-19,Cash,Expense,Travel,-987,Expense
+2025-02-12,Cash,Expense,Office Supplies,-4318,Expense
+2025-01-05,Credit Card,Revenue,Service Fee,3836,Income
+2025-02-16,Accounts Receivable,Revenue,Consulting Income,732,Income
+2025-01-06,Accounts Receivable,Revenue,Consulting Income,5147,Income
+2025-02-02,Accounts Payable,Revenue,Consulting Income,2151,Income
+2025-02-04,Bank,Expense,Insurance,-4593,Expense
+2025-03-05,Bank,Expense,Utilities,-1227,Expense
+2025-04-13,Bank,Expense,Office Supplies,-839,Expense
+2025-03-24,Accounts Payable,Expense,Marketing Expenses,-2507,Expense
+2025-04-18,Credit Card,Expense,Salaries,-2285,Expense
+2025-01-26,Accounts Receivable,Expense,Utilities,-3858,Expense
+2025-03-27,Accounts Payable,Expense,Marketing Expenses,-3727,Expense
+2025-03-23,Credit Card,Revenue,Consulting Income,2740,Income
+2025-04-13,Accounts Receivable,Revenue,Service Fee,6580,Income
+2025-02-15,Accounts Receivable,Revenue,Service Fee,4510,Income
+2025-02-08,Cash,Expense,Insurance,-2919,Expense
+2025-01-06,Accounts Receivable,Revenue,Consulting Income,4138,Income
+2025-03-22,Credit Card,Revenue,Commission Earned,7997,Income
+2025-04-03,Cash,Expense,Marketing Expenses,-2011,Expense
+2025-02-17,Accounts Payable,Expense,Salaries,-715,Expense
+2025-03-06,Bank,Expense,Marketing Expenses,-1492,Expense
+2025-02-18,Bank,Expense,Travel,-3808,Expense
+2025-02-10,Cash,Expense,Insurance,-1306,Expense
+2025-02-22,Bank,Expense,Salaries,-531,Expense
+2025-01-04,Credit Card,Expense,Travel,-2723,Expense
+2025-04-06,Bank,Expense,Travel,-2315,Expense
+2025-02-26,Credit Card,Expense,Insurance,-4344,Expense
+2025-02-04,Bank,Expense,Salaries,-4273,Expense
+2025-01-27,Credit Card,Revenue,Subscription Revenue,4090,Income
+2025-03-22,Credit Card,Expense,Office Supplies,-1296,Expense
+2025-01-06,Cash,Expense,Travel,-4630,Expense
+2025-04-12,Accounts Payable,Expense,Utilities,-4518,Expense
+2025-01-30,Cash,Expense,Office Supplies,-4624,Expense
+2025-03-19,Accounts Receivable,Revenue,Subscription Revenue,5907,Income
+2025-02-22,Credit Card,Expense,Rent,-4380,Expense
+2025-01-16,Cash,Revenue,Product Sales,722,Income
+2025-02-15,Cash,Revenue,Commission Earned,3607,Income
+2025-02-24,Cash,Expense,Utilities,-1647,Expense
+2025-04-03,Credit Card,Expense,Office Supplies,-2083,Expense
+2025-04-27,Bank,Revenue,Product Sales,4686,Income
+2025-01-24,Cash,Expense,Rent,-3137,Expense
+2025-02-25,Credit Card,Expense,Office Supplies,-1662,Expense
+2025-04-22,Bank,Expense,Marketing Expenses,-693,Expense
+2025-03-14,Cash,Expense,Marketing Expenses,-3807,Expense
+2025-01-15,Accounts Payable,Expense,Utilities,-1573,Expense
+2025-04-26,Accounts Payable,Expense,Office Supplies,-4251,Expense
+2025-02-16,Bank,Expense,Insurance,-1210,Expense
+2025-02-27,Accounts Payable,Expense,Office Supplies,-4156,Expense
+2025-01-21,Accounts Payable,Revenue,Service Fee,707,Income
+2025-01-09,Accounts Payable,Expense,Travel,-1837,Expense
+2025-02-20,Cash,Expense,Office Supplies,-4771,Expense
+2025-01-11,Cash,Revenue,Product Sales,9446,Income
+2025-01-13,Credit Card,Revenue,Consulting Income,4433,Income
+2025-04-20,Accounts Payable,Revenue,Service Fee,8396,Income
+2025-03-02,Accounts Receivable,Expense,Utilities,-3875,Expense
+2025-03-08,Accounts Receivable,Revenue,Product Sales,1206,Income
+2025-04-25,Bank,Revenue,Subscription Revenue,8911,Income
+2025-03-08,Credit Card,Revenue,Commission Earned,6736,Income
+2025-02-22,Accounts Receivable,Revenue,Product Sales,5073,Income
+2025-03-21,Cash,Revenue,Product Sales,6541,Income
+2025-01-22,Bank,Expense,Insurance,-4815,Expense
+2025-02-20,Accounts Payable,Expense,Insurance,-4410,Expense
