@@ -112,9 +112,9 @@
                 <thead>
                     <tr>
                         <th>Revenue Stream</th>
-                        <th>Amount (₹)</th>
+                        <th>Amount ($)</th>
                         {% if data.previous_period is defined %}
-                        <th>Previous Period (₹)</th>
+                        <th>Previous Period ($)</th>
                         <th>Change (%)</th>
                         {% endif %}
                     </tr>
@@ -125,9 +125,9 @@
                             {% if item != 'total_revenue' %}
                                 <tr>
                                     <td>{{ item }}</td>
-                                    <td>₹{{ '{:,.2f}'.format(value) }}</td>
+                                    <td>${{ '{:,.2f}'.format(value) }}</td>
                                     {% if data.previous_period is defined and data.previous_period.revenue is defined and item in data.previous_period.revenue %}
-                                        <td>₹{{ '{:,.2f}'.format(data.previous_period.revenue[item]) }}</td>
+                                        <td>${{ '{:,.2f}'.format(data.previous_period.revenue[item]) }}</td>
                                         {% set change = ((value - data.previous_period.revenue[item]) / data.previous_period.revenue[item] * 100) if data.previous_period.revenue[item] != 0 else 0 %}
                                         <td class="{% if change > 0 %}positive{% elif change < 0 %}negative{% endif %}">
                                             {{ '{:+.2f}'.format(change) }}%
@@ -138,9 +138,9 @@
                         {% endfor %}
                         <tr>
                             <td><strong>Total Revenue</strong></td>
-                            <td><strong>₹{{ '{:,.2f}'.format(data.revenue.total_revenue) }}</strong></td>
+                            <td><strong>${{ '{:,.2f}'.format(data.revenue.total_revenue) }}</strong></td>
                             {% if data.previous_period is defined and data.previous_period.revenue is defined and 'total_revenue' in data.previous_period.revenue %}
-                                <td><strong>₹{{ '{:,.2f}'.format(data.previous_period.revenue.total_revenue) }}</strong></td>
+                                <td><strong>${{ '{:,.2f}'.format(data.previous_period.revenue.total_revenue) }}</strong></td>
                                 {% set change = ((data.revenue.total_revenue - data.previous_period.revenue.total_revenue) / data.previous_period.revenue.total_revenue * 100) if data.previous_period.revenue.total_revenue != 0 else 0 %}
                                 <td class="{% if change > 0 %}positive{% elif change < 0 %}negative{% endif %}">
                                     <strong>{{ '{:+.2f}'.format(change) }}%</strong>
@@ -168,9 +168,9 @@
                     <thead>
                         <tr>
                             <th>Category</th>
-                            <th>Amount (₹)</th>
+                            <th>Amount ($)</th>
                             {% if data.previous_period is defined %}
-                            <th>Previous Period (₹)</th>
+                            <th>Previous Period ($)</th>
                             <th>Change (%)</th>
                             {% endif %}
                         </tr>
@@ -180,9 +180,9 @@
                             {% if item != 'total_cogs' %}
                                 <tr>
                                     <td>{{ item }}</td>
-                                    <td>₹{{ '{:,.2f}'.format(value) }}</td>
+                                    <td>${{ '{:,.2f}'.format(value) }}</td>
                                     {% if data.previous_period is defined and data.previous_period.expenses is defined and data.previous_period.expenses.cogs is defined and item in data.previous_period.expenses.cogs %}
-                                        <td>₹{{ '{:,.2f}'.format(data.previous_period.expenses.cogs[item]) }}</td>
+                                        <td>${{ '{:,.2f}'.format(data.previous_period.expenses.cogs[item]) }}</td>
                                         {% set change = ((value - data.previous_period.expenses.cogs[item]) / data.previous_period.expenses.cogs[item] * 100) if data.previous_period.expenses.cogs[item] != 0 else 0 %}
                                         <td class="{% if change > 0 %}negative{% elif change < 0 %}positive{% endif %}">
                                             {{ '{:+.2f}'.format(change) }}%
@@ -193,9 +193,9 @@
                         {% endfor %}
                         <tr>
                             <td><strong>Total COGS</strong></td>
-                            <td><strong>₹{{ '{:,.2f}'.format(data.expenses.cogs.total_cogs) }}</strong></td>
+                            <td><strong>${{ '{:,.2f}'.format(data.expenses.cogs.total_cogs) }}</strong></td>
                             {% if data.previous_period is defined and data.previous_period.expenses is defined and data.previous_period.expenses.cogs is defined and 'total_cogs' in data.previous_period.expenses.cogs %}
-                                <td><strong>₹{{ '{:,.2f}'.format(data.previous_period.expenses.cogs.total_cogs) }}</strong></td>
+                                <td><strong>${{ '{:,.2f}'.format(data.previous_period.expenses.cogs.total_cogs) }}</strong></td>
                                 {% set change = ((data.expenses.cogs.total_cogs - data.previous_period.expenses.cogs.total_cogs) / data.previous_period.expenses.cogs.total_cogs * 100) if data.previous_period.expenses.cogs.total_cogs != 0 else 0 %}
                                 <td class="{% if change > 0 %}negative{% elif change < 0 %}positive{% endif %}">
                                     <strong>{{ '{:+.2f}'.format(change) }}%</strong>
@@ -214,9 +214,9 @@
                     <thead>
                         <tr>
                             <th>Category</th>
-                            <th>Amount (₹)</th>
+                            <th>Amount ($)</th>
                             {% if data.previous_period is defined %}
-                            <th>Previous Period (₹)</th>
+                            <th>Previous Period ($)</th>
                             <th>Change (%)</th>
                             {% endif %}
                         </tr>
@@ -227,9 +227,9 @@
                                 {% if item != 'total_operating_expenses' %}
                                     <tr>
                                         <td>{{ item }}</td>
-                                        <td>₹{{ '{:,.2f}'.format(value) }}</td>
+                                        <td>${{ '{:,.2f}'.format(value) }}</td>
                                         {% if data.previous_period is defined and data.previous_period.expenses is defined and data.previous_period.expenses.operating_expenses is defined and item in data.previous_period.expenses.operating_expenses %}
-                                            <td>₹{{ '{:,.2f}'.format(data.previous_period.expenses.operating_expenses[item]) }}</td>
+                                            <td>${{ '{:,.2f}'.format(data.previous_period.expenses.operating_expenses[item]) }}</td>
                                             {% set change = ((value - data.previous_period.expenses.operating_expenses[item]) / data.previous_period.expenses.operating_expenses[item] * 100) if data.previous_period.expenses.operating_expenses[item] != 0 else 0 %}
                                             <td class="{% if change > 0 %}negative{% elif change < 0 %}positive{% endif %}">
                                                 {{ '{:+.2f}'.format(change) }}%
@@ -240,9 +240,9 @@
                             {% endfor %}
                             <tr>
                                 <td><strong>Total Operating Expenses</strong></td>
-                                <td><strong>₹{{ '{:,.2f}'.format(data.expenses.operating_expenses.total_operating_expenses) }}</strong></td>
+                                <td><strong>${{ '{:,.2f}'.format(data.expenses.operating_expenses.total_operating_expenses) }}</strong></td>
                                 {% if data.previous_period is defined and data.previous_period.expenses is defined and data.previous_period.expenses.operating_expenses is defined and 'total_operating_expenses' in data.previous_period.expenses.operating_expenses %}
-                                    <td><strong>₹{{ '{:,.2f}'.format(data.previous_period.expenses.operating_expenses.total_operating_expenses) }}</strong></td>
+                                    <td><strong>${{ '{:,.2f}'.format(data.previous_period.expenses.operating_expenses.total_operating_expenses) }}</strong></td>
                                     {% set change = ((data.expenses.operating_expenses.total_operating_expenses - data.previous_period.expenses.operating_expenses.total_operating_expenses) / data.previous_period.expenses.operating_expenses.total_operating_expenses * 100) if data.previous_period.expenses.operating_expenses.total_operating_expenses != 0 else 0 %}
                                     <td class="{% if change > 0 %}negative{% elif change < 0 %}positive{% endif %}">
                                         <strong>{{ '{:+.2f}'.format(change) }}%</strong>

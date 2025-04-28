@@ -200,31 +200,37 @@
                             <tr class="table-success">
                                 <th>Net Change in Cash</th>
                                 <td class="text-end">
-                                    {% if data.cash_flow_statement.net_change_in_cash is mapping %}
-                                        {% for key, value in data.cash_flow_statement.net_change_in_cash.items() %}
-                                            {{ key|replace('_', ' ')|title }}: {{ value if value is string else "${:,.2f}".format(value|float) }}<br>
-                                        {% endfor %}
+                                    {% if data.cash_flow_statement is defined and data.cash_flow_statement.net_change_in_cash is defined %}
+                                        {% if data.cash_flow_statement.net_change_in_cash is mapping %}
+                                            {% for key, value in data.cash_flow_statement.net_change_in_cash.items() %}
+                                                {{ key|replace('_', ' ')|title }}: {{ value if value is string else "${:,.2f}".format(value|float) }}<br>
+                                            {% endfor %}
+                                        {% else %}
+                                            ${{ "{:,.2f}".format(data.cash_flow_statement.net_change_in_cash|float) }}
+                                        {% endif %}
                                     {% else %}
-                                        ${{ "{:,.2f}".format(data.cash_flow_statement.net_change_in_cash|float) }}
+                                        <span class="text-muted">Not available</span>
                                     {% endif %}
                                 </td>
                             </tr>
                             
                             <!-- Ending Cash Balance -->
-                            {% if data.cash_flow_statement.ending_cash is defined %}
                             <tr class="table-info">
                                 <th>Ending Cash Balance</th>
                                 <td class="text-end">
-                                    {% if data.cash_flow_statement.ending_cash is mapping %}
-                                        {% for key, value in data.cash_flow_statement.ending_cash.items() %}
-                                            {{ key|replace('_', ' ')|title }}: {{ value if value is string else "${:,.2f}".format(value|float) }}<br>
-                                        {% endfor %}
+                                    {% if data.cash_flow_statement is defined and data.cash_flow_statement.ending_cash is defined %}
+                                        {% if data.cash_flow_statement.ending_cash is mapping %}
+                                            {% for key, value in data.cash_flow_statement.ending_cash.items() %}
+                                                {{ key|replace('_', ' ')|title }}: {{ value if value is string else "${:,.2f}".format(value|float) }}<br>
+                                            {% endfor %}
+                                        {% else %}
+                                            ${{ "{:,.2f}".format(data.cash_flow_statement.ending_cash|float) }}
+                                        {% endif %}
                                     {% else %}
-                                        ${{ "{:,.2f}".format(data.cash_flow_statement.ending_cash|float) }}
+                                        <span class="text-muted">Not available</span>
                                     {% endif %}
                                 </td>
                             </tr>
-                            {% endif %}
                         </tbody>
                     </table>
                 </div>

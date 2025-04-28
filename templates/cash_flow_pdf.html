@@ -112,9 +112,9 @@
                 <thead>
                     <tr>
                         <th>Item</th>
-                        <th>Amount (₹)</th>
+                        <th>Amount ($)</th>
                         {% if data.previous_period is defined %}
-                        <th>Previous Period (₹)</th>
+                        <th>Previous Period ($)</th>
                         <th>Change (%)</th>
                         {% endif %}
                     </tr>
@@ -125,9 +125,9 @@
                             {% if item != 'net_cash_from_operating_activities' %}
                                 <tr>
                                     <td>{{ item }}</td>
-                                    <td>₹{{ '{:,.2f}'.format(value) }}</td>
+                                    <td>${{ '{:,.2f}'.format(value) }}</td>
                                     {% if data.previous_period is defined and data.previous_period.operating_activities is defined and item in data.previous_period.operating_activities %}
-                                        <td>₹{{ '{:,.2f}'.format(data.previous_period.operating_activities[item]) }}</td>
+                                        <td>${{ '{:,.2f}'.format(data.previous_period.operating_activities[item]) }}</td>
                                         {% set change = ((value - data.previous_period.operating_activities[item]) / data.previous_period.operating_activities[item] * 100) if data.previous_period.operating_activities[item] != 0 else 0 %}
                                         <td class="{% if change > 0 and item not in ['depreciation_amortization', 'decrease_in_accounts_receivable', 'decrease_in_inventory'] %}positive{% elif change < 0 and item not in ['depreciation_amortization', 'decrease_in_accounts_receivable', 'decrease_in_inventory'] %}negative{% elif change > 0 and item in ['depreciation_amortization', 'decrease_in_accounts_receivable', 'decrease_in_inventory'] %}positive{% else %}negative{% endif %}">
                                             {{ '{:+.2f}'.format(change) }}%
@@ -138,9 +138,9 @@
                         {% endfor %}
                         <tr>
                             <td><strong>Net Cash from Operating Activities</strong></td>
-                            <td><strong>₹{{ '{:,.2f}'.format(data.operating_activities.net_cash_from_operating_activities) }}</strong></td>
+                            <td><strong>${{ '{:,.2f}'.format(data.operating_activities.net_cash_from_operating_activities) }}</strong></td>
                             {% if data.previous_period is defined and data.previous_period.operating_activities is defined and 'net_cash_from_operating_activities' in data.previous_period.operating_activities %}
-                                <td><strong>₹{{ '{:,.2f}'.format(data.previous_period.operating_activities.net_cash_from_operating_activities) }}</strong></td>
+                                <td><strong>${{ '{:,.2f}'.format(data.previous_period.operating_activities.net_cash_from_operating_activities) }}</strong></td>
                                 {% set change = ((data.operating_activities.net_cash_from_operating_activities - data.previous_period.operating_activities.net_cash_from_operating_activities) / data.previous_period.operating_activities.net_cash_from_operating_activities * 100) if data.previous_period.operating_activities.net_cash_from_operating_activities != 0 else 0 %}
                                 <td class="{% if change > 0 %}positive{% elif change < 0 %}negative{% endif %}">
                                     <strong>{{ '{:+.2f}'.format(change) }}%</strong>
@@ -163,9 +163,9 @@
                 <thead>
                     <tr>
                         <th>Item</th>
-                        <th>Amount (₹)</th>
+                        <th>Amount ($)</th>
                         {% if data.previous_period is defined %}
-                        <th>Previous Period (₹)</th>
+                        <th>Previous Period ($)</th>
                         <th>Change (%)</th>
                         {% endif %}
                     </tr>
@@ -176,9 +176,9 @@
                             {% if item != 'net_cash_from_investing_activities' %}
                                 <tr>
                                     <td>{{ item }}</td>
-                                    <td>₹{{ '{:,.2f}'.format(value) }}</td>
+                                    <td>${{ '{:,.2f}'.format(value) }}</td>
                                     {% if data.previous_period is defined and data.previous_period.investing_activities is defined and item in data.previous_period.investing_activities %}
-                                        <td>₹{{ '{:,.2f}'.format(data.previous_period.investing_activities[item]) }}</td>
+                                        <td>${{ '{:,.2f}'.format(data.previous_period.investing_activities[item]) }}</td>
                                         {% set change = ((value - data.previous_period.investing_activities[item]) / data.previous_period.investing_activities[item] * 100) if data.previous_period.investing_activities[item] != 0 else 0 %}
                                         <td class="{% if change > 0 and 'purchase' not in item|lower %}positive{% elif change < 0 and 'purchase' not in item|lower %}negative{% elif change < 0 and 'purchase' in item|lower %}positive{% else %}negative{% endif %}">
                                             {{ '{:+.2f}'.format(change) }}%
@@ -189,9 +189,9 @@
                         {% endfor %}
                         <tr>
                             <td><strong>Net Cash from Investing Activities</strong></td>
-                            <td><strong>₹{{ '{:,.2f}'.format(data.investing_activities.net_cash_from_investing_activities) }}</strong></td>
+                            <td><strong>${{ '{:,.2f}'.format(data.investing_activities.net_cash_from_investing_activities) }}</strong></td>
                             {% if data.previous_period is defined and data.previous_period.investing_activities is defined and 'net_cash_from_investing_activities' in data.previous_period.investing_activities %}
-                                <td><strong>₹{{ '{:,.2f}'.format(data.previous_period.investing_activities.net_cash_from_investing_activities) }}</strong></td>
+                                <td><strong>${{ '{:,.2f}'.format(data.previous_period.investing_activities.net_cash_from_investing_activities) }}</strong></td>
                                 {% set change = ((data.investing_activities.net_cash_from_investing_activities - data.previous_period.investing_activities.net_cash_from_investing_activities) / data.previous_period.investing_activities.net_cash_from_investing_activities * 100) if data.previous_period.investing_activities.net_cash_from_investing_activities != 0 else 0 %}
                                 <td class="{% if change > 0 %}positive{% elif change < 0 %}negative{% endif %}">
                                     <strong>{{ '{:+.2f}'.format(change) }}%</strong>
@@ -214,9 +214,9 @@
                 <thead>
                     <tr>
                         <th>Item</th>
-                        <th>Amount (₹)</th>
+                        <th>Amount ($)</th>
                         {% if data.previous_period is defined %}
-                        <th>Previous Period (₹)</th>
+                        <th>Previous Period ($)</th>
                         <th>Change (%)</th>
                         {% endif %}
                     </tr>
@@ -227,9 +227,9 @@
                             {% if item != 'net_cash_from_financing_activities' %}
                                 <tr>
                                     <td>{{ item }}</td>
-                                    <td>₹{{ '{:,.2f}'.format(value) }}</td>
+                                    <td>${{ '{:,.2f}'.format(value) }}</td>
                                     {% if data.previous_period is defined and data.previous_period.financing_activities is defined and item in data.previous_period.financing_activities %}
-                                        <td>₹{{ '{:,.2f}'.format(data.previous_period.financing_activities[item]) }}</td>
+                                        <td>${{ '{:,.2f}'.format(data.previous_period.financing_activities[item]) }}</td>
                                         {% set change = ((value - data.previous_period.financing_activities[item]) / data.previous_period.financing_activities[item] * 100) if data.previous_period.financing_activities[item] != 0 else 0 %}
                                         <td class="{% if change > 0 and 'repayment' not in item|lower and 'dividend' not in item|lower %}positive{% elif change < 0 and 'repayment' not in item|lower and 'dividend' not in item|lower %}negative{% elif change < 0 and ('repayment' in item|lower or 'dividend' in item|lower) %}positive{% else %}negative{% endif %}">
                                             {{ '{:+.2f}'.format(change) }}%
@@ -240,9 +240,9 @@
                         {% endfor %}
                         <tr>
                             <td><strong>Net Cash from Financing Activities</strong></td>
-                            <td><strong>₹{{ '{:,.2f}'.format(data.financing_activities.net_cash_from_financing_activities) }}</strong></td>
+                            <td><strong>${{ '{:,.2f}'.format(data.financing_activities.net_cash_from_financing_activities) }}</strong></td>
                             {% if data.previous_period is defined and data.previous_period.financing_activities is defined and 'net_cash_from_financing_activities' in data.previous_period.financing_activities %}
-                                <td><strong>₹{{ '{:,.2f}'.format(data.previous_period.financing_activities.net_cash_from_financing_activities) }}</strong></td>
+                                <td><strong>${{ '{:,.2f}'.format(data.previous_period.financing_activities.net_cash_from_financing_activities) }}</strong></td>
                                 {% set change = ((data.financing_activities.net_cash_from_financing_activities - data.previous_period.financing_activities.net_cash_from_financing_activities) / data.previous_period.financing_activities.net_cash_from_financing_activities * 100) if data.previous_period.financing_activities.net_cash_from_financing_activities != 0 else 0 %}
                                 <td class="{% if change > 0 %}positive{% elif change < 0 %}negative{% endif %}">
                                     <strong>{{ '{:+.2f}'.format(change) }}%</strong>
@@ -265,24 +265,24 @@
                 <thead>
                     <tr>
                         <th>Item</th>
-                        <th>Amount (₹)</th>
+                        <th>Amount ($)</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% if data.cash_summary %}
                         <tr>
                             <td>Beginning Cash Balance</td>
-                            <td>₹{{ '{:,.2f}'.format(data.cash_summary.beginning_cash_balance) }}</td>
+                            <td>${{ '{:,.2f}'.format(data.cash_summary.beginning_cash_balance) }}</td>
                         </tr>
                         <tr>
                             <td>Net Change in Cash</td>
                             <td class="{% if data.cash_summary.net_change_in_cash > 0 %}positive{% elif data.cash_summary.net_change_in_cash < 0 %}negative{% endif %}">
-                                ₹{{ '{:,.2f}'.format(data.cash_summary.net_change_in_cash) }}
+                                ${{ '{:,.2f}'.format(data.cash_summary.net_change_in_cash) }}
                             </td>
                         </tr>
                         <tr>
                             <td><strong>Ending Cash Balance</strong></td>
-                            <td><strong>₹{{ '{:,.2f}'.format(data.cash_summary.ending_cash_balance) }}</strong></td>
+                            <td><strong>${{ '{:,.2f}'.format(data.cash_summary.ending_cash_balance) }}</strong></td>
                         </tr>
                     {% else %}
                         <tr>
@@ -298,7 +298,7 @@
         <div class="section">
             <h2 class="section-title">Free Cash Flow</h2>
             <div class="highlight-box">
-                <h3>Free Cash Flow: ₹{{ '{:,.2f}'.format(data.free_cash_flow) }}</h3>
+                <h3>Free Cash Flow: ${{ '{:,.2f}'.format(data.free_cash_flow) }}</h3>
                 <p>Free cash flow represents the cash a company generates after accounting for operating expenses and capital expenditures.</p>
             </div>
         </div>
