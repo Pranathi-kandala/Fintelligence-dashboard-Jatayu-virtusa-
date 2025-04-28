@@ -401,10 +401,21 @@
                 // Extract from quarterly_performance format - actual data from API
                 const quarterlyPerf = {{ data.quarterly_performance|tojson }};
                 const quarters = Object.keys(quarterlyPerf);
-                const revenues = quarters.map(q => quarterlyPerf[q].revenue);
-                const expenses = quarters.map(q => quarterlyPerf[q].expenses);
-                const profits = quarters.map(q => quarterlyPerf[q].profit);
-                const margins = quarters.map(q => quarterlyPerf[q].margin);
+                
+                // Safely extract data with error handling
+                const revenues = [];
+                const expenses = [];
+                const profits = [];
+                const margins = [];
+                
+                // Safely process each quarter's data
+                quarters.forEach(q => {
+                    const quarterData = quarterlyPerf[q];
+                    revenues.push(quarterData && quarterData.revenue ? quarterData.revenue : 0);
+                    expenses.push(quarterData && quarterData.expenses ? quarterData.expenses : 0);
+                    profits.push(quarterData && quarterData.profit ? quarterData.profit : 0);
+                    margins.push(quarterData && quarterData.margin ? quarterData.margin : 0);
+                });
                 
                 // Get expense breakdown from actual data
                 {% if data.expense_breakdown is defined and data.expense_breakdown %}
@@ -422,7 +433,7 @@
                     const financialRatios = {
                         'Profit Margin (%)': margins,
                         'Revenue Growth (%)': quarters.map((_, i) => 
-                            i > 0 ? ((revenues[i] - revenues[i-1]) / revenues[i-1] * 100).toFixed(2) : 0)
+                            i > 0 && revenues[i-1] !== 0 ? ((revenues[i] - revenues[i-1]) / revenues[i-1] * 100).toFixed(2) : 0)
                     };
                 {% endif %}
                 
@@ -513,21 +524,65 @@
         // Populate quarterly performance table
         const perfTable = document.getElementById('quarterlyPerformanceTable');
         if (perfTable) {
-            quarterlyData.labels.forEach((quarter, i) => {
-                const totalExpenses = Object.values(quarterlyData.expenses).reduce((sum, expCategory) => sum + expCategory[i], 0);
-                const profit = quarterlyData.revenues[i] - totalExpenses;
-                const margin = quarterlyData.profitMargins[i];
+            try {
+                // Clear the table first in case there was previous content
+                perfTable.innerHTML = '';
                 
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${quarter}</td>
-                    <td>$${quarterlyData.revenues[i].toLocaleString()}</td>
-                    <td>$${totalExpenses.toLocaleString()}</td>
-                    <td>$${profit.toLocaleString()}</td>
-                    <td>${margin.toFixed(2)}%</td>
-                `;
-                perfTable.appendChild(row);
-            });
+                // Check if we have labels to work with
+                if (!quarterlyData.labels || quarterlyData.labels.length === 0) {
+                    perfTable.innerHTML = '<tr><td colspan="5" class="text-center">No quarterly data available</td></tr>';
+                    return;
+                }
+                
+                quarterlyData.labels.forEach((quarter, i) => {
+                    // Calculate expenses safely
+                    let totalExpenses = 0;
+                    if (quarterlyData.expenses) {
+                        if (Array.isArray(quarterlyData.expenses)) {
+                            totalExpenses = quarterlyData.expenses[i] || 0;
+                        } else {
+                            // Handle object structure with different expense categories
+                            totalExpenses = Object.values(quarterlyData.expenses).reduce((sum, expCategory) => {
+                                // Check if expCategory is array or single value
+                                if (Array.isArray(expCategory)) {
+                                    return sum + (expCategory[i] || 0);
+                                } else {
+                                    return sum + (expCategory || 0);
+                                }
+                            }, 0);
+                        }
+                    }
+                    
+                    // Get revenue safely
+                    const revenue = quarterlyData.revenues && quarterlyData.revenues.length > i ? 
+                        quarterlyData.revenues[i] : 0;
+                    
+                    // Calculate profit
+                    const profit = revenue - totalExpenses;
+                    
+                    // Get margin safely
+                    let margin = 0;
+                    if (quarterlyData.profitMargins && quarterlyData.profitMargins.length > i) {
+                        margin = quarterlyData.profitMargins[i];
+                    } else if (revenue > 0) {
+                        // Calculate margin if not provided
+                        margin = (profit / revenue * 100);
+                    }
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${quarter}</td>
+                        <td>$${revenue.toLocaleString()}</td>
+                        <td>$${totalExpenses.toLocaleString()}</td>
+                        <td>$${profit.toLocaleString()}</td>
+                        <td>${typeof margin === 'number' ? margin.toFixed(2) : margin}%</td>
+                    `;
+                    perfTable.appendChild(row);
+                });
+            } catch (err) {
+                console.error('Error populating performance table:', err);
+                perfTable.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Error processing quarterly data</td></tr>';
+            }
         }
 
         // Revenue Trend Chart
