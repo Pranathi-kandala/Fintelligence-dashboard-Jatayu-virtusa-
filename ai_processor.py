@@ -25,6 +25,9 @@ def generate_balance_sheet(file_data):
     Returns:
         dict: Balance sheet data and insights
     """
+    import logging
+    logger = logging.getLogger('fintelligence')
+    
     prompt = """
     Generate a detailed balance sheet based on the financial data provided.
     For the balance sheet, include:
@@ -59,33 +62,63 @@ def generate_balance_sheet(file_data):
     Here is the financial data:
     """
     
-    # Convert file_data to string format for the prompt
-    if file_data.get('format') == 'pdf':
-        data_str = file_data.get('text', '')
-    else:
-        data_str = json.dumps(file_data.get('data', []), indent=2)
-    
-    full_prompt = prompt + "\n" + data_str
-    
     try:
+        # Convert file_data to string format for the prompt with safer handling
+        if file_data.get('format') == 'pdf':
+            data_str = file_data.get('text', '')
+        else:
+            logger.debug("Processing CSV/Excel data for AI")
+            # Safe data extraction
+            data_list = []
+            for item in file_data.get('data', []):
+                # Clean any potentially problematic characters
+                clean_item = {}
+                for key, value in item.items():
+                    if isinstance(value, str):
+                        # Replace any characters that might cause parsing issues
+                        clean_value = value.replace('\n', ' ').replace('\r', ' ')
+                        clean_item[key] = clean_value
+                    else:
+                        clean_item[key] = value
+                data_list.append(clean_item)
+            
+            # Convert to JSON safely
+            try:
+                data_str = json.dumps(data_list, indent=2, default=str)
+            except Exception as json_err:
+                logger.error(f"Error converting data to JSON: {str(json_err)}")
+                # Fallback to safer representation
+                data_str = str(data_list)
+        
+        logger.debug("Preparing prompt for Gemini AI")
+        full_prompt = prompt + "\n" + data_str
+        
+        # Call Gemini API
         response = model.generate_content(full_prompt)
         
         # Extract JSON from response
         response_text = response.text
+        logger.debug("Received response from Gemini AI")
         
         # Handle potential formatting issues in the response
         try:
             start_idx = response_text.find('{')
             end_idx = response_text.rfind('}') + 1
+            
+            if start_idx == -1 or end_idx <= 0:
+                logger.error("No valid JSON found in AI response")
+                raise json.JSONDecodeError("No JSON found in response", response_text, 0)
+                
             json_str = response_text[start_idx:end_idx]
             result = json.loads(json_str)
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as json_err:
+            logger.error(f"JSON parse error: {str(json_err)}")
             # Fallback if JSON parsing fails
             result = {
                 "balance_sheet": {
                     "error": "Failed to parse AI response. Please try again."
                 },
-                "raw_response": response_text
+                "raw_response": response_text[:500]  # Truncate for safety
             }
         
         # Add generation metadata
@@ -95,6 +128,9 @@ def generate_balance_sheet(file_data):
         return result
     
     except Exception as e:
+        import traceback
+        logger.error(f"Balance sheet generation error: {str(e)}")
+        logger.error(traceback.format_exc())
         return {
             "error": f"Failed to generate balance sheet: {str(e)}",
             "generated_at": datetime.now().isoformat()
@@ -110,6 +146,9 @@ def generate_income_statement(file_data):
     Returns:
         dict: Income statement data and insights
     """
+    import logging
+    logger = logging.getLogger('fintelligence')
+    
     prompt = """
     Generate a detailed income statement based on the financial data provided.
     For the income statement, include:
@@ -152,33 +191,63 @@ def generate_income_statement(file_data):
     Here is the financial data:
     """
     
-    # Convert file_data to string format for the prompt
-    if file_data.get('format') == 'pdf':
-        data_str = file_data.get('text', '')
-    else:
-        data_str = json.dumps(file_data.get('data', []), indent=2)
-    
-    full_prompt = prompt + "\n" + data_str
-    
     try:
+        # Convert file_data to string format for the prompt with safer handling
+        if file_data.get('format') == 'pdf':
+            data_str = file_data.get('text', '')
+        else:
+            logger.debug("Processing CSV/Excel data for AI")
+            # Safe data extraction
+            data_list = []
+            for item in file_data.get('data', []):
+                # Clean any potentially problematic characters
+                clean_item = {}
+                for key, value in item.items():
+                    if isinstance(value, str):
+                        # Replace any characters that might cause parsing issues
+                        clean_value = value.replace('\n', ' ').replace('\r', ' ')
+                        clean_item[key] = clean_value
+                    else:
+                        clean_item[key] = value
+                data_list.append(clean_item)
+            
+            # Convert to JSON safely
+            try:
+                data_str = json.dumps(data_list, indent=2, default=str)
+            except Exception as json_err:
+                logger.error(f"Error converting data to JSON: {str(json_err)}")
+                # Fallback to safer representation
+                data_str = str(data_list)
+        
+        logger.debug("Preparing prompt for Gemini AI")
+        full_prompt = prompt + "\n" + data_str
+        
+        # Call Gemini API
         response = model.generate_content(full_prompt)
         
         # Extract JSON from response
         response_text = response.text
+        logger.debug("Received response from Gemini AI")
         
         # Handle potential formatting issues in the response
         try:
             start_idx = response_text.find('{')
             end_idx = response_text.rfind('}') + 1
+            
+            if start_idx == -1 or end_idx <= 0:
+                logger.error("No valid JSON found in AI response")
+                raise json.JSONDecodeError("No JSON found in response", response_text, 0)
+                
             json_str = response_text[start_idx:end_idx]
             result = json.loads(json_str)
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as json_err:
+            logger.error(f"JSON parse error: {str(json_err)}")
             # Fallback if JSON parsing fails
             result = {
                 "income_statement": {
                     "error": "Failed to parse AI response. Please try again."
                 },
-                "raw_response": response_text
+                "raw_response": response_text[:500]  # Truncate for safety
             }
         
         # Add generation metadata
@@ -188,6 +257,9 @@ def generate_income_statement(file_data):
         return result
     
     except Exception as e:
+        import traceback
+        logger.error(f"Income statement generation error: {str(e)}")
+        logger.error(traceback.format_exc())
         return {
             "error": f"Failed to generate income statement: {str(e)}",
             "generated_at": datetime.now().isoformat()
@@ -203,6 +275,9 @@ def generate_cash_flow(file_data):
     Returns:
         dict: Cash flow statement data and insights
     """
+    import logging
+    logger = logging.getLogger('fintelligence')
+    
     prompt = """
     Generate a detailed cash flow statement based on the financial data provided.
     For the cash flow statement, include:
@@ -238,33 +313,63 @@ def generate_cash_flow(file_data):
     Here is the financial data:
     """
     
-    # Convert file_data to string format for the prompt
-    if file_data.get('format') == 'pdf':
-        data_str = file_data.get('text', '')
-    else:
-        data_str = json.dumps(file_data.get('data', []), indent=2)
-    
-    full_prompt = prompt + "\n" + data_str
-    
     try:
+        # Convert file_data to string format for the prompt with safer handling
+        if file_data.get('format') == 'pdf':
+            data_str = file_data.get('text', '')
+        else:
+            logger.debug("Processing CSV/Excel data for AI")
+            # Safe data extraction
+            data_list = []
+            for item in file_data.get('data', []):
+                # Clean any potentially problematic characters
+                clean_item = {}
+                for key, value in item.items():
+                    if isinstance(value, str):
+                        # Replace any characters that might cause parsing issues
+                        clean_value = value.replace('\n', ' ').replace('\r', ' ')
+                        clean_item[key] = clean_value
+                    else:
+                        clean_item[key] = value
+                data_list.append(clean_item)
+            
+            # Convert to JSON safely
+            try:
+                data_str = json.dumps(data_list, indent=2, default=str)
+            except Exception as json_err:
+                logger.error(f"Error converting data to JSON: {str(json_err)}")
+                # Fallback to safer representation
+                data_str = str(data_list)
+        
+        logger.debug("Preparing prompt for Gemini AI")
+        full_prompt = prompt + "\n" + data_str
+        
+        # Call Gemini API
         response = model.generate_content(full_prompt)
         
         # Extract JSON from response
         response_text = response.text
+        logger.debug("Received response from Gemini AI")
         
         # Handle potential formatting issues in the response
         try:
             start_idx = response_text.find('{')
             end_idx = response_text.rfind('}') + 1
+            
+            if start_idx == -1 or end_idx <= 0:
+                logger.error("No valid JSON found in AI response")
+                raise json.JSONDecodeError("No JSON found in response", response_text, 0)
+                
             json_str = response_text[start_idx:end_idx]
             result = json.loads(json_str)
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as json_err:
+            logger.error(f"JSON parse error: {str(json_err)}")
             # Fallback if JSON parsing fails
             result = {
                 "cash_flow_statement": {
                     "error": "Failed to parse AI response. Please try again."
                 },
-                "raw_response": response_text
+                "raw_response": response_text[:500]  # Truncate for safety
             }
         
         # Add generation metadata
@@ -274,6 +379,9 @@ def generate_cash_flow(file_data):
         return result
     
     except Exception as e:
+        import traceback
+        logger.error(f"Cash flow statement generation error: {str(e)}")
+        logger.error(traceback.format_exc())
         return {
             "error": f"Failed to generate cash flow statement: {str(e)}",
             "generated_at": datetime.now().isoformat()
@@ -289,6 +397,9 @@ def generate_analysis(file_data):
     Returns:
         dict: Financial analysis data and insights
     """
+    import logging
+    logger = logging.getLogger('fintelligence')
+    
     prompt = """
     Generate a comprehensive financial analysis based on the financial data provided.
     
@@ -319,33 +430,63 @@ def generate_analysis(file_data):
     Here is the financial data:
     """
     
-    # Convert file_data to string format for the prompt
-    if file_data.get('format') == 'pdf':
-        data_str = file_data.get('text', '')
-    else:
-        data_str = json.dumps(file_data.get('data', []), indent=2)
-    
-    full_prompt = prompt + "\n" + data_str
-    
     try:
+        # Convert file_data to string format for the prompt with safer handling
+        if file_data.get('format') == 'pdf':
+            data_str = file_data.get('text', '')
+        else:
+            logger.debug("Processing CSV/Excel data for financial analysis")
+            # Safe data extraction
+            data_list = []
+            for item in file_data.get('data', []):
+                # Clean any potentially problematic characters
+                clean_item = {}
+                for key, value in item.items():
+                    if isinstance(value, str):
+                        # Replace any characters that might cause parsing issues
+                        clean_value = value.replace('\n', ' ').replace('\r', ' ')
+                        clean_item[key] = clean_value
+                    else:
+                        clean_item[key] = value
+                data_list.append(clean_item)
+            
+            # Convert to JSON safely
+            try:
+                data_str = json.dumps(data_list, indent=2, default=str)
+            except Exception as json_err:
+                logger.error(f"Error converting data to JSON: {str(json_err)}")
+                # Fallback to safer representation
+                data_str = str(data_list)
+        
+        logger.debug("Preparing prompt for Gemini AI")
+        full_prompt = prompt + "\n" + data_str
+        
+        # Call Gemini API
         response = model.generate_content(full_prompt)
         
         # Extract JSON from response
         response_text = response.text
+        logger.debug("Received response from Gemini AI")
         
         # Handle potential formatting issues in the response
         try:
             start_idx = response_text.find('{')
             end_idx = response_text.rfind('}') + 1
+            
+            if start_idx == -1 or end_idx <= 0:
+                logger.error("No valid JSON found in AI response")
+                raise json.JSONDecodeError("No JSON found in response", response_text, 0)
+                
             json_str = response_text[start_idx:end_idx]
             result = json.loads(json_str)
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as json_err:
+            logger.error(f"JSON parse error: {str(json_err)}")
             # Fallback if JSON parsing fails
             result = {
                 "analysis": {
                     "error": "Failed to parse AI response. Please try again."
                 },
-                "raw_response": response_text
+                "raw_response": response_text[:500]  # Truncate for safety
             }
         
         # Add generation metadata
@@ -355,6 +496,9 @@ def generate_analysis(file_data):
         return result
     
     except Exception as e:
+        import traceback
+        logger.error(f"Financial analysis generation error: {str(e)}")
+        logger.error(traceback.format_exc())
         return {
             "error": f"Failed to generate financial analysis: {str(e)}",
             "generated_at": datetime.now().isoformat()
@@ -371,6 +515,9 @@ def process_chat_query(user_query, file_data):
     Returns:
         str: AI response to user query
     """
+    import logging
+    logger = logging.getLogger('fintelligence')
+    
     prompt = f"""
     You are a financial analyst AI assistant. Answer the following financial question 
     based on the available financial data. Provide detailed, accurate information with
@@ -381,24 +528,50 @@ def process_chat_query(user_query, file_data):
     Available Financial Data:
     """
     
-    # Add file data to the prompt
-    data_str = ""
-    for item in file_data:
-        data_str += f"\nFile: {item.get('filename')}\n"
-        data_str += f"Report Type: {item.get('report_type')}\n"
-        data_str += f"Data: {json.dumps(item.get('data'), indent=2)[:2000]}...\n"  # Limit data size
-    
-    if not data_str:
-        data_str = "No financial data available. Please upload financial data files first."
-    
-    full_prompt = prompt + data_str
-    
     try:
+        # Add file data to the prompt with safer handling
+        data_str = ""
+        
+        if file_data:
+            logger.debug(f"Processing {len(file_data)} data files for chat query")
+            for item in file_data:
+                try:
+                    filename = item.get('filename', 'Unnamed file')
+                    report_type = item.get('report_type', 'Unknown report')
+                    
+                    # Clean up data for safe serialization
+                    item_data = item.get('data', {})
+                    # Limit data size and handle potential serialization issues
+                    try:
+                        serialized_data = json.dumps(item_data, indent=2, default=str)[:2000]
+                    except Exception as json_err:
+                        logger.error(f"Error serializing chat data: {str(json_err)}")
+                        serialized_data = str(item_data)[:2000]
+                    
+                    data_str += f"\nFile: {filename}\n"
+                    data_str += f"Report Type: {report_type}\n"
+                    data_str += f"Data: {serialized_data}...\n"
+                except Exception as item_err:
+                    logger.error(f"Error processing data item: {str(item_err)}")
+                    continue
+        
+        if not data_str:
+            data_str = "No financial data available. Please upload financial data files first."
+        
+        logger.debug("Preparing prompt for chat query")
+        full_prompt = prompt + data_str
+        
+        # Call Gemini API
         response = model.generate_content(full_prompt)
+        logger.debug("Received chat response from Gemini AI")
+        
         return response.text
     
     except Exception as e:
-        return f"Error processing your question: {str(e)}. Please try again."
+        import traceback
+        logger.error(f"Chat query error: {str(e)}")
+        logger.error(traceback.format_exc())
+        return f"Error processing your question: {str(e)}. Please try again with a more specific question or upload different financial data."
 
 def explain_ai_decision(report_type, report_data):
     """
@@ -411,37 +584,55 @@ def explain_ai_decision(report_type, report_data):
     Returns:
         dict: Explanation of AI decision process
     """
-    prompt = f"""
-    Explain the methodology and reasoning behind the financial insights and recommendations 
-    provided in the {report_type} report. Include:
-    
-    1. What financial principles or accounting standards were applied
-    2. Key data points that influenced the conclusions
-    3. The analytical process used to derive insights
-    4. How the recommendations were prioritized
-    5. Any limitations in the analysis due to data constraints
-    
-    Format your response in a clear, structured manner suitable for financial professionals
-    who need to understand the AI's decision-making process.
-    
-    Report Data:
-    {json.dumps(report_data, indent=2)}
-    """
+    import logging
+    logger = logging.getLogger('fintelligence')
     
     try:
+        # Sanitize report type for the prompt
+        safe_report_type = str(report_type).replace('\n', ' ').replace('\r', ' ')
+        
+        # Prepare report data for the prompt, handling potential issues
+        try:
+            report_data_str = json.dumps(report_data, indent=2, default=str)
+        except Exception as json_err:
+            logger.error(f"Error serializing report data: {str(json_err)}")
+            # Fallback to safer conversion
+            report_data_str = str(report_data)
+        
+        prompt = f"""
+        Explain the methodology and reasoning behind the financial insights and recommendations 
+        provided in the {safe_report_type} report. Include:
+        
+        1. What financial principles or accounting standards were applied
+        2. Key data points that influenced the conclusions
+        3. The analytical process used to derive insights
+        4. How the recommendations were prioritized
+        5. Any limitations in the analysis due to data constraints
+        
+        Format your response in a clear, structured manner suitable for financial professionals
+        who need to understand the AI's decision-making process.
+        
+        Report Data:
+        {report_data_str}
+        """
+        
+        logger.debug(f"Generating explainability for {safe_report_type} report")
         response = model.generate_content(prompt)
         
         explanation = {
             "explanation": response.text,
-            "report_type": report_type,
+            "report_type": safe_report_type,
             "generated_at": datetime.now().isoformat()
         }
         
         return explanation
     
     except Exception as e:
+        import traceback
+        logger.error(f"Explainability generation error: {str(e)}")
+        logger.error(traceback.format_exc())
         return {
             "error": f"Failed to generate explanation: {str(e)}",
-            "report_type": report_type,
+            "report_type": str(report_type),
             "generated_at": datetime.now().isoformat()
         }
