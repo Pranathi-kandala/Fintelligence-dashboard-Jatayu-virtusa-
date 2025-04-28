@@ -28,7 +28,7 @@
                 <i class="fas fa-circle text-primary me-2"></i> Quarterly revenue shows consistent growth trend of 15% YoY
             </li>
             <li class="list-group-item">
-                <i class="fas fa-circle text-primary me-2"></i> Profit margins increased by 2.5% since Q1 2025
+                <i class="fas fa-circle text-primary me-2"></i> Profit margins increased by 2.5% since the first quarter
             </li>
             <li class="list-group-item">
                 <i class="fas fa-circle text-primary me-2"></i> Operational efficiency improved, with reduced cost-to-revenue ratio
@@ -115,35 +115,8 @@
                         <th>Margin</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td>Q1 2025</td>
-                        <td>$120,000</td>
-                        <td>$95,000</td>
-                        <td>$25,000</td>
-                        <td>20.83%</td>
-                    </tr>
-                    <tr>
-                        <td>Q2 2025</td>
-                        <td>$135,000</td>
-                        <td>$105,000</td>
-                        <td>$30,000</td>
-                        <td>22.22%</td>
-                    </tr>
-                    <tr>
-                        <td>Q3 2025</td>
-                        <td>$150,000</td>
-                        <td>$118,000</td>
-                        <td>$32,000</td>
-                        <td>21.33%</td>
-                    </tr>
-                    <tr>
-                        <td>Q4 2025</td>
-                        <td>$175,000</td>
-                        <td>$137,000</td>
-                        <td>$38,000</td>
-                        <td>21.71%</td>
-                    </tr>
+                <tbody id="quarterlyPerformanceTable">
+                    <!-- This table will be populated dynamically with JavaScript -->
                 </tbody>
             </table>
         </div>
@@ -283,24 +256,67 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Static sample data for visualizations
+        // Generate quarters dynamically based on current date
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear();
+        const currentMonth = currentDate.getMonth();
+        
+        // Initialize quarterly data structure with dynamic quarters
+        const quarters = [];
+        if (currentMonth >= 0) quarters.push(`Q1 ${currentYear}`); // Jan-Mar
+        if (currentMonth >= 3) quarters.push(`Q2 ${currentYear}`); // Apr-Jun
+        if (currentMonth >= 6) quarters.push(`Q3 ${currentYear}`); // Jul-Sep
+        if (currentMonth >= 9) quarters.push(`Q4 ${currentYear}`); // Oct-Dec
+        
+        // Ensure we have at least one quarter
+        if (quarters.length === 0) {
+            quarters.push(`Q1 ${currentYear}`);
+        }
+        
+        // Use quarters from actual data
         const quarterlyData = {
-            labels: ['Q1 2025', 'Q2 2025', 'Q3 2025', 'Q4 2025'],
-            revenues: [120000, 135000, 150000, 175000],
+            labels: quarters,
+            revenues: Array(quarters.length).fill(0),
             expenses: {
-                'Marketing': [25000, 28000, 30000, 35000],
-                'Operations': [45000, 47000, 50000, 55000],
-                'R&D': [15000, 16000, 18000, 20000],
-                'Admin': [10000, 14000, 18000, 27000]
+                'Marketing': Array(quarters.length).fill(0),
+                'Operations': Array(quarters.length).fill(0),
+                'R&D': Array(quarters.length).fill(0),
+                'Admin': Array(quarters.length).fill(0)
             },
-            profitMargins: [20.83, 22.22, 21.33, 21.71],
+            profitMargins: Array(quarters.length).fill(0),
             ratios: {
-                'Current Ratio': [1.8, 1.9, 2.0, 2.1],
-                'Debt-to-Equity': [0.8, 0.75, 0.7, 0.65],
-                'ROI': [8.2, 9.1, 10.3, 11.5],
-                'Asset Turnover': [1.1, 1.2, 1.3, 1.4]
+                'Current Ratio': Array(quarters.length).fill(0),
+                'Debt-to-Equity': Array(quarters.length).fill(0),
+                'ROI': Array(quarters.length).fill(0),
+                'Asset Turnover': Array(quarters.length).fill(0)
             }
         };
+        
+        // Populate the quarterly performance table
+        const tableBody = document.getElementById('quarterlyPerformanceTable');
+        if (tableBody) {
+            quarters.forEach((quarter, i) => {
+                // Calculate total expenses for this quarter
+                let totalExpenses = 0;
+                Object.values(quarterlyData.expenses).forEach(categoryExpenses => {
+                    totalExpenses += categoryExpenses[i] || 0;
+                });
+                
+                // Calculate profit
+                const profit = quarterlyData.revenues[i] - totalExpenses;
+                
+                // Build table row
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${quarter}</td>
+                    <td>$${quarterlyData.revenues[i].toLocaleString()}</td>
+                    <td>$${totalExpenses.toLocaleString()}</td>
+                    <td>$${profit.toLocaleString()}</td>
+                    <td>${quarterlyData.profitMargins[i]}%</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
 
         // Revenue Trend Chart
         const revenueTrendCtx = document.getElementById('revenueTrendChart').getContext('2d');
