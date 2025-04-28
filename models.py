@@ -1,6 +1,6 @@
 from app import db
 from flask_login import UserMixin
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
@@ -28,6 +28,14 @@ class FileUpload(db.Model):
     processed = db.Column(db.Boolean, default=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     reports = db.relationship('Report', backref='file_upload', lazy=True)
+    
+    def get_upload_date_ist(self):
+        """Return upload date in Indian Standard Time (IST)"""
+        from pdf_generator import get_current_ist_time, format_ist_time
+        if self.upload_date:
+            ist_time = self.upload_date.replace(tzinfo=timezone.utc).astimezone(timezone(timedelta(hours=5, minutes=30)))
+            return format_ist_time(ist_time)
+        return format_ist_time()
 
 
 class Report(db.Model):
@@ -37,6 +45,14 @@ class Report(db.Model):
     generated_date = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     file_id = db.Column(db.Integer, db.ForeignKey('file_upload.id'), nullable=False)
+    
+    def get_generated_date_ist(self):
+        """Return generated date in Indian Standard Time (IST)"""
+        from pdf_generator import get_current_ist_time, format_ist_time
+        if self.generated_date:
+            ist_time = self.generated_date.replace(tzinfo=timezone.utc).astimezone(timezone(timedelta(hours=5, minutes=30)))
+            return format_ist_time(ist_time)
+        return format_ist_time()
 
 
 class ChatSession(db.Model):

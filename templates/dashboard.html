@@ -80,7 +80,7 @@
                             <tr>
                                 <td>{{ file.filename }}</td>
                                 <td><span class="badge bg-info">{{ file.file_type }}</span></td>
-                                <td>{{ file.upload_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>{{ file.get_upload_date_ist() }} (IST)</td>
                                 <td>
                                     {% if file.processed %}
                                     <span class="badge bg-success">Processed</span>
@@ -143,7 +143,7 @@
                             {% for report in reports %}
                             <tr>
                                 <td>{{ report.report_type|replace('_', ' ')|title }}</td>
-                                <td>{{ report.generated_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>{{ report.get_generated_date_ist() }} (IST)</td>
                                 <td>
                                     {% set file = report.file_upload %}
                                     {{ file.filename }}
