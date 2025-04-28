@@ -368,12 +368,29 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Simple hardcoded quarterly data that's guaranteed to work
-    const quarters = ['Q1 2025', 'Q2 2025', 'Q3 2025', 'Q4 2025'];
-    const revenues = [120000, 135000, 150000, 175000];
-    const expenses = [95000, 105000, 118000, 137000];
-    const profits = revenues.map((rev, i) => rev - expenses[i]);
-    const margins = profits.map((profit, i) => (profit / revenues[i] * 100).toFixed(2));
+    // Generate quarters dynamically based on current date
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth();
+    
+    // Determine which quarters to show based on current month
+    const quarters = [];
+    if (currentMonth >= 0) quarters.push(`Q1 ${currentYear}`); // Jan-Mar
+    if (currentMonth >= 3) quarters.push(`Q2 ${currentYear}`); // Apr-Jun
+    if (currentMonth >= 6) quarters.push(`Q3 ${currentYear}`); // Jul-Sep
+    if (currentMonth >= 9) quarters.push(`Q4 ${currentYear}`); // Oct-Dec
+    
+    // Ensure we have at least one quarter
+    if (quarters.length === 0) {
+        quarters.push(`Q1 ${currentYear}`);
+    }
+    
+    // Create empty data for visualization purpose
+    // These are just placeholders until AI generates real data
+    const revenues = Array(quarters.length).fill(0);
+    const expenses = Array(quarters.length).fill(0);
+    const profits = Array(quarters.length).fill(0);
+    const margins = Array(quarters.length).fill("0.00");
     
     // Populate the quarterly performance table
     const tableBody = document.getElementById('performanceTableBody');
