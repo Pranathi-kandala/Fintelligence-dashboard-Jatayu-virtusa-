@@ -182,7 +182,7 @@ def register_routes(app):
                 elif report_type == 'cash_flow':
                     template = 'cash_flow.html'
                 elif report_type == 'analysis':
-                    template = 'fallback_financial_analysis.html'
+                    template = 'financial_analysis.html'
                 else:
                     flash('Invalid report type.', 'danger')
                     return redirect(url_for('report_options'))
@@ -202,7 +202,7 @@ def register_routes(app):
                     template = 'cash_flow.html'
                 elif report_type == 'analysis':
                     report_data = generate_analysis(file_data)
-                    template = 'fallback_financial_analysis.html'
+                    template = 'financial_analysis.html'
                 else:
                     flash('Invalid report type.', 'danger')
                     return redirect(url_for('report_options'))
@@ -246,7 +246,7 @@ def register_routes(app):
                 db.session.commit()
                 
                 if report_type == 'analysis':
-                    template = 'fallback_financial_analysis.html'
+                    template = 'financial_analysis.html'
                     return render_template(template, report=report, data={}, ist_datetime=format_ist_time())
                 else:
                     flash(f'Error generating report: {str(report_error)}', 'danger')
@@ -288,7 +288,7 @@ def register_routes(app):
         elif report.report_type == 'cash_flow':
             template = 'cash_flow.html'
         elif report.report_type == 'analysis':
-            template = 'fallback_financial_analysis.html'
+            template = 'financial_analysis.html'
         else:
             flash('Invalid report type.', 'danger')
             return redirect(url_for('dashboard'))
