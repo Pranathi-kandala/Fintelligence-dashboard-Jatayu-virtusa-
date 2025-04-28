@@ -357,13 +357,23 @@ def generate_cash_flow(file_data):
             end_idx = response_text.rfind('}') + 1
             
             if start_idx == -1 or end_idx <= 0:
-                logger.error("No valid JSON found in AI response")
+                logger.error("No valid JSON found in AI response for cash flow")
                 raise json.JSONDecodeError("No JSON found in response", response_text, 0)
                 
             json_str = response_text[start_idx:end_idx]
             result = json.loads(json_str)
+            
+            # Verify key fields exist in the response
+            if "cash_flow_statement" not in result:
+                logger.error(f"Missing 'cash_flow_statement' in AI response for cash flow: {json_str[:200]}...")
+                result["cash_flow_statement"] = {
+                    "error": "The AI did not generate a proper cash flow statement structure."
+                }
+            
         except json.JSONDecodeError as json_err:
-            logger.error(f"JSON parse error: {str(json_err)}")
+            logger.error(f"JSON parse error for cash flow: {str(json_err)}")
+            # Log a portion of the problematic response for debugging
+            logger.error(f"Problematic response: {response_text[:500]}...")
             # Fallback if JSON parsing fails
             result = {
                 "cash_flow_statement": {
