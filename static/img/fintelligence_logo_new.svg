@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="100" viewBox="0 0 400 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Simple dark background -->
+  <rect width="400" height="100" fill="#1e293b" rx="10" />
+  
+  <!-- Logo elements -->
+  <g>
+    <!-- Dollar sign icon -->
+    <circle cx="60" cy="50" r="30" fill="#10b981" />
+    <text x="60" y="65" font-family="Arial" font-size="40" font-weight="bold" text-anchor="middle" fill="#ffffff">$</text>
+    
+    <!-- Text -->
+    <text x="240" y="45" font-family="Arial" font-size="30" font-weight="bold" text-anchor="middle" fill="#ffffff">FINTELLIGENCE</text>
+    <text x="240" y="75" font-family="Arial" font-size="16" text-anchor="middle" fill="#e2e8f0">FINANCIAL INSIGHTS</text>
+    
+    <!-- Bar graph icon -->
+    <rect x="320" y="25" width="15" height="50" fill="#0ea5e9" />
+    <rect x="340" y="40" width="15" height="35" fill="#0ea5e9" />
+    <rect x="360" y="30" width="15" height="45" fill="#0ea5e9" />
+  </g>
+</svg>
