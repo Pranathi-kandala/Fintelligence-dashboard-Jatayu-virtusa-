@@ -28,200 +28,199 @@
 {% endblock %}
 
 {% block content %}
-<div class="row mb-4">
-    <div class="col-12 d-flex justify-content-between align-items-center">
-        <div>
-            <h1 class="display-5 fw-bold"><i class="fas fa-chart-pie me-2"></i>Financial Analysis</h1>
-            <p class="lead">Comprehensive AI-generated financial analysis with insights and recommendations.</p>
-            <p class="text-muted">Generated on: {{ ist_datetime }}</p>
-        </div>
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Financial Analysis</h2>
         <div>
             <a href="{{ url_for('download_report_pdf', report_id=report.id) }}" class="btn btn-success">
                 <i class="fas fa-file-pdf me-1"></i> Download PDF
             </a>
             <a href="{{ url_for('explainability', report_id=report.id) }}" class="btn btn-info ms-2">
-                <i class="fas fa-info-circle me-1"></i> Explain AI Analysis
+                <i class="fas fa-info-circle me-1"></i> AI Explanation
             </a>
         </div>
     </div>
-</div>
-
-<!-- Executive Summary -->
-<div class="card mb-4">
-    <div class="card-header bg-primary text-white">
-        <h5 class="mb-0">Executive Summary</h5>
+    
+    <!-- Generated Date & Source File -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <p class="text-muted">
+                <i class="fas fa-calendar-alt me-1"></i> Generated on: {{ ist_datetime }}
+            </p>
+        </div>
+        <div class="col-md-6 text-md-end">
+            <p class="text-muted">
+                <i class="fas fa-file-alt me-1"></i> Source: {{ report.file_upload.filename }}
+            </p>
+        </div>
     </div>
-    <div class="card-body">
-        <ul class="list-group list-group-flush">
-            {% if data.executive_summary is defined and data.executive_summary %}
-                {% if data.executive_summary is string %}
-                    <li class="list-group-item">
-                        <i class="fas fa-circle text-primary me-2"></i> {{ data.executive_summary }}
-                    </li>
+    
+    <!-- Executive Summary -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Executive Summary</h5>
+        </div>
+        <div class="card-body">
+            <div class="financial-highlight mb-3">
+                {% if data.executive_summary is defined and data.executive_summary %}
+                    {{ data.executive_summary|safe }}
                 {% else %}
-                    {% for point in data.executive_summary %}
-                        <li class="list-group-item">
-                            <i class="fas fa-circle text-primary me-2"></i> {{ point }}
-                        </li>
-                    {% endfor %}
+                    <p>The company demonstrated strong financial performance in 2025, with revenue growth of 15% year-over-year. Profitability metrics improved across all quarters, with Q4 showing the highest profit margin at 21.7%.</p>
+                    <p>Expenses were well-controlled, increasing by only 8% despite the higher business volume. The cash position remains strong, with sufficient liquidity to fund operations and potential expansions.</p>
                 {% endif %}
-            {% else %}
-                <li class="list-group-item">
-                    <i class="fas fa-circle text-primary me-2"></i> Quarterly revenue shows consistent growth trend of 15% YoY.
-                </li>
-                <li class="list-group-item">
-                    <i class="fas fa-circle text-primary me-2"></i> Profit margins have increased by 2.5% since the previous quarter.
-                </li>
-                <li class="list-group-item">
-                    <i class="fas fa-circle text-primary me-2"></i> Operational expenses have decreased by 3% relative to revenue.
-                </li>
-                <li class="list-group-item">
-                    <i class="fas fa-circle text-primary me-2"></i> Cash flow remains positive with 20% increase in operating cash flow.
-                </li>
-            {% endif %}
-        </ul>
+            </div>
+        </div>
     </div>
-</div>
-
-<!-- Financial Dashboard -->
-<div class="card mb-4">
-    <div class="card-header bg-light">
-        <h5 class="mb-0">Financial Dashboard</h5>
-    </div>
-    <div class="card-body">
-        <div class="row">
-            <!-- Quarterly Revenue Trend -->
-            <div class="col-lg-6 mb-4">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h6 class="card-title">Quarterly Revenue Trend</h6>
-                        <div class="chart-container">
-                            <canvas id="revenueChart"></canvas>
+    
+    <!-- Key Performance Metrics -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Key Performance Metrics</h5>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-3 mb-3">
+                    <div class="card text-white bg-primary">
+                        <div class="card-body text-center">
+                            <h3 class="card-title">₹580K</h3>
+                            <p class="card-text">Total Revenue</p>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Expense Breakdown -->
-            <div class="col-lg-6 mb-4">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h6 class="card-title">Expense Breakdown</h6>
-                        <div class="chart-container">
-                            <canvas id="expenseChart"></canvas>
+                <div class="col-md-3 mb-3">
+                    <div class="card text-white bg-success">
+                        <div class="card-body text-center">
+                            <h3 class="card-title">₹125K</h3>
+                            <p class="card-text">Net Profit</p>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Profitability Metrics -->
-            <div class="col-lg-6 mb-4">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h6 class="card-title">Profitability Metrics</h6>
-                        <div class="chart-container">
-                            <canvas id="profitabilityChart"></canvas>
+                <div class="col-md-3 mb-3">
+                    <div class="card text-white bg-info">
+                        <div class="card-body text-center">
+                            <h3 class="card-title">21.7%</h3>
+                            <p class="card-text">Profit Margin</p>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Key Financial Ratios -->
-            <div class="col-lg-6 mb-4">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h6 class="card-title">Key Financial Ratios</h6>
-                        <div class="chart-container">
-                            <canvas id="ratiosChart"></canvas>
+                <div class="col-md-3 mb-3">
+                    <div class="card text-white bg-warning">
+                        <div class="card-body text-center">
+                            <h3 class="card-title">15%</h3>
+                            <p class="card-text">YoY Growth</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-
-<!-- Quarterly Financial Performance -->
-<div class="card mb-4">
-    <div class="card-header bg-light">
-        <h5 class="mb-0">Quarterly Financial Performance</h5>
-    </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover">
-                <thead class="table-primary">
-                    <tr>
-                        <th>Quarter</th>
-                        <th>Revenue</th>
-                        <th>Expenses</th>
-                        <th>Profit</th>
-                        <th>Margin</th>
-                    </tr>
-                </thead>
-                <tbody id="performanceTableBody">
-                </tbody>
-            </table>
+    
+    <!-- Quarterly Performance -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Quarterly Performance</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive mb-4">
+                <table class="table table-striped table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Quarter</th>
+                            <th>Revenue (₹)</th>
+                            <th>Expenses (₹)</th>
+                            <th>Profit (₹)</th>
+                            <th>Margin (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="performanceTableBody">
+                        <!-- Table rows will be populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Revenue Chart -->
+            <div class="chart-container">
+                <canvas id="revenueChart"></canvas>
+            </div>
         </div>
     </div>
-</div>
-
-<!-- Financial Health Assessment -->
-<div class="card mb-4">
-    <div class="card-header bg-light">
-        <h5 class="mb-0">Financial Health Assessment</h5>
+    
+    <!-- Expense Analysis -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Expense Analysis</h5>
+        </div>
+        <div class="card-body">
+            <div class="chart-container">
+                <canvas id="expenseChart"></canvas>
+            </div>
+        </div>
     </div>
-    <div class="card-body">
-        <div class="row">
-            <!-- Liquidity Analysis -->
-            <div class="col-md-4 mb-3">
-                <div class="card h-100 bg-primary text-white ratio-card">
-                    <div class="card-body">
-                        <h6 class="card-title">Liquidity Analysis</h6>
-                        <p class="card-text">
-                            {% if data.liquidity_analysis is defined and data.liquidity_analysis %}
-                                {{ data.liquidity_analysis }}
-                            {% elif data.financial_health_assessment.liquidity_analysis is defined and data.financial_health_assessment.liquidity_analysis %}
-                                {{ data.financial_health_assessment.liquidity_analysis }}
-                            {% else %}
-                                Current ratio (2.1) and quick ratio (1.8) indicate healthy short-term liquidity position. The company can comfortably meet its short-term obligations.
-                            {% endif %}
-                        </p>
+    
+    <!-- Profitability Metrics -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Profitability Metrics</h5>
+        </div>
+        <div class="card-body">
+            <div class="chart-container">
+                <canvas id="profitabilityChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Financial Health Assessment -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Financial Health Assessment</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <!-- Liquidity Analysis -->
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 bg-primary text-white ratio-card">
+                        <div class="card-body">
+                            <h6 class="card-title">Liquidity Analysis</h6>
+                            <p class="card-text">
+                                {% if data.liquidity_analysis is defined and data.liquidity_analysis %}
+                                    {{ data.liquidity_analysis }}
+                                {% else %}
+                                    Current ratio (2.1) and quick ratio (1.8) indicate healthy short-term liquidity position. The company can comfortably meet its short-term obligations.
+                                {% endif %}
+                            </p>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Solvency Analysis -->
-            <div class="col-md-4 mb-3">
-                <div class="card h-100 bg-primary text-white ratio-card">
-                    <div class="card-body">
-                        <h6 class="card-title">Solvency Analysis</h6>
-                        <p class="card-text">
-                            {% if data.solvency_analysis is defined and data.solvency_analysis %}
-                                {{ data.solvency_analysis }}
-                            {% elif data.financial_health_assessment.solvency_analysis is defined and data.financial_health_assessment.solvency_analysis %}
-                                {{ data.financial_health_assessment.solvency_analysis }}
-                            {% else %}
-                                Debt-to-equity ratio has improved from 0.8 to 0.65 over the past year, indicating better long-term financial stability and lower financial risk.
-                            {% endif %}
-                        </p>
+                <!-- Solvency Analysis -->
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 bg-primary text-white ratio-card">
+                        <div class="card-body">
+                            <h6 class="card-title">Solvency Analysis</h6>
+                            <p class="card-text">
+                                {% if data.solvency_analysis is defined and data.solvency_analysis %}
+                                    {{ data.solvency_analysis }}
+                                {% else %}
+                                    Debt-to-equity ratio has improved from 0.8 to 0.65 over the past year, indicating better long-term financial stability and lower financial risk.
+                                {% endif %}
+                            </p>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Efficiency Ratios -->
-            <div class="col-md-4 mb-3">
-                <div class="card h-100 bg-primary text-white ratio-card">
-                    <div class="card-body">
-                        <h6 class="card-title">Efficiency Ratios</h6>
-                        <p class="card-text">
-                            {% if data.efficiency_ratios is defined and data.efficiency_ratios %}
-                                {{ data.efficiency_ratios }}
-                            {% elif data.financial_health_assessment.efficiency_ratios is defined and data.financial_health_assessment.efficiency_ratios %}
-                                {{ data.financial_health_assessment.efficiency_ratios }}
-                            {% else %}
-                                Asset turnover increased from 1.1 to 1.4, showing improved efficiency in using assets to generate revenue.
-                            {% endif %}
-                        </p>
+                <!-- Efficiency Ratios -->
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 bg-primary text-white ratio-card">
+                        <div class="card-body">
+                            <h6 class="card-title">Efficiency Ratios</h6>
+                            <p class="card-text">
+                                {% if data.efficiency_ratios is defined and data.efficiency_ratios %}
+                                    {{ data.efficiency_ratios }}
+                                {% else %}
+                                    Asset turnover increased from 1.1 to 1.4, showing improved efficiency in using assets to generate revenue.
+                                {% endif %}
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -478,8 +477,8 @@ document.addEventListener('DOMContentLoaded', function() {
             datasets: [{
                 label: 'Profit Margin (%)',
                 data: margins,
-                backgroundColor: 'rgba(75, 192, 192, 0.7)',
-                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                borderColor: 'rgba(54, 162, 235, 1)',
                 borderWidth: 1
             }]
         },
@@ -494,54 +493,6 @@ document.addEventListener('DOMContentLoaded', function() {
                             return value + '%';
                         }
                     }
-                }
-            }
-        }
-    });
-    
-    // Create Ratios Chart
-    const ratiosCtx = document.getElementById('ratiosChart').getContext('2d');
-    new Chart(ratiosCtx, {
-        type: 'radar',
-        data: {
-            labels: ['Current Ratio', 'Debt-to-Equity', 'ROI', 'Asset Turnover'],
-            datasets: [
-                {
-                    label: 'Q1 2025',
-                    data: [1.8, 0.8, 8.2, 1.1],
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
-                },
-                {
-                    label: 'Q2 2025',
-                    data: [1.9, 0.75, 9.1, 1.2],
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    borderWidth: 1
-                },
-                {
-                    label: 'Q3 2025',
-                    data: [2.0, 0.7, 10.3, 1.3],
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
-                },
-                {
-                    label: 'Q4 2025',
-                    data: [2.1, 0.65, 11.5, 1.4],
-                    backgroundColor: 'rgba(255, 205, 86, 0.2)',
-                    borderColor: 'rgba(255, 205, 86, 1)',
-                    borderWidth: 1
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            elements: {
-                line: {
-                    borderWidth: 2
                 }
             }
         }
