@@ -4,16 +4,91 @@ import pandas as pd
 import numpy as np
 import google.generativeai as genai
 from datetime import datetime
+import logging
+import time
+import random
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('fintelligence')
 
 # Configure the Gemini API
-API_KEY = os.environ.get("GEMINI_API_KEY", "")
-if not API_KEY:
-    print("Warning: GEMINI_API_KEY environment variable not set")
+gemini_api_key = os.environ.get("GEMINI_API_KEY", "")
+if not gemini_api_key:
+    logger.warning("GEMINI_API_KEY environment variable not set")
 
-genai.configure(api_key=API_KEY)
+genai.configure(api_key=gemini_api_key)
 
-# Set up the model
-model = genai.GenerativeModel('gemini-1.5-pro-latest')
+# Set up the model with retry mechanism
+# Use the stable release to avoid breaking changes
+model = genai.GenerativeModel('gemini-1.5-pro')
+
+# Maximum number of retries for API calls
+MAX_RETRIES = 3
+
+def call_gemini_with_retry(prompt):
+    """
+    Call Gemini API with retry logic for rate limits
+    
+    Args:
+        prompt (str): The prompt text to send to the API
+        
+    Returns:
+        response: The API response
+    """
+    # Debug log the API key configuration - hide sensitive data
+    current_api_key = os.environ.get("GEMINI_API_KEY", "")
+    if current_api_key:
+        logger.info(f"Using Gemini API key: {current_api_key[:4]}...{current_api_key[-4:]} (length: {len(current_api_key)})")
+    else:
+        logger.error("No Gemini API key is configured!")
+        
+    # Update the configuration just to be sure we have the latest key
+    genai.configure(api_key=current_api_key)
+    
+    retries = 0
+    while retries < MAX_RETRIES:
+        try:
+            # Add small jitter to avoid thundering herd problem
+            if retries > 0:
+                jitter = random.uniform(1.0, 3.0)
+                time.sleep(2**retries + jitter)  # Exponential backoff with jitter
+                
+            response = model.generate_content(prompt)
+            return response
+        except Exception as e:
+            error_message = str(e)
+            retries += 1
+            
+            logger.error(f"Gemini API error: {error_message}")
+            
+            if "quota" in error_message.lower() or "429" in error_message:
+                # Specific handling for quota exceedance
+                logger.warning(f"Rate limit or quota exceeded, retrying ({retries}/{MAX_RETRIES})...")
+                # Extract retry delay if available in the error message
+                if "retry_delay" in error_message and "seconds" in error_message:
+                    try:
+                        # Extract retry delay seconds from error
+                        delay_text = error_message.split("retry_delay")[1]
+                        seconds = int(delay_text.split("seconds")[0].strip("{").strip("}").strip(":").strip())
+                        logger.info(f"Waiting for {seconds} seconds before retry...")
+                        time.sleep(seconds + random.uniform(1.0, 5.0))  # Add jitter
+                    except Exception as parse_err:
+                        # Default delay if parsing fails
+                        time.sleep(10 + random.uniform(1.0, 5.0))
+                else:
+                    # Default delay if no retry_delay in error
+                    time.sleep(10 + random.uniform(1.0, 5.0))
+            elif retries < MAX_RETRIES:
+                # For other errors that aren't quota-related, still retry but with shorter delay
+                logger.warning(f"Non-quota error, retrying ({retries}/{MAX_RETRIES})...")
+                time.sleep(2 + random.uniform(0.5, 2.0))
+            else:
+                # If at max retries, just raise
+                raise
+                
+    # If we've exhausted retries, raise the last error
+    raise Exception(f"Failed to get response from Gemini API after {MAX_RETRIES} retries")
 
 def generate_balance_sheet(file_data):
     """

@@ -314,14 +314,35 @@ def register_routes(app):
         # Get fallback quarters
         fallback_quarters = generate_fallback_quarters()
         
+        # Check if print mode is enabled (for PDF download)
+        print_mode = request.args.get('print_mode', '0') == '1'
+        
         # Add IST datetime and fallback quarters for all templates
-        return render_template(
+        html_content = render_template(
             template, 
             report=report, 
             data=report_data, 
             ist_datetime=format_ist_time(),
-            fallback_quarters=fallback_quarters
+            fallback_quarters=fallback_quarters,
+            print_mode=print_mode
         )
+        
+        # If in print mode, add a script to trigger print dialog when page loads
+        if print_mode:
+            script = """
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Small delay to ensure everything is loaded
+                    setTimeout(function() {
+                        window.print();
+                    }, 500);
+                });
+            </script>
+            """
+            # Insert script before closing body tag
+            html_content = html_content.replace('</body>', script + '</body>')
+            
+        return html_content
     
     @app.route('/download-report/<int:report_id>')
     @login_required
