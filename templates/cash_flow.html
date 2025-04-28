@@ -200,13 +200,25 @@
                             <tr class="table-success">
                                 <th>Net Change in Cash</th>
                                 <td class="text-end">
-                                    {% if data.cash_flow_statement is defined and data.cash_flow_statement.net_change_in_cash is defined %}
-                                        {% if data.cash_flow_statement.net_change_in_cash is mapping %}
-                                            {% for key, value in data.cash_flow_statement.net_change_in_cash.items() %}
-                                                {{ key|replace('_', ' ')|title }}: {{ value if value is string else "${:,.2f}".format(value|float) }}<br>
-                                            {% endfor %}
+                                    {% if data.cash_flow_statement is defined %}
+                                        {% if data.cash_flow_statement.net_change_in_cash is defined %}
+                                            {% if data.cash_flow_statement.net_change_in_cash is mapping %}
+                                                {% for key, value in data.cash_flow_statement.net_change_in_cash.items() %}
+                                                    {{ key|replace('_', ' ')|title }}: {{ value if value is string else "${:,.2f}".format(value|float) }}<br>
+                                                {% endfor %}
+                                            {% elif data.cash_flow_statement.net_change_in_cash is number or data.cash_flow_statement.net_change_in_cash is string %}
+                                                ${{ "{:,.2f}".format(data.cash_flow_statement.net_change_in_cash|float) }}
+                                            {% else %}
+                                                <span class="text-muted">Invalid format</span>
+                                            {% endif %}
+                                        {% elif data.operating_activities is defined and data.investing_activities is defined and data.financing_activities is defined %}
+                                            {% set net_op = data.operating_activities.net_cash_from_operating_activities|float if data.operating_activities.net_cash_from_operating_activities is defined else 0 %}
+                                            {% set net_inv = data.investing_activities.net_cash_from_investing_activities|float if data.investing_activities.net_cash_from_investing_activities is defined else 0 %}
+                                            {% set net_fin = data.financing_activities.net_cash_from_financing_activities|float if data.financing_activities.net_cash_from_financing_activities is defined else 0 %}
+                                            {% set calc_total = net_op + net_inv + net_fin %}
+                                            ${{ "{:,.2f}".format(calc_total) }}
                                         {% else %}
-                                            ${{ "{:,.2f}".format(data.cash_flow_statement.net_change_in_cash|float) }}
+                                            <span class="text-muted">Not available</span>
                                         {% endif %}
                                     {% else %}
                                         <span class="text-muted">Not available</span>
@@ -437,8 +449,17 @@
                 financingCash = {{ data.cash_flow_statement.net_financing_cash_flow|float }};
             {% endif %}
             
-            {% if data.cash_flow_statement.net_change_in_cash is defined %}
-                netChange = {{ data.cash_flow_statement.net_change_in_cash|float if data.cash_flow_statement.net_change_in_cash is number else 0 }};
+            // Calculate net change in cash from components or use provided value
+            {% if data.cash_flow_statement is defined and data.cash_flow_statement.net_change_in_cash is defined %}
+                {% if data.cash_flow_statement.net_change_in_cash is number or data.cash_flow_statement.net_change_in_cash is string %}
+                    netChange = {{ data.cash_flow_statement.net_change_in_cash|float }};
+                {% else %}
+                    // Default to 0 if not a valid number format
+                    netChange = 0;
+                {% endif %}
+            {% else %}
+                // Try to calculate from components if available
+                netChange = operatingCash + investingCash + financingCash;
             {% endif %}
             
             const cashFlowChart = new Chart(cashFlowCtx, {
