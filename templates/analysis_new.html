@@ -300,24 +300,13 @@
         let aiData = {{ data|tojson|safe }};
         console.log("AI Data loaded:", aiData);
         
-        // Extract quarterly data or use defaults if not available
+        // Initialize empty quarterly data structure
         const quarterlyData = {
-            // Default values in case the AI data doesn't contain these specific structures
-            labels: ['Q1 2025', 'Q2 2025', 'Q3 2025', 'Q4 2025'],
-            revenues: [120000, 135000, 150000, 175000],
-            expenses: {
-                'Marketing': [25000, 28000, 30000, 35000],
-                'Operations': [45000, 47000, 50000, 55000],
-                'R&D': [15000, 16000, 18000, 20000],
-                'Admin': [20000, 22000, 25000, 27000]
-            },
-            profitMargins: [12.5, 14.8, 16.3, 18.9],
-            ratios: {
-                'Current Ratio': [1.8, 1.9, 2.0, 2.1],
-                'Debt-to-Equity': [0.8, 0.75, 0.7, 0.65],
-                'ROI': [8.2, 9.1, 10.3, 11.5],
-                'Asset Turnover': [1.1, 1.2, 1.3, 1.4]
-            }
+            labels: [],
+            revenues: [],
+            expenses: {},
+            profitMargins: [],
+            ratios: {}
         };
         
         // Try to extract real data from the AI-generated analysis
@@ -361,7 +350,30 @@
             }
         } catch (error) {
             console.error("Error extracting data from AI analysis:", error);
-            // Continue with default data
+            
+            // Handle case with no data by using empty or minimal fallback
+            // Generate quarters based on the current date
+            const currentDate = new Date();
+            const currentYear = currentDate.getFullYear();
+            const currentMonth = currentDate.getMonth();
+            
+            // Determine which quarters we have data for based on current month
+            if (quarterlyData.labels.length === 0) {
+                // Only include quarters that have likely passed based on current month
+                if (currentMonth >= 0) quarterlyData.labels.push(`Q1 ${currentYear}`); // Jan-Mar
+                if (currentMonth >= 3) quarterlyData.labels.push(`Q2 ${currentYear}`); // Apr-Jun
+                if (currentMonth >= 6) quarterlyData.labels.push(`Q3 ${currentYear}`); // Jul-Sep
+                if (currentMonth >= 9) quarterlyData.labels.push(`Q4 ${currentYear}`); // Oct-Dec
+                
+                // Ensure we have at least one quarter
+                if (quarterlyData.labels.length === 0) {
+                    quarterlyData.labels.push(`Q1 ${currentYear}`);
+                }
+                
+                // Create empty data arrays matching the number of quarters
+                quarterlyData.revenues = Array(quarterlyData.labels.length).fill(0);
+                quarterlyData.profitMargins = Array(quarterlyData.labels.length).fill(0);
+            }
         }
 
         // Revenue Trend Chart
