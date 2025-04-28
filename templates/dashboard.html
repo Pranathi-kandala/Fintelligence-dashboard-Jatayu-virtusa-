@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Fintelligence{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="display-5 fw-bold"><i class="fas fa-tachometer-alt me-2"></i>Financial Dashboard</h1>
+        <p class="lead">Welcome back, {{ current_user.username }}! Manage your financial reports and data.</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm bg-primary text-white">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-upload me-2"></i>Upload Financial Data</h5>
+                <p class="card-text">Upload your CSV, XLSX, or PDF financial data for AI processing.</p>
+                <a href="{{ url_for('upload') }}" class="btn btn-light mt-2">Upload Files</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-file-invoice-dollar me-2"></i>Recent Reports</h5>
+                <p class="card-text">You have {{ reports|length }} generated reports.</p>
+                {% if reports %}
+                <div class="list-group list-group-flush">
+                    {% for report in reports[:3] %}
+                    <a href="{{ url_for('view_report', report_id=report.id) }}" class="list-group-item list-group-item-action">
+                        {{ report.report_type|replace('_', ' ')|title }}
+                        <small class="text-muted d-block">{{ report.generated_date.strftime('%Y-%m-%d %H:%M') }}</small>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="card-text text-muted">No reports generated yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-robot me-2"></i>AI Assistant</h5>
+                <p class="card-text">Ask questions about your financial data and get AI-powered insights.</p>
+                <a href="{{ url_for('chatbot') }}" class="btn btn-primary mt-2">Start Conversation</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-file-upload me-2"></i>Your Uploaded Financial Data</h5>
+            </div>
+            <div class="card-body">
+                {% if files %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Filename</th>
+                                <th>Type</th>
+                                <th>Upload Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for file in files %}
+                            <tr>
+                                <td>{{ file.filename }}</td>
+                                <td><span class="badge bg-info">{{ file.file_type }}</span></td>
+                                <td>{{ file.upload_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>
+                                    {% if file.processed %}
+                                    <span class="badge bg-success">Processed</span>
+                                    {% else %}
+                                    <span class="badge bg-warning">Pending</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if file.processed %}
+                                    <a href="{{ url_for('report_options') }}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-chart-bar me-1"></i> Reports
+                                    </a>
+                                    {% else %}
+                                    <button class="btn btn-sm btn-secondary" disabled>
+                                        <i class="fas fa-clock me-1"></i> Processing
+                                    </button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <div class="mb-3">
+                        <i class="fas fa-file-upload fa-4x text-muted"></i>
+                    </div>
+                    <h5>No Financial Data Uploaded Yet</h5>
+                    <p class="text-muted">Upload your financial data to get started with AI-powered analysis.</p>
+                    <a href="{{ url_for('upload') }}" class="btn btn-primary">
+                        <i class="fas fa-upload me-1"></i> Upload Now
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Your Generated Reports</h5>
+            </div>
+            <div class="card-body">
+                {% if reports %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Report Type</th>
+                                <th>Generated Date</th>
+                                <th>File Source</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for report in reports %}
+                            <tr>
+                                <td>{{ report.report_type|replace('_', ' ')|title }}</td>
+                                <td>{{ report.generated_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>
+                                    {% set file = report.file_upload %}
+                                    {{ file.filename }}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('view_report', report_id=report.id) }}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-eye me-1"></i> View
+                                        </a>
+                                        <a href="{{ url_for('download_report', report_id=report.id) }}" class="btn btn-sm btn-success">
+                                            <i class="fas fa-download me-1"></i> Download
+                                        </a>
+                                        <a href="{{ url_for('explainability', report_id=report.id) }}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-info-circle me-1"></i> Explain
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <div class="mb-3">
+                        <i class="fas fa-chart-bar fa-4x text-muted"></i>
+                    </div>
+                    <h5>No Reports Generated Yet</h5>
+                    <p class="text-muted">Upload financial data and generate reports to see them here.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

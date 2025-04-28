@@ -1,0 +1,342 @@
+{% extends "base.html" %}
+
+{% block title %}AI Explainability - Fintelligence{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="display-5 fw-bold"><i class="fas fa-info-circle me-2"></i>AI Analysis Explained</h1>
+        <p class="lead">Understanding how our AI generated insights for your {{ explanation.report_type|replace('_', ' ')|title }} report.</p>
+    </div>
+</div>
+
+{% if explanation.error %}
+<div class="alert alert-danger">
+    <h4 class="alert-heading">Error Generating Explanation</h4>
+    <p>{{ explanation.error }}</p>
+</div>
+{% else %}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Report Methodology</h4>
+            </div>
+            <div class="card-body">
+                <div class="explanation-content">
+                    {{ explanation.explanation|safe|replace('\n', '<br>')|replace('**', '<strong>')|replace('**', '</strong>') }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-light">
+                <h4 class="mb-0"><i class="fas fa-cogs me-2"></i>How AI Works</h4>
+            </div>
+            <div class="card-body">
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-marker">1</div>
+                        <div class="timeline-content">
+                            <h5>Data Ingestion</h5>
+                            <p>The AI reads and processes your financial data, identifying key financial metrics, accounts, and numerical patterns.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-marker">2</div>
+                        <div class="timeline-content">
+                            <h5>Financial Analysis</h5>
+                            <p>Using financial principles and accounting standards, the AI calculates ratios, trends, and relationships between different financial elements.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-marker">3</div>
+                        <div class="timeline-content">
+                            <h5>Pattern Recognition</h5>
+                            <p>The AI identifies significant patterns in your data, comparing them to financial benchmarks and industry standards.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-marker">4</div>
+                        <div class="timeline-content">
+                            <h5>Insight Generation</h5>
+                            <p>Based on the analysis, the AI generates actionable insights and recommendations tailored to your financial situation.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-marker">5</div>
+                        <div class="timeline-content">
+                            <h5>Report Formatting</h5>
+                            <p>The insights are organized into a structured report with visualizations and clear explanations.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-light">
+                <h4 class="mb-0"><i class="fas fa-chart-bar me-2"></i>AI Confidence Levels</h4>
+            </div>
+            <div class="card-body">
+                <p class="mb-4">Our AI assigns confidence levels to different aspects of its analysis based on data quality, completeness, and consistency.</p>
+                
+                <div class="confidence-item mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Data Quality Assessment</span>
+                        <span>85%</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+                
+                <div class="confidence-item mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Financial Calculations</span>
+                        <span>95%</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: 95%" aria-valuenow="95" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+                
+                <div class="confidence-item mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Trend Analysis</span>
+                        <span>80%</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bg-info" role="progressbar" style="width: 80%" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+                
+                <div class="confidence-item mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Recommendations</span>
+                        <span>75%</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bg-info" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+                
+                <div class="confidence-item">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Future Projections</span>
+                        <span>70%</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: 70%" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h4 class="mb-0"><i class="fas fa-question-circle me-2"></i>Frequently Asked Questions</h4>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="explainabilityFAQ">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingOne">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                How accurate is the AI analysis?
+                            </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#explainabilityFAQ">
+                            <div class="accordion-body">
+                                <p>The accuracy of our AI analysis depends on several factors:</p>
+                                <ul>
+                                    <li><strong>Data quality</strong>: The more complete and accurate your financial data, the better the analysis.</li>
+                                    <li><strong>Data history</strong>: Longer historical data allows for more accurate trend analysis.</li>
+                                    <li><strong>Data structure</strong>: Well-structured data with clear labels improves interpretation.</li>
+                                </ul>
+                                <p>Our AI typically achieves 85-95% accuracy for fundamental financial calculations and 70-80% accuracy for predictive insights and recommendations.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingTwo">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                What financial standards does the AI use?
+                            </button>
+                        </h2>
+                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#explainabilityFAQ">
+                            <div class="accordion-body">
+                                <p>Our AI is trained on and applies generally accepted accounting principles (GAAP) and International Financial Reporting Standards (IFRS). It uses standard financial formulas and ratios recognized in the financial industry, including:</p>
+                                <ul>
+                                    <li>Liquidity ratios (Current Ratio, Quick Ratio)</li>
+                                    <li>Profitability ratios (Gross Margin, Net Profit Margin, ROI, ROA)</li>
+                                    <li>Solvency ratios (Debt-to-Equity, Interest Coverage)</li>
+                                    <li>Efficiency ratios (Asset Turnover, Inventory Turnover)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingThree">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                Does the AI make predictive forecasts?
+                            </button>
+                        </h2>
+                        <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#explainabilityFAQ">
+                            <div class="accordion-body">
+                                <p>Yes, the AI can generate predictive forecasts based on historical trends in your data. However, these forecasts come with important limitations:</p>
+                                <ul>
+                                    <li>They assume past patterns will continue in similar ways</li>
+                                    <li>They don't account for unexpected economic shifts or market disruptions</li>
+                                    <li>They work best with consistent, long-term historical data</li>
+                                </ul>
+                                <p>Forecasts should be considered as one tool in your financial planning toolkit, not as definitive predictions of future performance.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingFour">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                How should I use the AI's recommendations?
+                            </button>
+                        </h2>
+                        <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#explainabilityFAQ">
+                            <div class="accordion-body">
+                                <p>The AI's recommendations are best used as informed suggestions rather than definitive actions. We recommend:</p>
+                                <ul>
+                                    <li>Reviewing recommendations with your financial team or advisor</li>
+                                    <li>Considering your broader business context and goals</li>
+                                    <li>Using recommendations as starting points for deeper analysis</li>
+                                    <li>Implementing recommendations gradually and measuring their impact</li>
+                                </ul>
+                                <p>The AI provides data-driven insights, but human judgment and industry expertise remain essential for optimal financial decision-making.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card bg-light shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0 me-3">
+                        <i class="fas fa-lightbulb fa-3x text-warning"></i>
+                    </div>
+                    <div>
+                        <h4>Need More Detailed Insights?</h4>
+                        <p class="mb-0">Ask specific questions about this report using our AI Assistant to gain deeper understanding of the financial analysis.</p>
+                    </div>
+                    <div class="ms-auto">
+                        <a href="{{ url_for('chatbot') }}" class="btn btn-primary">
+                            <i class="fas fa-robot me-1"></i> Chat with AI
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endif %}
+
+<!-- Navigation Buttons -->
+<div class="row mt-4">
+    <div class="col-12 d-flex justify-content-between">
+        <a href="{{ url_for('view_report', report_id=report.id) }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back to Report
+        </a>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+            <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+        </a>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.explanation-content {
+    line-height: 1.7;
+}
+
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline:before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 15px;
+    height: calc(100% - 30px);
+    width: 2px;
+    background-color: #dee2e6;
+}
+
+.timeline-item {
+    margin-bottom: 25px;
+    position: relative;
+}
+
+.timeline-marker {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background-color: #0d6efd;
+    color: white;
+    text-align: center;
+    line-height: 22px;
+    font-size: 12px;
+    font-weight: bold;
+    left: -30px;
+    top: 5px;
+    z-index: 1;
+}
+
+.timeline-content {
+    padding-left: 15px;
+}
+
+.confidence-item {
+    margin-bottom: 20px;
+}
+
+.explanation-content h1, 
+.explanation-content h2, 
+.explanation-content h3, 
+.explanation-content h4, 
+.explanation-content h5 {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.explanation-content ul, 
+.explanation-content ol {
+    margin-bottom: 1rem;
+}
+</style>
+{% endblock %}

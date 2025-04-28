@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}Report Options - Fintelligence{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="display-5 fw-bold"><i class="fas fa-chart-line me-2"></i>Generate Financial Reports</h1>
+        <p class="lead">Select the type of financial report you'd like to generate for <strong>{{ file.filename }}</strong>.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body text-center">
+                <div class="report-icon mb-3">
+                    <i class="fas fa-balance-scale fa-4x text-primary"></i>
+                </div>
+                <h3 class="card-title h5">Balance Sheet</h3>
+                <p class="card-text">Generate a detailed balance sheet with assets, liabilities, and equity information.</p>
+                <a href="{{ url_for('generate_report', report_type='balance_sheet') }}" class="btn btn-primary">
+                    Generate Report
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body text-center">
+                <div class="report-icon mb-3">
+                    <i class="fas fa-file-invoice-dollar fa-4x text-primary"></i>
+                </div>
+                <h3 class="card-title h5">Income Statement</h3>
+                <p class="card-text">Generate a comprehensive income statement with revenue, expenses, and profit analysis.</p>
+                <a href="{{ url_for('generate_report', report_type='income_statement') }}" class="btn btn-primary">
+                    Generate Report
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body text-center">
+                <div class="report-icon mb-3">
+                    <i class="fas fa-money-bill-wave fa-4x text-primary"></i>
+                </div>
+                <h3 class="card-title h5">Cash Flow</h3>
+                <p class="card-text">Generate a detailed cash flow statement with operating, investing, and financing activities.</p>
+                <a href="{{ url_for('generate_report', report_type='cash_flow') }}" class="btn btn-primary">
+                    Generate Report
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body text-center">
+                <div class="report-icon mb-3">
+                    <i class="fas fa-chart-pie fa-4x text-primary"></i>
+                </div>
+                <h3 class="card-title h5">Financial Analysis</h3>
+                <p class="card-text">Generate a comprehensive financial analysis with insights, trends, and recommendations.</p>
+                <a href="{{ url_for('generate_report', report_type='analysis') }}" class="btn btn-primary">
+                    Generate Report
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-12">
+        <div class="alert alert-info">
+            <div class="d-flex">
+                <div class="me-3">
+                    <i class="fas fa-info-circle fa-2x"></i>
+                </div>
+                <div>
+                    <h4 class="alert-heading">Report Generation Process</h4>
+                    <p>Our AI will analyze your financial data to generate comprehensive reports. This process may take a few moments depending on the complexity of your data.</p>
+                    <p class="mb-0">Each report will include detailed financial information, key metrics, and AI-powered insights to help you make better financial decisions.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h4 class="mb-0">What Each Report Includes</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>Report Type</th>
+                                <th>Key Components</th>
+                                <th>AI Insights</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Balance Sheet</strong></td>
+                                <td>
+                                    <ul>
+                                        <li>Current & Non-current Assets</li>
+                                        <li>Current & Long-term Liabilities</li>
+                                        <li>Shareholders' Equity</li>
+                                        <li>Financial Position Summary</li>
+                                    </ul>
+                                </td>
+                                <td>
+                                    <ul>
+                                        <li>Liquidity Analysis</li>
+                                        <li>Debt-to-Equity Evaluation</li>
+                                        <li>Asset Utilization Assessment</li>
+                                        <li>Working Capital Analysis</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Income Statement</strong></td>
+                                <td>
+                                    <ul>
+                                        <li>Revenue Breakdown</li>
+                                        <li>Cost of Goods Sold</li>
+                                        <li>Operating Expenses</li>
+                                        <li>Net Income Calculation</li>
+                                    </ul>
+                                </td>
+                                <td>
+                                    <ul>
+                                        <li>Profit Margin Analysis</li>
+                                        <li>Revenue Growth Trends</li>
+                                        <li>Expense Optimization Opportunities</li>
+                                        <li>Comparative Performance Metrics</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cash Flow</strong></td>
+                                <td>
+                                    <ul>
+                                        <li>Operating Activities</li>
+                                        <li>Investing Activities</li>
+                                        <li>Financing Activities</li>
+                                        <li>Net Cash Position</li>
+                                    </ul>
+                                </td>
+                                <td>
+                                    <ul>
+                                        <li>Cash Conversion Efficiency</li>
+                                        <li>Free Cash Flow Analysis</li>
+                                        <li>Investment Effectiveness</li>
+                                        <li>Financing Strategy Evaluation</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Financial Analysis</strong></td>
+                                <td>
+                                    <ul>
+                                        <li>Comprehensive Financial Overview</li>
+                                        <li>Key Performance Indicators</li>
+                                        <li>Quarterly Performance Comparison</li>
+                                        <li>Visualizations and Charts</li>
+                                    </ul>
+                                </td>
+                                <td>
+                                    <ul>
+                                        <li>Strategic Recommendations</li>
+                                        <li>Risk Assessment</li>
+                                        <li>Industry Benchmarking</li>
+                                        <li>Future Outlook Projections</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12 text-center">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

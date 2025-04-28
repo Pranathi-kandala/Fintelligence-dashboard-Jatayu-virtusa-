@@ -1,0 +1,318 @@
+/* Fintelligence - Main Stylesheet */
+
+/* Global Styles */
+:root {
+    --primary: #0d6efd;
+    --primary-dark: #0a58ca;
+    --secondary: #6c757d;
+    --success: #28a745;
+    --info: #17a2b8;
+    --warning: #ffc107;
+    --danger: #dc3545;
+    --light: #f8f9fa;
+    --dark: #343a40;
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    color: #333;
+    background-color: #f9fbfd;
+}
+
+/* Navbar Styling */
+.navbar-dark.bg-primary {
+    background-color: var(--primary) !important;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/* Card Styling */
+.card {
+    border-radius: 0.5rem;
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    border-top-left-radius: 0.5rem !important;
+    border-top-right-radius: 0.5rem !important;
+    font-weight: 600;
+}
+
+.card-header.bg-primary {
+    background-color: var(--primary) !important;
+}
+
+.card-header.bg-success {
+    background-color: var(--success) !important;
+}
+
+/* Button Styling */
+.btn {
+    border-radius: 0.375rem;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+.btn-primary:hover, .btn-primary:focus {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+}
+
+.btn-success {
+    background-color: var(--success);
+    border-color: var(--success);
+}
+
+/* Forms */
+.form-control {
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ced4da;
+}
+
+.form-control:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Tables */
+.table {
+    vertical-align: middle;
+}
+
+.table-primary, .table-primary > th, .table-primary > td {
+    background-color: rgba(13, 110, 253, 0.1) !important;
+}
+
+.table-secondary, .table-secondary > th, .table-secondary > td {
+    background-color: rgba(108, 117, 125, 0.1) !important;
+}
+
+.table-success, .table-success > th, .table-success > td {
+    background-color: rgba(40, 167, 69, 0.1) !important;
+}
+
+.table th {
+    font-weight: 600;
+}
+
+/* Alerts */
+.alert {
+    border-radius: 0.375rem;
+    border: none;
+}
+
+/* Badge Styling */
+.badge {
+    font-weight: 500;
+    padding: 0.4em 0.8em;
+    border-radius: 0.375rem;
+}
+
+/* Lists */
+.list-group-item {
+    padding: 0.75rem 1.25rem;
+    border-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Footer */
+footer {
+    margin-top: 3rem;
+}
+
+footer a {
+    color: inherit;
+    text-decoration: none;
+}
+
+footer a:hover {
+    color: var(--primary);
+    text-decoration: underline;
+}
+
+/* Custom Finance Elements */
+.step-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0 auto 1rem;
+}
+
+.team-avatar {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    margin: 0 auto 1rem;
+}
+
+.feature-icon {
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Chart Container */
+.chart-container {
+    position: relative;
+    width: 100%;
+    min-height: 300px;
+}
+
+/* File Upload */
+.file-upload-container {
+    min-height: 200px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+}
+
+.file-upload-container:hover {
+    background-color: rgba(13, 110, 253, 0.05);
+}
+
+/* Dashboard Cards */
+.dashboard-stat-card {
+    text-align: center;
+    padding: 1.5rem;
+}
+
+.dashboard-stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.dashboard-stat-label {
+    font-size: 1rem;
+    color: var(--secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Report Page Specific */
+.report-icon {
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Loading State */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.loading-spinner {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Pagination */
+.pagination .page-link {
+    color: var(--primary);
+    border-color: #dee2e6;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 767.98px) {
+    .chart-container {
+        min-height: 250px;
+    }
+    
+    .team-avatar, .step-circle {
+        width: 60px;
+        height: 60px;
+        font-size: 24px;
+    }
+    
+    .dashboard-stat-value {
+        font-size: 2rem;
+    }
+    
+    .display-4, .display-5 {
+        font-size: calc(1.4rem + 1.5vw);
+    }
+    
+    .lead {
+        font-size: 1rem;
+    }
+}
+
+/* Utility Classes */
+.text-finance-primary {
+    color: var(--primary);
+}
+
+.text-finance-success {
+    color: var(--success);
+}
+
+.bg-finance-light {
+    background-color: #f0f7ff;
+}
+
+.text-small {
+    font-size: 0.875rem;
+}
+
+.text-xs {
+    font-size: 0.75rem;
+}
+
+.border-dashed {
+    border-style: dashed !important;
+}
+
+.opacity-75 {
+    opacity: 0.75;
+}
+
+.shadow-hover:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Add a CSS rule for applying nl2br in templates */
+.nl2br {
+    white-space: pre-line;
+}

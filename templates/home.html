@@ -1,0 +1,245 @@
+{% extends "layout.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <div class="row align-items-center py-5">
+        <div class="col-lg-6">
+            <h1 class="display-4 fw-bold text-primary">Fintelligence</h1>
+            <p class="lead">AI-Powered Financial Reporting Platform</p>
+            <p class="mb-4">
+                Transform your financial data into actionable insights with our AI-powered platform. 
+                Automatically generate balance sheets, income statements, and cash flow reports with 
+                advanced analytics and insights.
+            </p>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg px-4 me-md-2">
+                    <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+                </a>
+                {% else %}
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-4 me-md-2">
+                    <i class="fas fa-user-plus me-2"></i>Get Started
+                </a>
+                <a href="{{ url_for('login') }}" class="btn btn-outline-secondary btn-lg px-4">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-lg-6 mt-5 mt-lg-0">
+            <!-- Hero SVG Illustration -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" class="img-fluid">
+                <defs>
+                    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:#4e73df;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#36b9cc;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <path fill="url(#grad1)" opacity="0.2" d="M412.6,227.5c-0.8-30.3-21.4-51.7-39.9-69.4c-25.5-24.5-55.2-43.1-89.7-53c-70.7-20.3-137.1,5.6-172.2,70.2
+                c-23.8,43.8-21.6,95.3,3.4,138.4c31.5,54.3,75.4,93.2,143.4,90.3c57.1-2.5,108.2-28.2,144.6-71.3
+                C413.8,318,413.6,267.7,412.6,227.5z"/>
+                <rect x="100" y="220" width="300" height="30" fill="#4e73df" rx="5" ry="5"/>
+                <rect x="100" y="260" width="250" height="30" fill="#36b9cc" rx="5" ry="5"/>
+                <rect x="100" y="300" width="200" height="30" fill="#1cc88a" rx="5" ry="5"/>
+                <rect x="100" y="340" width="150" height="30" fill="#f6c23e" rx="5" ry="5"/>
+                <circle cx="70" cy="235" r="10" fill="#4e73df"/>
+                <circle cx="70" cy="275" r="10" fill="#36b9cc"/>
+                <circle cx="70" cy="315" r="10" fill="#1cc88a"/>
+                <circle cx="70" cy="355" r="10" fill="#f6c23e"/>
+                <path fill="none" stroke="#4e73df" stroke-width="3" d="M150,180 L200,150 L250,170 L300,130 L350,160"/>
+                <circle cx="150" cy="180" r="5" fill="#4e73df"/>
+                <circle cx="200" cy="150" r="5" fill="#4e73df"/>
+                <circle cx="250" cy="170" r="5" fill="#4e73df"/>
+                <circle cx="300" cy="130" r="5" fill="#4e73df"/>
+                <circle cx="350" cy="160" r="5" fill="#4e73df"/>
+            </svg>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="row py-5">
+        <div class="col-12 text-center mb-5">
+            <h2 class="fw-bold">Key Features</h2>
+            <p class="lead text-muted">Unlock the power of AI for your financial reporting</p>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon bg-primary bg-gradient text-white mb-3 mx-auto">
+                        <i class="fas fa-file-invoice fa-2x"></i>
+                    </div>
+                    <h3 class="h5 card-title">Automated Reports</h3>
+                    <p class="card-text">Generate balance sheets, income statements, and cash flow reports automatically from your financial data.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon bg-success bg-gradient text-white mb-3 mx-auto">
+                        <i class="fas fa-chart-line fa-2x"></i>
+                    </div>
+                    <h3 class="h5 card-title">Intelligent Analysis</h3>
+                    <p class="card-text">Get AI-powered insights, trend analysis, and financial recommendations based on your data.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon bg-info bg-gradient text-white mb-3 mx-auto">
+                        <i class="fas fa-robot fa-2x"></i>
+                    </div>
+                    <h3 class="h5 card-title">AI Assistant</h3>
+                    <p class="card-text">Chat with our financial AI assistant to answer questions and get explanations about your reports.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Process Section -->
+    <div class="row py-5">
+        <div class="col-12 text-center mb-5">
+            <h2 class="fw-bold">How It Works</h2>
+            <p class="lead text-muted">Simple process, powerful results</p>
+        </div>
+
+        <div class="col-md-3 mb-4 text-center">
+            <div class="process-step">
+                <div class="process-icon bg-primary text-white mb-3 mx-auto">
+                    <span>1</span>
+                </div>
+                <h3 class="h5">Upload Data</h3>
+                <p class="text-muted">Upload your financial data in CSV, XLSX, or PDF format.</p>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4 text-center">
+            <div class="process-step">
+                <div class="process-icon bg-primary text-white mb-3 mx-auto">
+                    <span>2</span>
+                </div>
+                <h3 class="h5">AI Processing</h3>
+                <p class="text-muted">Our AI analyzes your data using Gemini 1.5 Pro.</p>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4 text-center">
+            <div class="process-step">
+                <div class="process-icon bg-primary text-white mb-3 mx-auto">
+                    <span>3</span>
+                </div>
+                <h3 class="h5">Generate Reports</h3>
+                <p class="text-muted">Financial reports are automatically generated.</p>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4 text-center">
+            <div class="process-step">
+                <div class="process-icon bg-primary text-white mb-3 mx-auto">
+                    <span>4</span>
+                </div>
+                <h3 class="h5">Get Insights</h3>
+                <p class="text-muted">Review detailed insights and visualizations.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Team Section -->
+    <div class="row py-5">
+        <div class="col-12 text-center mb-5">
+            <h2 class="fw-bold">Meet The Team</h2>
+            <p class="lead text-muted">From VR Sidhartha Engineering College</p>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="card team-card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="team-avatar bg-light mb-3 mx-auto">
+                        <i class="fas fa-user fa-2x text-primary"></i>
+                    </div>
+                    <h3 class="h5 card-title">Pranathi</h3>
+                    <p class="card-text text-muted">Team Member</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="card team-card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="team-avatar bg-light mb-3 mx-auto">
+                        <i class="fas fa-user fa-2x text-primary"></i>
+                    </div>
+                    <h3 class="h5 card-title">Lakshmi</h3>
+                    <p class="card-text text-muted">Team Member</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="card team-card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="team-avatar bg-light mb-3 mx-auto">
+                        <i class="fas fa-user fa-2x text-primary"></i>
+                    </div>
+                    <h3 class="h5 card-title">Vinay</h3>
+                    <p class="card-text text-muted">Team Member</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="card team-card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="team-avatar bg-light mb-3 mx-auto">
+                        <i class="fas fa-user fa-2x text-primary"></i>
+                    </div>
+                    <h3 class="h5 card-title">Anthony</h3>
+                    <p class="card-text text-muted">Team Member</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 text-center mt-3">
+            <div class="card mentor-card p-3 shadow-sm">
+                <div class="card-body">
+                    <h3 class="h5 card-title">Faculty Mentor</h3>
+                    <p class="card-text fw-bold">Dr. G Kalyani</p>
+                    <p class="card-text text-muted">VR Sidhartha Engineering College</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="row py-5">
+        <div class="col-12 text-center">
+            <div class="p-5 bg-light rounded-3">
+                <h2 class="fw-bold">Ready to get started?</h2>
+                <p class="lead mb-4">Transform your financial reporting with the power of AI</p>
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+                </a>
+                {% else %}
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-user-plus me-2"></i>Create an Account
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Any home page specific JavaScript can go here
+</script>
+{% endblock %}

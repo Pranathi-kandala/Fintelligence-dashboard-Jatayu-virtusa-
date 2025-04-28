@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+
+{% block title %}AI Financial Assistant - Fintelligence{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="display-5 fw-bold"><i class="fas fa-robot me-2"></i>AI Financial Assistant</h1>
+        <p class="lead">Ask questions about your financial data and get AI-powered insights and advice.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Assistant Guide</h5>
+            </div>
+            <div class="card-body">
+                <h6>What You Can Ask:</h6>
+                <ul class="assist-tips">
+                    <li>Analyze my revenue trends for the past year</li>
+                    <li>What are my main expense categories?</li>
+                    <li>Calculate my debt-to-equity ratio</li>
+                    <li>How can I improve my profit margins?</li>
+                    <li>Compare Q1 and Q2 financial performance</li>
+                    <li>Explain my cash flow statement</li>
+                    <li>What risks should I be concerned about?</li>
+                    <li>Suggest ways to reduce operating costs</li>
+                </ul>
+                
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-lightbulb me-2"></i> The AI Assistant analyzes your uploaded financial data to provide relevant insights and recommendations.
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-9">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-comments me-2"></i>Chat with Financial AI</h5>
+                <span class="badge bg-light text-primary">Session ID: {{ chat_session.id }}</span>
+            </div>
+            
+            <div class="card-body chat-container p-0">
+                <div class="chat-messages p-3" id="chatMessages">
+                    {% if not messages %}
+                        <!-- Welcome message -->
+                        <div class="message ai-message">
+                            <div class="message-content">
+                                <div class="message-avatar">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <div class="message-bubble">
+                                    <p>Hello! I'm your AI Financial Assistant. I can help analyze your financial data, explain financial concepts, and provide personalized recommendations. What would you like to know about your finances today?</p>
+                                </div>
+                            </div>
+                            <div class="message-time">
+                                {{ chat_session.session_date.strftime('%H:%M') }}
+                            </div>
+                        </div>
+                    {% else %}
+                        {% for message in messages %}
+                            <div class="message {% if message.is_user %}user-message{% else %}ai-message{% endif %}">
+                                <div class="message-content">
+                                    <div class="message-avatar">
+                                        {% if message.is_user %}
+                                            <i class="fas fa-user"></i>
+                                        {% else %}
+                                            <i class="fas fa-robot"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="message-bubble">
+                                        {{ message.message|safe|nl2br }}
+                                    </div>
+                                </div>
+                                <div class="message-time">
+                                    {{ message.timestamp.strftime('%H:%M') }}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                
+                <div class="chat-input-container p-3 border-top">
+                    <form method="POST" id="chatForm">
+                        {{ form.hidden_tag() }}
+                        <div class="input-group">
+                            {{ form.message(class="form-control", placeholder="Ask a question about your financial data...", rows="2", id="chatInput") }}
+                            <button type="submit" class="btn btn-primary" id="submitButton">
+                                <i class="fas fa-paper-plane me-1"></i> Send
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Explain AI Capabilities -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-brain me-2"></i>How the AI Assistant Works</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="card border-0 h-100">
+                            <div class="card-body text-center">
+                                <div class="feature-icon mb-3">
+                                    <i class="fas fa-search fa-3x text-primary"></i>
+                                </div>
+                                <h5>Data Analysis</h5>
+                                <p>The AI analyzes your uploaded financial data to detect patterns, trends, and correlations that might not be immediately obvious.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-3">
+                        <div class="card border-0 h-100">
+                            <div class="card-body text-center">
+                                <div class="feature-icon mb-3">
+                                    <i class="fas fa-chart-line fa-3x text-primary"></i>
+                                </div>
+                                <h5>Financial Expertise</h5>
+                                <p>Powered by Gemini 1.5 Pro, the AI combines financial knowledge with your specific data to provide customized insights.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-3">
+                        <div class="card border-0 h-100">
+                            <div class="card-body text-center">
+                                <div class="feature-icon mb-3">
+                                    <i class="fas fa-lightbulb fa-3x text-primary"></i>
+                                </div>
+                                <h5>Actionable Recommendations</h5>
+                                <p>Beyond answering questions, the AI provides practical suggestions to improve financial performance based on your data.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Navigation Buttons -->
+<div class="row mt-4">
+    <div class="col-12 text-center">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 500px;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 500px;
+}
+
+.message {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.message-content {
+    display: flex;
+    max-width: 80%;
+}
+
+.user-message {
+    align-items: flex-end;
+    align-self: flex-end;
+}
+
+.ai-message {
+    align-items: flex-start;
+    align-self: flex-start;
+}
+
+.message-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+}
+
+.user-message .message-avatar {
+    background-color: #007bff;
+    color: white;
+    order: 1;
+    margin-right: 0;
+    margin-left: 10px;
+}
+
+.message-bubble {
+    background-color: #f8f9fa;
+    padding: 10px 15px;
+    border-radius: 18px;
+    max-width: calc(100% - 46px);
+}
+
+.user-message .message-bubble {
+    background-color: #007bff;
+    color: white;
+}
+
+.message-bubble p {
+    margin-bottom: 0.5rem;
+}
+
+.message-bubble p:last-child {
+    margin-bottom: 0;
+}
+
+.message-time {
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-top: 5px;
+    padding: 0 10px;
+}
+
+.user-message .message-time {
+    align-self: flex-end;
+}
+
+.assist-tips li {
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.feature-icon {
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-scroll to bottom of messages
+        const chatMessages = document.getElementById('chatMessages');
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        
+        // Focus on input
+        document.getElementById('chatInput').focus();
+        
+        // Add loading indicator when form is submitted
+        document.getElementById('chatForm').addEventListener('submit', function() {
+            const submitButton = document.getElementById('submitButton');
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...';
+        });
+    });
+    
+    // Filter for nl2br in Jinja templates
+    {% if not messages %}
+    // The following is just a workaround since we're not in the Jinja context
+    // In reality, this filter is implemented in the Flask app
+    // to convert newlines to <br> tags in the AI responses
+    {% endif %}
+</script>
+{% endblock %}

@@ -1,0 +1,300 @@
+{% extends "base.html" %}
+
+{% block title %}Balance Sheet - Fintelligence{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="display-5 fw-bold"><i class="fas fa-balance-scale me-2"></i>Balance Sheet</h1>
+            <p class="lead">AI-generated balance sheet with financial insights and analysis.</p>
+        </div>
+        <div>
+            <a href="{{ url_for('download_report', report_id=report.id) }}" class="btn btn-success">
+                <i class="fas fa-download me-1"></i> Download
+            </a>
+            <a href="{{ url_for('explainability', report_id=report.id) }}" class="btn btn-info ms-2">
+                <i class="fas fa-info-circle me-1"></i> Explain AI Analysis
+            </a>
+        </div>
+    </div>
+</div>
+
+{% if data.error %}
+<div class="alert alert-danger">
+    <h4 class="alert-heading">Error Generating Balance Sheet</h4>
+    <p>{{ data.error }}</p>
+</div>
+{% else %}
+
+<!-- Summary Card -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Financial Position Summary</h4>
+            </div>
+            <div class="card-body">
+                <p class="lead">{{ data.summary }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Balance Sheet -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h4 class="mb-0">Balance Sheet Overview</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead class="table-primary">
+                            <tr>
+                                <th colspan="2">Balance Sheet as of {{ data.generated_at|replace('T', ' ')|replace('Z', '')|replace('.', ' ').split()[0] }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Assets -->
+                            <tr class="table-secondary">
+                                <th colspan="2">Assets</th>
+                            </tr>
+                            
+                            <tr>
+                                <th colspan="2">Current Assets</th>
+                            </tr>
+                            {% for asset in data.balance_sheet.assets.current_assets %}
+                                {% if asset is mapping %}
+                                    {% for key, value in asset.items() %}
+                                    <tr>
+                                        <td>{{ key }}</td>
+                                        <td class="text-end">{{ value if value is string else "${:,.2f}".format(value|float) }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="2">{{ asset }}</td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            <tr>
+                                <th colspan="2">Non-Current Assets</th>
+                            </tr>
+                            {% for asset in data.balance_sheet.assets.non_current_assets %}
+                                {% if asset is mapping %}
+                                    {% for key, value in asset.items() %}
+                                    <tr>
+                                        <td>{{ key }}</td>
+                                        <td class="text-end">{{ value if value is string else "${:,.2f}".format(value|float) }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="2">{{ asset }}</td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            <!-- Total Assets -->
+                            <tr class="table-primary">
+                                <th>Total Assets</th>
+                                <th class="text-end">
+                                    {% if data.balance_sheet.total_assets is defined %}
+                                        ${{ "{:,.2f}".format(data.balance_sheet.total_assets|float) }}
+                                    {% endif %}
+                                </th>
+                            </tr>
+                            
+                            <!-- Liabilities -->
+                            <tr class="table-secondary">
+                                <th colspan="2">Liabilities</th>
+                            </tr>
+                            
+                            <tr>
+                                <th colspan="2">Current Liabilities</th>
+                            </tr>
+                            {% for liability in data.balance_sheet.liabilities.current_liabilities %}
+                                {% if liability is mapping %}
+                                    {% for key, value in liability.items() %}
+                                    <tr>
+                                        <td>{{ key }}</td>
+                                        <td class="text-end">{{ value if value is string else "${:,.2f}".format(value|float) }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="2">{{ liability }}</td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            <tr>
+                                <th colspan="2">Long-Term Liabilities</th>
+                            </tr>
+                            {% for liability in data.balance_sheet.liabilities.long_term_liabilities %}
+                                {% if liability is mapping %}
+                                    {% for key, value in liability.items() %}
+                                    <tr>
+                                        <td>{{ key }}</td>
+                                        <td class="text-end">{{ value if value is string else "${:,.2f}".format(value|float) }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="2">{{ liability }}</td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            <!-- Total Liabilities -->
+                            <tr class="table-primary">
+                                <th>Total Liabilities</th>
+                                <th class="text-end">
+                                    {% if data.balance_sheet.total_liabilities is defined %}
+                                        ${{ "{:,.2f}".format(data.balance_sheet.total_liabilities|float) }}
+                                    {% endif %}
+                                </th>
+                            </tr>
+                            
+                            <!-- Equity -->
+                            <tr class="table-secondary">
+                                <th colspan="2">Equity</th>
+                            </tr>
+                            
+                            {% for item in data.balance_sheet.equity %}
+                                {% if item is mapping %}
+                                    {% for key, value in item.items() %}
+                                    <tr>
+                                        <td>{{ key }}</td>
+                                        <td class="text-end">{{ value if value is string else "${:,.2f}".format(value|float) }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="2">{{ item }}</td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            <!-- Total Equity -->
+                            <tr class="table-primary">
+                                <th>Total Equity</th>
+                                <th class="text-end">
+                                    {% if data.balance_sheet.total_equity is defined %}
+                                        ${{ "{:,.2f}".format(data.balance_sheet.total_equity|float) }}
+                                    {% endif %}
+                                </th>
+                            </tr>
+                            
+                            <!-- Total Liabilities and Equity -->
+                            <tr class="table-success">
+                                <th>Total Liabilities and Equity</th>
+                                <th class="text-end">
+                                    {% if data.balance_sheet.total_liabilities_and_equity is defined %}
+                                        ${{ "{:,.2f}".format(data.balance_sheet.total_liabilities_and_equity|float) }}
+                                    {% endif %}
+                                </th>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Key Ratios -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h4 class="mb-0">Key Financial Ratios</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for key, value in data.ratios.items() %}
+                    <div class="col-md-4 col-sm-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">{{ key|replace('_', ' ')|title }}</h5>
+                                <p class="display-5 fw-bold text-primary mb-0">
+                                    {% if value is number %}
+                                        {{ "%.2f"|format(value) }}
+                                    {% else %}
+                                        {{ value }}
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AI Insights and Recommendations -->
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">AI Insights</h4>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    {% for insight in data.insights %}
+                    <li class="list-group-item">
+                        <i class="fas fa-lightbulb text-warning me-2"></i> {{ insight }}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">Recommendations</h4>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    {% for rec in data.recommendations %}
+                    <li class="list-group-item">
+                        <i class="fas fa-check-circle text-success me-2"></i> {{ rec }}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endif %}
+
+<!-- Navigation Buttons -->
+<div class="row mt-4">
+    <div class="col-12 d-flex justify-content-between">
+        <a href="{{ url_for('report_options') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back to Report Options
+        </a>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+            <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+        </a>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // If we need any chart visualizations, we can add them here
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add any JavaScript for dynamic content or charts
+    });
+</script>
+{% endblock %}

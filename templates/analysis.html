@@ -1,0 +1,617 @@
+{% extends "base.html" %}
+
+{% block title %}Financial Analysis - Fintelligence{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="display-5 fw-bold"><i class="fas fa-chart-pie me-2"></i>Financial Analysis</h1>
+            <p class="lead">Comprehensive AI-generated financial analysis with insights and recommendations.</p>
+        </div>
+        <div>
+            <a href="{{ url_for('download_report', report_id=report.id) }}" class="btn btn-success">
+                <i class="fas fa-download me-1"></i> Download
+            </a>
+            <a href="{{ url_for('explainability', report_id=report.id) }}" class="btn btn-info ms-2">
+                <i class="fas fa-info-circle me-1"></i> Explain AI Analysis
+            </a>
+        </div>
+    </div>
+</div>
+
+{% if data.error %}
+<div class="alert alert-danger">
+    <h4 class="alert-heading">Error Generating Analysis</h4>
+    <p>{{ data.error }}</p>
+</div>
+{% else %}
+
+<!-- Executive Summary -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Executive Summary</h4>
+            </div>
+            <div class="card-body">
+                {% if data.executive_summary is defined %}
+                    {% if data.executive_summary is string %}
+                        <p class="lead">{{ data.executive_summary }}</p>
+                    {% else %}
+                        <ul class="list-group list-group-flush">
+                            {% for point in data.executive_summary %}
+                                <li class="list-group-item">
+                                    <i class="fas fa-circle text-primary me-2"></i> {{ point }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Financial Performance Dashboard -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h4 class="mb-0">Financial Dashboard</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Key Performance Indicators -->
+                    {% if data.key_performance_indicators is defined %}
+                        {% for kpi_name, kpi_value in data.key_performance_indicators.items() %}
+                            <div class="col-md-3 col-sm-6 mb-3">
+                                <div class="card border-0 bg-light h-100">
+                                    <div class="card-body text-center">
+                                        <h6 class="text-muted mb-2">{{ kpi_name|replace('_', ' ')|title }}</h6>
+                                        <p class="display-6 fw-bold text-primary mb-0">
+                                            {% if kpi_value is number %}
+                                                {% if 'percent' in kpi_name or 'ratio' in kpi_name or 'margin' in kpi_name %}
+                                                    {{ "%.2f"|format(kpi_value) }}%
+                                                {% elif 'revenue' in kpi_name or 'profit' in kpi_name or 'income' in kpi_name or 'cash' in kpi_name %}
+                                                    ${{ "{:,.0f}".format(kpi_value) }}
+                                                {% else %}
+                                                    {{ "%.2f"|format(kpi_value) }}
+                                                {% endif %}
+                                            {% else %}
+                                                {{ kpi_value }}
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                
+                <!-- Main Visualizations -->
+                <div class="row mt-4">
+                    <!-- Revenue Trend -->
+                    <div class="col-md-6 mb-4">
+                        <h5>Quarterly Revenue Trend</h5>
+                        <div class="chart-container">
+                            <canvas id="revenueTrendChart" height="300"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Expense Breakdown -->
+                    <div class="col-md-6 mb-4">
+                        <h5>Expense Breakdown</h5>
+                        <div class="chart-container">
+                            <canvas id="expenseBreakdownChart" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <!-- Profitability Metrics -->
+                    <div class="col-md-6 mb-4">
+                        <h5>Profitability Metrics</h5>
+                        <div class="chart-container">
+                            <canvas id="profitabilityChart" height="300"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Key Ratios -->
+                    <div class="col-md-6 mb-4">
+                        <h5>Key Financial Ratios</h5>
+                        <div class="chart-container">
+                            <canvas id="ratioChart" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quarterly Performance Analysis -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h4 class="mb-0">Quarterly Financial Performance</h4>
+            </div>
+            <div class="card-body">
+                <!-- Revenue Analysis -->
+                {% if data.quarterly_financial_performance is defined and data.quarterly_financial_performance.revenue_trends is defined %}
+                <div class="mb-4">
+                    <h5>Revenue Trends</h5>
+                    {% if data.quarterly_financial_performance.revenue_trends is string %}
+                        <p>{{ data.quarterly_financial_performance.revenue_trends }}</p>
+                    {% else %}
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th>Quarter</th>
+                                        <th>Revenue</th>
+                                        <th>YoY Change</th>
+                                        <th>QoQ Change</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for quarter, details in data.quarterly_financial_performance.revenue_trends.items() %}
+                                        {% if details is mapping %}
+                                        <tr>
+                                            <td>{{ quarter }}</td>
+                                            <td>${{ "{:,.2f}".format(details.revenue|float) }}</td>
+                                            <td class="{% if details.yoy_change >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                                {% if details.yoy_change >= 0 %}+{% endif %}{{ "%.2f"|format(details.yoy_change) }}%
+                                            </td>
+                                            <td class="{% if details.qoq_change >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                                {% if details.qoq_change >= 0 %}+{% endif %}{{ "%.2f"|format(details.qoq_change) }}%
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                <!-- Expense Analysis -->
+                {% if data.quarterly_financial_performance is defined and data.quarterly_financial_performance.expense_analysis is defined %}
+                <div class="mb-4">
+                    <h5>Expense Analysis</h5>
+                    {% if data.quarterly_financial_performance.expense_analysis is string %}
+                        <p>{{ data.quarterly_financial_performance.expense_analysis }}</p>
+                    {% else %}
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th>Category</th>
+                                        {% for quarter in data.quarterly_financial_performance.expense_analysis.quarters %}
+                                        <th>{{ quarter }}</th>
+                                        {% endfor %}
+                                        <th>Trend</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for category, values in data.quarterly_financial_performance.expense_analysis.categories.items() %}
+                                    <tr>
+                                        <td>{{ category|replace('_', ' ')|title }}</td>
+                                        {% for value in values.values %}
+                                        <td>${{ "{:,.2f}".format(value|float) }}</td>
+                                        {% endfor %}
+                                        <td class="{% if values.trend == 'increasing' %}text-danger{% elif values.trend == 'decreasing' %}text-success{% else %}text-warning{% endif %}">
+                                            <i class="fas {% if values.trend == 'increasing' %}fa-arrow-up{% elif values.trend == 'decreasing' %}fa-arrow-down{% else %}fa-arrows-alt-h{% endif %}"></i>
+                                            {{ values.trend|title }}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                <!-- Profitability Metrics -->
+                {% if data.quarterly_financial_performance is defined and data.quarterly_financial_performance.profitability_metrics is defined %}
+                <div>
+                    <h5>Profitability Metrics</h5>
+                    {% if data.quarterly_financial_performance.profitability_metrics is string %}
+                        <p>{{ data.quarterly_financial_performance.profitability_metrics }}</p>
+                    {% else %}
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th>Metric</th>
+                                        {% for quarter in data.quarterly_financial_performance.profitability_metrics.quarters %}
+                                        <th>{{ quarter }}</th>
+                                        {% endfor %}
+                                        <th>Change</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for metric, values in data.quarterly_financial_performance.profitability_metrics.metrics.items() %}
+                                    <tr>
+                                        <td>{{ metric|replace('_', ' ')|title }}</td>
+                                        {% for value in values.values %}
+                                        <td>
+                                            {% if 'margin' in metric or 'ratio' in metric or 'percent' in metric %}
+                                                {{ "%.2f"|format(value|float) }}%
+                                            {% else %}
+                                                ${{ "{:,.2f}".format(value|float) }}
+                                            {% endif %}
+                                        </td>
+                                        {% endfor %}
+                                        <td class="{% if values.change >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                            {% if values.change >= 0 %}+{% endif %}{{ "%.2f"|format(values.change|float) }}%
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Financial Health Assessment -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h4 class="mb-0">Financial Health Assessment</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">Liquidity Analysis</h5>
+                            </div>
+                            <div class="card-body">
+                                {% if data.financial_health_assessment is defined and data.financial_health_assessment.liquidity_analysis is defined %}
+                                    {% if data.financial_health_assessment.liquidity_analysis is string %}
+                                        <p>{{ data.financial_health_assessment.liquidity_analysis }}</p>
+                                    {% else %}
+                                        <ul class="list-group list-group-flush">
+                                            {% for point in data.financial_health_assessment.liquidity_analysis %}
+                                                <li class="list-group-item">{{ point }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">Solvency Analysis</h5>
+                            </div>
+                            <div class="card-body">
+                                {% if data.financial_health_assessment is defined and data.financial_health_assessment.solvency_analysis is defined %}
+                                    {% if data.financial_health_assessment.solvency_analysis is string %}
+                                        <p>{{ data.financial_health_assessment.solvency_analysis }}</p>
+                                    {% else %}
+                                        <ul class="list-group list-group-flush">
+                                            {% for point in data.financial_health_assessment.solvency_analysis %}
+                                                <li class="list-group-item">{{ point }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">Efficiency Ratios</h5>
+                            </div>
+                            <div class="card-body">
+                                {% if data.financial_health_assessment is defined and data.financial_health_assessment.efficiency_ratios is defined %}
+                                    {% if data.financial_health_assessment.efficiency_ratios is string %}
+                                        <p>{{ data.financial_health_assessment.efficiency_ratios }}</p>
+                                    {% else %}
+                                        <ul class="list-group list-group-flush">
+                                            {% for point in data.financial_health_assessment.efficiency_ratios %}
+                                                <li class="list-group-item">{{ point }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Risk Assessment -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h4 class="mb-0">Risk Assessment</h4>
+            </div>
+            <div class="card-body">
+                {% if data.risk_assessment is defined %}
+                    {% if data.risk_assessment is string %}
+                        <p>{{ data.risk_assessment }}</p>
+                    {% else %}
+                        <div class="row">
+                            {% for risk_category, risk_details in data.risk_assessment.items() %}
+                                <div class="col-md-4 mb-3">
+                                    <div class="card">
+                                        <div class="card-header bg-danger text-white">
+                                            <h5 class="mb-0">{{ risk_category|replace('_', ' ')|title }}</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            {% if risk_details is string %}
+                                                <p>{{ risk_details }}</p>
+                                            {% else %}
+                                                <ul class="list-group list-group-flush">
+                                                    {% for risk in risk_details %}
+                                                        <li class="list-group-item">
+                                                            <i class="fas fa-exclamation-triangle text-danger me-2"></i>
+                                                            {{ risk }}
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Strategic Recommendations and Future Outlook -->
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">Strategic Recommendations</h4>
+            </div>
+            <div class="card-body">
+                {% if data.strategic_recommendations is defined %}
+                    {% if data.strategic_recommendations is string %}
+                        <p>{{ data.strategic_recommendations }}</p>
+                    {% else %}
+                        <ul class="list-group list-group-flush">
+                            {% for rec in data.strategic_recommendations %}
+                                <li class="list-group-item">
+                                    <i class="fas fa-check-circle text-success me-2"></i> {{ rec }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Future Outlook</h4>
+            </div>
+            <div class="card-body">
+                {% if data.future_outlook is defined %}
+                    {% if data.future_outlook is string %}
+                        <p>{{ data.future_outlook }}</p>
+                    {% else %}
+                        <ul class="list-group list-group-flush">
+                            {% for point in data.future_outlook %}
+                                <li class="list-group-item">
+                                    <i class="fas fa-arrow-circle-right text-primary me-2"></i> {{ point }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endif %}
+
+<!-- Navigation Buttons -->
+<div class="row mt-4">
+    <div class="col-12 d-flex justify-content-between">
+        <a href="{{ url_for('report_options') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back to Report Options
+        </a>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+            <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+        </a>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Setup chart data based on the JSON response
+        const revenueData = {};
+        const expenseData = {};
+        const profitabilityData = {};
+        const ratioData = {};
+        
+        try {
+            // Revenue trend chart
+            {% if data.quarterly_financial_performance is defined and data.quarterly_financial_performance.revenue_trends is defined %}
+                {% if data.quarterly_financial_performance.revenue_trends is not string %}
+                    const quarters = [];
+                    const revenueValues = [];
+                    
+                    {% for quarter, details in data.quarterly_financial_performance.revenue_trends.items() %}
+                        {% if details is mapping %}
+                            quarters.push('{{ quarter }}');
+                            revenueValues.push({{ details.revenue|float }});
+                        {% endif %}
+                    {% endfor %}
+                    
+                    if (quarters.length > 0 && revenueValues.length > 0) {
+                        const revenueTrendChart = drawLineChart('revenueTrendChart', quarters, 
+                                                               [{ 
+                                                                  label: 'Revenue', 
+                                                                  data: revenueValues,
+                                                                  borderColor: 'rgba(13, 110, 253, 1)',
+                                                                  backgroundColor: 'rgba(13, 110, 253, 0.2)'
+                                                               }], 
+                                                               'Quarterly Revenue Trend', 
+                                                               true);
+                    }
+                {% endif %}
+            {% endif %}
+            
+            // Expense breakdown chart
+            {% if data.quarterly_financial_performance is defined and data.quarterly_financial_performance.expense_analysis is defined %}
+                {% if data.quarterly_financial_performance.expense_analysis is not string %}
+                    const expenseCategories = [];
+                    const expenseValues = [];
+                    const expenseColors = [
+                        'rgba(220, 53, 69, 0.7)',   // Red
+                        'rgba(255, 193, 7, 0.7)',   // Yellow
+                        'rgba(13, 110, 253, 0.7)',  // Blue
+                        'rgba(40, 167, 69, 0.7)',   // Green
+                        'rgba(111, 66, 193, 0.7)',  // Purple
+                        'rgba(23, 162, 184, 0.7)',  // Cyan
+                        'rgba(255, 102, 0, 0.7)',   // Orange
+                        'rgba(108, 117, 125, 0.7)', // Gray
+                    ];
+                    
+                    {% for category, values in data.quarterly_financial_performance.expense_analysis.categories.items() %}
+                        expenseCategories.push('{{ category|replace('_', ' ')|title }}');
+                        // Use the last quarter value as the current expense
+                        const lastValue = {{ values.values|last|float if values.values|last is defined else 0 }};
+                        expenseValues.push(lastValue);
+                    {% endfor %}
+                    
+                    if (expenseCategories.length > 0 && expenseValues.length > 0) {
+                        const expenseBreakdownChart = drawPieChart('expenseBreakdownChart', 
+                                                                 expenseCategories, 
+                                                                 expenseValues,
+                                                                 'Expense Distribution',
+                                                                 expenseColors);
+                    }
+                {% endif %}
+            {% endif %}
+            
+            // Profitability metrics chart
+            {% if data.quarterly_financial_performance is defined and data.quarterly_financial_performance.profitability_metrics is defined %}
+                {% if data.quarterly_financial_performance.profitability_metrics is not string %}
+                    const profitMetrics = [];
+                    const profitDatasets = [];
+                    const quarters = [];
+                    
+                    {% for quarter in data.quarterly_financial_performance.profitability_metrics.quarters %}
+                        quarters.push('{{ quarter }}');
+                    {% endfor %}
+                    
+                    {% for metric, values in data.quarterly_financial_performance.profitability_metrics.metrics.items() %}
+                        {% if 'margin' in metric or 'ratio' in metric or 'percent' in metric %}
+                            profitMetrics.push('{{ metric|replace('_', ' ')|title }}');
+                            
+                            const profitData = [];
+                            {% for value in values.values %}
+                                profitData.push({{ value|float }});
+                            {% endfor %}
+                            
+                            // Random color for each metric
+                            const r = Math.floor(Math.random() * 200) + 50;
+                            const g = Math.floor(Math.random() * 200) + 50;
+                            const b = Math.floor(Math.random() * 200) + 50;
+                            
+                            profitDatasets.push({
+                                label: '{{ metric|replace('_', ' ')|title }}',
+                                data: profitData,
+                                borderColor: `rgba(${r}, ${g}, ${b}, 1)`,
+                                backgroundColor: `rgba(${r}, ${g}, ${b}, 0.2)`
+                            });
+                        {% endif %}
+                    {% endfor %}
+                    
+                    if (quarters.length > 0 && profitDatasets.length > 0) {
+                        const profitabilityChart = drawLineChart('profitabilityChart', 
+                                                               quarters, 
+                                                               profitDatasets, 
+                                                               'Profitability Metrics Over Time',
+                                                               false);
+                    }
+                {% endif %}
+            {% endif %}
+            
+            // Key financial ratios radar chart
+            {% if data.financial_health_assessment is defined %}
+                const ratioLabels = [];
+                const ratioValues = [];
+                
+                {% if data.financial_health_assessment.liquidity_analysis is defined and data.financial_health_assessment.liquidity_analysis is not string %}
+                    // Extract any numeric values from liquidity analysis
+                    {% for point in data.financial_health_assessment.liquidity_analysis %}
+                        const liquidityMatch = /([a-zA-Z\s]+)\s*:\s*([0-9.]+)/.exec("{{ point }}");
+                        if (liquidityMatch) {
+                            ratioLabels.push(liquidityMatch[1].trim());
+                            ratioValues.push(parseFloat(liquidityMatch[2]));
+                        }
+                    {% endfor %}
+                {% endif %}
+                
+                {% if data.financial_health_assessment.solvency_analysis is defined and data.financial_health_assessment.solvency_analysis is not string %}
+                    // Extract any numeric values from solvency analysis
+                    {% for point in data.financial_health_assessment.solvency_analysis %}
+                        const solvencyMatch = /([a-zA-Z\s]+)\s*:\s*([0-9.]+)/.exec("{{ point }}");
+                        if (solvencyMatch) {
+                            ratioLabels.push(solvencyMatch[1].trim());
+                            ratioValues.push(parseFloat(solvencyMatch[2]));
+                        }
+                    {% endfor %}
+                {% endif %}
+                
+                {% if data.financial_health_assessment.efficiency_ratios is defined and data.financial_health_assessment.efficiency_ratios is not string %}
+                    // Extract any numeric values from efficiency ratios
+                    {% for point in data.financial_health_assessment.efficiency_ratios %}
+                        const efficiencyMatch = /([a-zA-Z\s]+)\s*:\s*([0-9.]+)/.exec("{{ point }}");
+                        if (efficiencyMatch) {
+                            ratioLabels.push(efficiencyMatch[1].trim());
+                            ratioValues.push(parseFloat(efficiencyMatch[2]));
+                        }
+                    {% endfor %}
+                {% endif %}
+                
+                if (ratioLabels.length > 0 && ratioValues.length > 0) {
+                    const ratioChart = drawRadarChart('ratioChart', 
+                                                   ratioLabels, 
+                                                   ratioValues,
+                                                   'Key Financial Ratios');
+                }
+            {% endif %}
+            
+        } catch (e) {
+            console.error('Error creating charts:', e);
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Financial Data - Fintelligence{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="display-5 fw-bold"><i class="fas fa-upload me-2"></i>Upload Financial Data</h1>
+        <p class="lead">Upload your financial data files for AI processing and analysis.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">File Upload</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data" novalidate>
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-4">
+                        <div class="file-upload-container border rounded p-4 text-center position-relative">
+                            <i class="fas fa-file-upload fa-3x text-primary mb-3"></i>
+                            <h5>Drag and drop your file here</h5>
+                            <p class="text-muted mb-3">or click to browse files</p>
+                            
+                            {{ form.file(class="position-absolute top-0 start-0 opacity-0 w-100 h-100", id="file-upload") }}
+                            
+                            <div id="file-name-display" class="selected-file text-primary d-none">
+                                <i class="fas fa-file-alt me-2"></i><span></span>
+                            </div>
+                            
+                            {% if form.file.errors %}
+                                <div class="invalid-feedback d-block mt-2">
+                                    {% for error in form.file.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <h5><i class="fas fa-info-circle me-2"></i>Supported File Formats</h5>
+                        <ul class="mb-0">
+                            <li><strong>CSV:</strong> Comma-separated values file containing financial data</li>
+                            <li><strong>XLSX:</strong> Excel workbook with financial statements or data</li>
+                            <li><strong>PDF:</strong> Financial reports or statements in PDF format</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <h5><i class="fas fa-exclamation-triangle me-2"></i>Important Notes</h5>
+                        <ul class="mb-0">
+                            <li>Maximum file size: 16MB</li>
+                            <li>For best results, ensure data is well-structured and labeled</li>
+                            <li>Processing may take a few moments depending on file size and complexity</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-primary btn-lg") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card shadow mt-4">
+            <div class="card-header bg-light">
+                <h4 class="mb-0">Recommended File Structure</h4>
+            </div>
+            <div class="card-body">
+                <p>For optimal results, please structure your financial data files as follows:</p>
+                
+                <div class="accordion" id="fileStructureAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="csvHeading">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#csvCollapse" aria-expanded="true" aria-controls="csvCollapse">
+                                CSV File Structure
+                            </button>
+                        </h2>
+                        <div id="csvCollapse" class="accordion-collapse collapse show" aria-labelledby="csvHeading" data-bs-parent="#fileStructureAccordion">
+                            <div class="accordion-body">
+                                <p>Your CSV file should include headers with clear column names and organized financial data:</p>
+                                <pre class="bg-light p-3 rounded">
+Date,Account,Category,Description,Amount,Type
+2023-01-15,Cash,Revenue,Product Sales,5000,Income
+2023-01-20,Bank,Expense,Office Supplies,-250,Expense
+2023-01-31,Accounts Receivable,Revenue,Service Fee,1200,Income
+                                </pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="xlsxHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#xlsxCollapse" aria-expanded="false" aria-controls="xlsxCollapse">
+                                XLSX File Structure
+                            </button>
+                        </h2>
+                        <div id="xlsxCollapse" class="accordion-collapse collapse" aria-labelledby="xlsxHeading" data-bs-parent="#fileStructureAccordion">
+                            <div class="accordion-body">
+                                <p>For Excel files, you can organize by sheets:</p>
+                                <ul>
+                                    <li><strong>Income:</strong> Revenue, expenses, and profit information by period</li>
+                                    <li><strong>Balance:</strong> Assets, liabilities, and equity accounts</li>
+                                    <li><strong>Cash Flow:</strong> Cash inflows and outflows by category</li>
+                                </ul>
+                                <p>Each sheet should have clear headers and consistent formatting.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="pdfHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#pdfCollapse" aria-expanded="false" aria-controls="pdfCollapse">
+                                PDF Financial Reports
+                            </button>
+                        </h2>
+                        <div id="pdfCollapse" class="accordion-collapse collapse" aria-labelledby="pdfHeading" data-bs-parent="#fileStructureAccordion">
+                            <div class="accordion-body">
+                                <p>Our AI can extract data from structured financial reports in PDF format:</p>
+                                <ul>
+                                    <li>Annual reports with clear financial statements</li>
+                                    <li>Quarterly financial reports</li>
+                                    <li>Structured financial statements (Balance sheets, Income statements, Cash flow statements)</li>
+                                </ul>
+                                <p>Text-searchable PDFs yield better results than scanned documents.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Display selected filename
+    document.getElementById('file-upload').addEventListener('change', function() {
+        const fileNameDisplay = document.getElementById('file-name-display');
+        const fileNameSpan = fileNameDisplay.querySelector('span');
+        
+        if (this.files.length > 0) {
+            fileNameSpan.textContent = this.files[0].name;
+            fileNameDisplay.classList.remove('d-none');
+        } else {
+            fileNameDisplay.classList.add('d-none');
+        }
+    });
+    
+    // Add drag and drop functionality
+    const dropArea = document.querySelector('.file-upload-container');
+    
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, preventDefaults, false);
+    });
+    
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropArea.addEventListener(eventName, highlight, false);
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, unhighlight, false);
+    });
+    
+    function highlight() {
+        dropArea.classList.add('bg-light');
+    }
+    
+    function unhighlight() {
+        dropArea.classList.remove('bg-light');
+    }
+    
+    dropArea.addEventListener('drop', handleDrop, false);
+    
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        const fileInput = document.getElementById('file-upload');
+        
+        fileInput.files = files;
+        
+        // Trigger change event
+        const event = new Event('change', { bubbles: true });
+        fileInput.dispatchEvent(event);
+    }
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .file-upload-container {
+        min-height: 200px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .file-upload-container:hover {
+        background-color: rgba(13, 110, 253, 0.05);
+    }
+</style>
+{% endblock %}
