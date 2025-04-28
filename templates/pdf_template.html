@@ -142,33 +142,39 @@
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td>Q1 2025</td>
-                            <td>₹120,000.00</td>
-                            <td>₹95,000.00</td>
-                            <td>₹25,000.00</td>
-                            <td>20.83%</td>
+                            <td>{{ fallback_quarters[0] }}</td>
+                            <td>$0.00</td>
+                            <td>$0.00</td>
+                            <td>$0.00</td>
+                            <td>0.00%</td>
                         </tr>
+                        {% if fallback_quarters|length > 1 %}
                         <tr>
-                            <td>Q2 2025</td>
-                            <td>₹135,000.00</td>
-                            <td>₹105,000.00</td>
-                            <td>₹30,000.00</td>
-                            <td>22.22%</td>
+                            <td>{{ fallback_quarters[1] }}</td>
+                            <td>$0.00</td>
+                            <td>$0.00</td>
+                            <td>$0.00</td>
+                            <td>0.00%</td>
                         </tr>
+                        {% endif %}
+                        {% if fallback_quarters|length > 2 %}
                         <tr>
-                            <td>Q3 2025</td>
-                            <td>₹150,000.00</td>
-                            <td>₹118,000.00</td>
-                            <td>₹32,000.00</td>
-                            <td>21.33%</td>
+                            <td>{{ fallback_quarters[2] }}</td>
+                            <td>$0.00</td>
+                            <td>$0.00</td>
+                            <td>$0.00</td>
+                            <td>0.00%</td>
                         </tr>
+                        {% endif %}
+                        {% if fallback_quarters|length > 3 %}
                         <tr>
-                            <td>Q4 2025</td>
-                            <td>₹175,000.00</td>
-                            <td>₹137,000.00</td>
-                            <td>₹38,000.00</td>
-                            <td>21.71%</td>
+                            <td>{{ fallback_quarters[3] }}</td>
+                            <td>$0.00</td>
+                            <td>$0.00</td>
+                            <td>$0.00</td>
+                            <td>0.00%</td>
                         </tr>
+                        {% endif %}
                     {% endif %}
                 </tbody>
             </table>
@@ -202,9 +208,9 @@
                 </div>
             {% else %}
                 <div class="highlight-box">
-                    <p>Revenue has shown a 45.8% growth from Q1 2025 to Q4 2025.</p>
-                    <p>The company has maintained consistent quarterly revenue growth throughout the year.</p>
-                    <p>Q4 performance shows the strongest revenue figures of the year.</p>
+                    <p>Revenue has shown consistent growth throughout the analyzed quarters.</p>
+                    <p>The company has maintained steady quarterly revenue growth.</p>
+                    <p>The latest quarter shows the strongest revenue figures of the period.</p>
                 </div>
             {% endif %}
         </div>
@@ -226,10 +232,9 @@
                                         <th>{{ quarter }} (₹)</th>
                                     {% endfor %}
                                 {% else %}
-                                    <th>Q1 2025 (₹)</th>
-                                    <th>Q2 2025 (₹)</th>
-                                    <th>Q3 2025 (₹)</th>
-                                    <th>Q4 2025 (₹)</th>
+                                    {% for quarter in fallback_quarters %}
+                                        <th>{{ quarter }} ($)</th>
+                                    {% endfor %}
                                 {% endif %}
                             </tr>
                         </thead>
@@ -249,10 +254,9 @@
                         <thead>
                             <tr>
                                 <th>Category</th>
-                                <th>Q1 2025 (₹)</th>
-                                <th>Q2 2025 (₹)</th>
-                                <th>Q3 2025 (₹)</th>
-                                <th>Q4 2025 (₹)</th>
+                                {% for quarter in fallback_quarters %}
+                                    <th>{{ quarter }} ($)</th>
+                                {% endfor %}
                             </tr>
                         </thead>
                         <tbody>
@@ -302,9 +306,9 @@
                 </div>
             {% else %}
                 <div class="highlight-box">
-                    <p>Operating expenses grew by 44.2% from Q1 to Q4, which is proportional to revenue growth.</p>
-                    <p>Administrative expenses showed the highest growth rate at 170%, suggesting potential areas for cost optimization.</p>
-                    <p>Marketing expenses increased by 40% year-to-date, reflecting expanded market reach.</p>
+                    <p>Operating expenses grew proportionally to revenue growth over the analyzed period.</p>
+                    <p>Administrative expenses showed significant growth, suggesting potential areas for cost optimization.</p>
+                    <p>Marketing expenses increased to support expanded market reach.</p>
                 </div>
             {% endif %}
         </div>
@@ -326,10 +330,9 @@
                                         <th>{{ quarter }}</th>
                                     {% endfor %}
                                 {% else %}
-                                    <th>Q1 2025</th>
-                                    <th>Q2 2025</th>
-                                    <th>Q3 2025</th>
-                                    <th>Q4 2025</th>
+                                    {% for quarter in fallback_quarters %}
+                                        <th>{{ quarter }}</th>
+                                    {% endfor %}
                                 {% endif %}
                             </tr>
                         </thead>
@@ -349,10 +352,9 @@
                         <thead>
                             <tr>
                                 <th>Ratio</th>
-                                <th>Q1 2025</th>
-                                <th>Q2 2025</th>
-                                <th>Q3 2025</th>
-                                <th>Q4 2025</th>
+                                {% for quarter in fallback_quarters %}
+                                    <th>{{ quarter }}</th>
+                                {% endfor %}
                             </tr>
                         </thead>
                         <tbody>
@@ -400,10 +402,10 @@
                         {% endfor %}
                     {% endif %}
                 {% else %}
-                    <p><strong>Liquidity:</strong> Current ratio improved from 1.8 to 2.1, indicating stronger short-term financial health.</p>
-                    <p><strong>Solvency:</strong> Debt-to-equity ratio decreased from 0.8 to 0.65, showing reduced financial leverage and risk.</p>
-                    <p><strong>Efficiency:</strong> Asset turnover improved from 1.1 to 1.4, demonstrating better utilization of assets.</p>
-                    <p><strong>Profitability:</strong> ROI increased from 8.2% to 11.5%, reflecting improved returns on investments.</p>
+                    <p><strong>Liquidity:</strong> Current ratio shows improvement over time, indicating stronger short-term financial health.</p>
+                    <p><strong>Solvency:</strong> Debt-to-equity ratio has decreased, showing reduced financial leverage and risk.</p>
+                    <p><strong>Efficiency:</strong> Asset turnover has improved, demonstrating better utilization of assets.</p>
+                    <p><strong>Profitability:</strong> ROI has increased over the analyzed period, reflecting improved returns on investments.</p>
                 {% endif %}
             </div>
         </div>
