@@ -701,8 +701,16 @@ def process_chat_query(user_query, file_data):
                 if 'data' in item and item['data']:
                     data_subset = []
                     # Limit to first 20 records to avoid context size issues
-                    for record in item['data'][:20]:
-                        data_subset.append(record)
+                    data_to_process = item['data']
+                    if isinstance(data_to_process, list):
+                        # Handle list data (normal case)
+                        for i, record in enumerate(data_to_process):
+                            if i >= 20:  # Only process first 20 records
+                                break
+                            data_subset.append(record)
+                    else:
+                        # Handle non-list data (just add without slicing)
+                        data_subset.append({"data": str(data_to_process)})
                     data_context.append({"raw_data": data_subset})
                 
                 # Add reports if available
