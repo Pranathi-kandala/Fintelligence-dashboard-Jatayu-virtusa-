@@ -103,18 +103,15 @@
                         </li>
                     {% endfor %}
                 {% endif %}
+            {% elif data.error_details is defined and data.error_details %}
+                {% for error in data.error_details %}
+                    <li class="list-group-item">
+                        <i class="fas fa-exclamation-triangle text-warning me-2"></i> {{ error }}
+                    </li>
+                {% endfor %}
             {% else %}
                 <li class="list-group-item">
-                    <i class="fas fa-circle text-primary me-2"></i> Quarterly revenue shows consistent growth trend of 15% YoY.
-                </li>
-                <li class="list-group-item">
-                    <i class="fas fa-circle text-primary me-2"></i> Profit margins have increased by 2.5% since the previous quarter.
-                </li>
-                <li class="list-group-item">
-                    <i class="fas fa-circle text-primary me-2"></i> Operational expenses have decreased by 3% relative to revenue.
-                </li>
-                <li class="list-group-item">
-                    <i class="fas fa-circle text-primary me-2"></i> Cash flow remains positive with 20% increase in operating cash flow.
+                    <i class="fas fa-exclamation-triangle text-warning me-2"></i> No executive summary was generated. Please try with a different financial data file.
                 </li>
             {% endif %}
         </ul>

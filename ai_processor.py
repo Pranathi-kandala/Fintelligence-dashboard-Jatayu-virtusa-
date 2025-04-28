@@ -524,30 +524,18 @@ def generate_analysis(file_data):
         result["generated_at"] = datetime.now().isoformat()
         result["source_format"] = file_data.get('format')
         
-        # Always ensure chart data is available - add defaults if missing
+        # Ensure chart data is available, inform user if missing
         if "quarterly_performance" not in result:
-            result["quarterly_performance"] = {
-                "Q1 2025": {"revenue": 120000, "expenses": 95000, "profit": 25000, "margin": 20.83},
-                "Q2 2025": {"revenue": 135000, "expenses": 105000, "profit": 30000, "margin": 22.22},
-                "Q3 2025": {"revenue": 150000, "expenses": 118000, "profit": 32000, "margin": 21.33},
-                "Q4 2025": {"revenue": 175000, "expenses": 137000, "profit": 38000, "margin": 21.71}
-            }
+            logger.error("AI model did not generate quarterly_performance data structure")
+            result["error_details"] = result.get("error_details", []) + ["AI model failed to extract quarterly performance data from your file. Please try again with more detailed financial data."]
         
         if "expense_breakdown" not in result:
-            result["expense_breakdown"] = {
-                "Marketing": [25000, 28000, 30000, 35000],
-                "Operations": [45000, 47000, 50000, 55000],
-                "R&D": [15000, 16000, 18000, 20000],
-                "Admin": [10000, 14000, 18000, 27000]
-            }
+            logger.error("AI model did not generate expense_breakdown data structure")
+            result["error_details"] = result.get("error_details", []) + ["AI model couldn't identify expense categories in your data. Please ensure your file contains expense information."]
         
         if "financial_ratios" not in result:
-            result["financial_ratios"] = {
-                "Current Ratio": [1.8, 1.9, 2.0, 2.1],
-                "Debt-to-Equity": [0.8, 0.75, 0.7, 0.65],
-                "ROI": [8.2, 9.1, 10.3, 11.5],
-                "Asset Turnover": [1.1, 1.2, 1.3, 1.4]
-            }
+            logger.error("AI model did not generate financial_ratios data structure")
+            result["error_details"] = result.get("error_details", []) + ["Financial ratios could not be calculated. Please ensure your file contains sufficient balance sheet and income data."]
         
         return result
     
@@ -557,26 +545,12 @@ def generate_analysis(file_data):
         logger.error(traceback.format_exc())
         return {
             "error": f"Failed to generate financial analysis: {str(e)}",
-            "generated_at": datetime.now().isoformat(),
-            # Add default chart data even in error case
-            "quarterly_performance": {
-                "Q1 2025": {"revenue": 120000, "expenses": 95000, "profit": 25000, "margin": 20.83},
-                "Q2 2025": {"revenue": 135000, "expenses": 105000, "profit": 30000, "margin": 22.22},
-                "Q3 2025": {"revenue": 150000, "expenses": 118000, "profit": 32000, "margin": 21.33},
-                "Q4 2025": {"revenue": 175000, "expenses": 137000, "profit": 38000, "margin": 21.71}
-            },
-            "expense_breakdown": {
-                "Marketing": [25000, 28000, 30000, 35000],
-                "Operations": [45000, 47000, 50000, 55000],
-                "R&D": [15000, 16000, 18000, 20000],
-                "Admin": [10000, 14000, 18000, 27000]
-            },
-            "financial_ratios": {
-                "Current Ratio": [1.8, 1.9, 2.0, 2.1],
-                "Debt-to-Equity": [0.8, 0.75, 0.7, 0.65],
-                "ROI": [8.2, 9.1, 10.3, 11.5],
-                "Asset Turnover": [1.1, 1.2, 1.3, 1.4]
-            }
+            "error_details": [
+                "We couldn't process your financial data.",
+                "Please ensure your file includes complete quarterly data with revenue and expense information.",
+                "Try uploading a different financial data file with more detailed information."
+            ],
+            "generated_at": datetime.now().isoformat()
         }
 
 def process_chat_query(user_query, file_data):
