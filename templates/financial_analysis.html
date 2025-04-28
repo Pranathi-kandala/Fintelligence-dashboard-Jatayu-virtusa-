@@ -201,69 +201,7 @@
     </div>
 </div>
 
-<!-- Financial Health Assessment -->
-<div class="card mb-4">
-    <div class="card-header bg-light">
-        <h5 class="mb-0">Financial Health Assessment</h5>
-    </div>
-    <div class="card-body">
-        <div class="row">
-            <!-- Liquidity Analysis -->
-            <div class="col-md-4 mb-3">
-                <div class="card h-100 bg-primary text-white ratio-card">
-                    <div class="card-body">
-                        <h6 class="card-title">Liquidity Analysis</h6>
-                        <p class="card-text">
-                            {% if data.liquidity_analysis is defined and data.liquidity_analysis %}
-                                {{ data.liquidity_analysis }}
-                            {% elif data.error is defined %}
-                                <i class="fas fa-exclamation-triangle me-2"></i> Unable to analyze liquidity due to insufficient data.
-                            {% else %}
-                                <i class="fas fa-exclamation-triangle me-2"></i> Please upload financial data with balance sheet information to analyze liquidity.
-                            {% endif %}
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Solvency Analysis -->
-            <div class="col-md-4 mb-3">
-                <div class="card h-100 bg-primary text-white ratio-card">
-                    <div class="card-body">
-                        <h6 class="card-title">Solvency Analysis</h6>
-                        <p class="card-text">
-                            {% if data.solvency_analysis is defined and data.solvency_analysis %}
-                                {{ data.solvency_analysis }}
-                            {% elif data.error is defined %}
-                                <i class="fas fa-exclamation-triangle me-2"></i> Unable to analyze solvency due to insufficient data.
-                            {% else %}
-                                <i class="fas fa-exclamation-triangle me-2"></i> Please upload financial data with debt and equity information to analyze solvency.
-                            {% endif %}
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Efficiency Ratios -->
-            <div class="col-md-4 mb-3">
-                <div class="card h-100 bg-primary text-white ratio-card">
-                    <div class="card-body">
-                        <h6 class="card-title">Efficiency Ratios</h6>
-                        <p class="card-text">
-                            {% if data.efficiency_ratios is defined and data.efficiency_ratios %}
-                                {{ data.efficiency_ratios }}
-                            {% elif data.error is defined %}
-                                <i class="fas fa-exclamation-triangle me-2"></i> Unable to analyze efficiency ratios due to insufficient data.
-                            {% else %}
-                                <i class="fas fa-exclamation-triangle me-2"></i> Please upload financial data with revenue and asset information to analyze efficiency ratios.
-                            {% endif %}
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<!-- Financial Health Assessment section removed as requested -->
 
 <!-- Risk Assessment -->
 <div class="card mb-4">

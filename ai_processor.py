@@ -80,11 +80,13 @@ def call_gemini_with_retry(prompt):
                 # We've tried MAX_RETRIES times, give up
                 logger.error(f"Failed after {MAX_RETRIES} attempts")
                 if is_rate_limit:
-                    # Return a useful fallback for rate limit errors
-                    return type('obj', (object,), {
-                        'text': 'Unfortunately, we have reached our API usage limit. Please try again in a few minutes.',
-                        'is_error': True
-                    })
+                    # Return a named tuple as a response substitute
+                    from collections import namedtuple
+                    ErrorResponse = namedtuple('ErrorResponse', ['text', 'is_error'])
+                    return ErrorResponse(
+                        text='Unfortunately, we have reached our API usage limit. Please try again in a few minutes.',
+                        is_error=True
+                    )
                 else:
                     # For other errors, just raise
                     raise
