@@ -17,4 +17,6 @@ dependencies = [
     "pypdf2>=3.0.1",
     "google-generativeai>=0.8.5",
     "anthropic>=0.50.0",
+    "xhtml2pdf>=0.2.17",
+    "pytz>=2025.2",
 ]

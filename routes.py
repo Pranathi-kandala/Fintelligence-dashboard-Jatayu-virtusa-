@@ -1,10 +1,12 @@
 import os
 import json
+import pytz
 from datetime import datetime
-from flask import render_template, redirect, url_for, flash, request, jsonify, session, send_file
+from flask import render_template, redirect, url_for, flash, request, jsonify, session, send_file, make_response
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.utils import secure_filename
 from app import db
+from pdf_generator import convert_html_to_pdf, get_current_ist_time, format_ist_time
 from models import User, FileUpload, Report, ChatSession, ChatMessage
 from forms import RegistrationForm, LoginForm, UploadFileForm, ChatForm
 from file_processor import process_uploaded_file
@@ -165,7 +167,7 @@ def register_routes(app):
                 template = 'cash_flow.html'
             elif report_type == 'analysis':
                 report_data = generate_analysis(file_data)
-                template = 'analysis.html'
+                template = 'financial_analysis.html'
             else:
                 flash('Invalid report type.', 'danger')
                 return redirect(url_for('report_options'))
@@ -208,7 +210,9 @@ def register_routes(app):
         elif report.report_type == 'cash_flow':
             template = 'cash_flow.html'
         elif report.report_type == 'analysis':
-            template = 'simple_analysis.html'
+            template = 'financial_analysis.html'
+            # Add IST datetime for template
+            return render_template(template, report=report, data=report_data, ist_datetime=format_ist_time())
         else:
             flash('Invalid report type.', 'danger')
             return redirect(url_for('dashboard'))
@@ -326,3 +330,48 @@ def register_routes(app):
     def demo_analysis():
         """Show a demo financial analysis with static charts."""
         return render_template('demo_analysis.html')
+        
+    @app.route('/download-report-pdf/<int:report_id>')
+    @login_required
+    def download_report_pdf(report_id):
+        """Download a report as PDF instead of JSON."""
+        report = Report.query.get_or_404(report_id)
+        
+        # Ensure the report belongs to the current user
+        if report.user_id != current_user.id:
+            flash('You do not have permission to download this report.', 'danger')
+            return redirect(url_for('dashboard'))
+        
+        report_data = json.loads(report.data)
+        
+        # Get file information
+        file_upload = FileUpload.query.get(report.file_id)
+        
+        # Get current time in IST
+        ist_datetime = format_ist_time()
+        
+        # Render HTML content with the report data
+        html_content = render_template(
+            'pdf_template.html',
+            report=report,
+            data=report_data,
+            ist_datetime=ist_datetime
+        )
+        
+        # Convert HTML to PDF
+        pdf_file = convert_html_to_pdf(html_content)
+        
+        if not pdf_file:
+            flash('Error generating PDF.', 'danger')
+            return redirect(url_for('view_report', report_id=report.id))
+        
+        # Generate filename based on report type and date
+        date_str = get_current_ist_time().strftime('%Y%m%d')
+        filename = f"{report.report_type}_{date_str}.pdf"
+        
+        # Return PDF file
+        response = make_response(pdf_file.getvalue())
+        response.headers['Content-Type'] = 'application/pdf'
+        response.headers['Content-Disposition'] = f'attachment; filename={filename}'
+        
+        return response
