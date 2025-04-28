@@ -328,6 +328,27 @@ def register_routes(app):
     def download_report(report_id):
         """Redirect to the PDF download route."""
         return redirect(url_for('download_report_pdf', report_id=report_id))
+        
+    @app.route('/delete-report/<int:report_id>', methods=['POST'])
+    @login_required
+    def delete_report(report_id):
+        """Delete a report from the database."""
+        report = Report.query.get_or_404(report_id)
+        
+        # Ensure the report belongs to the current user
+        if report.user_id != current_user.id:
+            flash('You do not have permission to delete this report.', 'danger')
+            return redirect(url_for('dashboard'))
+        
+        # Get the file_id before deleting for redirection
+        file_id = report.file_id
+        
+        # Delete the report
+        db.session.delete(report)
+        db.session.commit()
+        
+        flash('Report deleted successfully.', 'success')
+        return redirect(url_for('report_options', file_id=file_id))
     
     @app.route('/chatbot', methods=['GET', 'POST'])
     @login_required
