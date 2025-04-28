@@ -182,7 +182,8 @@ def register_routes(app):
             db.session.add(report)
             db.session.commit()
             
-            return render_template(template, report=report, data=report_data)
+            # Add IST datetime for all templates
+            return render_template(template, report=report, data=report_data, ist_datetime=format_ist_time())
         
         except Exception as e:
             import traceback
@@ -217,7 +218,8 @@ def register_routes(app):
             flash('Invalid report type.', 'danger')
             return redirect(url_for('dashboard'))
         
-        return render_template(template, report=report, data=report_data)
+        # Add IST datetime for all templates
+        return render_template(template, report=report, data=report_data, ist_datetime=format_ist_time())
     
     @app.route('/download-report/<int:report_id>')
     @login_required
