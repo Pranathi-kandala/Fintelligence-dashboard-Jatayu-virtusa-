@@ -421,8 +421,9 @@ def register_routes(app):
     @app.route('/demo-analysis')
     @login_required
     def demo_analysis():
-        """Show a demo financial analysis with static charts."""
-        return render_template('demo_analysis.html')
+        """Redirect to upload page with a message about using real data."""
+        flash('Demo analysis has been replaced with real data analysis. Please upload your financial data to generate accurate reports.', 'info')
+        return redirect(url_for('upload'))
         
     @app.route('/download-report-pdf/<int:report_id>')
     @login_required
