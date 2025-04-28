@@ -62,32 +62,34 @@ def call_gemini_with_retry(prompt):
             
             logger.error(f"Gemini API error: {error_message}")
             
-            if "quota" in error_message.lower() or "429" in error_message:
-                # Specific handling for quota exceedance
-                logger.warning(f"Rate limit or quota exceeded, retrying ({retries}/{MAX_RETRIES})...")
-                # Extract retry delay if available in the error message
-                if "retry_delay" in error_message and "seconds" in error_message:
-                    try:
-                        # Extract retry delay seconds from error
-                        delay_text = error_message.split("retry_delay")[1]
-                        seconds = int(delay_text.split("seconds")[0].strip("{").strip("}").strip(":").strip())
-                        logger.info(f"Waiting for {seconds} seconds before retry...")
-                        time.sleep(seconds + random.uniform(1.0, 5.0))  # Add jitter
-                    except Exception as parse_err:
-                        # Default delay if parsing fails
-                        time.sleep(10 + random.uniform(1.0, 5.0))
+            # Determine if we have rate limit error or other error
+            is_rate_limit = "quota" in error_message.lower() or "429" in error_message
+            
+            if retries < MAX_RETRIES:
+                if is_rate_limit:
+                    # For rate limits - use longer delay
+                    wait_time = min(30, 5 * (2 ** retries))
+                    logger.warning(f"Rate limit exceeded, retrying ({retries}/{MAX_RETRIES}) in {wait_time}s...")
                 else:
-                    # Default delay if no retry_delay in error
-                    time.sleep(10 + random.uniform(1.0, 5.0))
-            elif retries < MAX_RETRIES:
-                # For other errors that aren't quota-related, still retry but with shorter delay
-                logger.warning(f"Non-quota error, retrying ({retries}/{MAX_RETRIES})...")
-                time.sleep(2 + random.uniform(0.5, 2.0))
-            else:
-                # If at max retries, just raise
-                raise
+                    # For other errors - use shorter delay
+                    wait_time = 2 + random.uniform(0.5, 2.0)
+                    logger.warning(f"Non-quota error, retrying ({retries}/{MAX_RETRIES}) in {wait_time}s...")
                 
-    # If we've exhausted retries, raise the last error
+                time.sleep(wait_time)
+            else:
+                # We've tried MAX_RETRIES times, give up
+                logger.error(f"Failed after {MAX_RETRIES} attempts")
+                if is_rate_limit:
+                    # Return a useful fallback for rate limit errors
+                    return type('obj', (object,), {
+                        'text': 'Unfortunately, we have reached our API usage limit. Please try again in a few minutes.',
+                        'is_error': True
+                    })
+                else:
+                    # For other errors, just raise
+                    raise
+    
+    # This should never be reached but just in case
     raise Exception(f"Failed to get response from Gemini API after {MAX_RETRIES} retries")
 
 def generate_balance_sheet(file_data):
