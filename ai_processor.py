@@ -669,8 +669,12 @@ def explain_ai_decision(report_type, report_data):
         4. How the recommendations were prioritized
         5. Any limitations in the analysis due to data constraints
         
-        Format your response in a clear, structured manner suitable for financial professionals
-        who need to understand the AI's decision-making process.
+        Format your response in a clear, structured manner with proper headings and sections.
+        Use markdown formatting for headings (# for main headings, ## for subheadings).
+        Use bullet points where appropriate to improve readability.
+        
+        Your explanation should be easy to understand but technically precise,
+        suitable for financial professionals who need to understand the AI's decision-making process.
         
         Report Data:
         {report_data_str}

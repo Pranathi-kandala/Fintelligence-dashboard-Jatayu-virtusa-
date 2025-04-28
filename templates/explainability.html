@@ -25,7 +25,15 @@
             </div>
             <div class="card-body">
                 <div class="explanation-content">
-                    {{ explanation.explanation|safe|replace('\n', '<br>')|replace('**', '<strong>')|replace('**', '</strong>') }}
+                    {% if explanation.explanation %}
+                        {% set formatted_text = explanation.explanation|replace('\n\n', '<br><br>')|replace('\n', '<br>')|replace('**', '<strong>')|replace('**', '</strong>') %}
+                        {% set formatted_text = formatted_text|replace('# ', '<h3>')|replace('\n', '</h3>') %}
+                        {% set formatted_text = formatted_text|replace('## ', '<h4>')|replace('\n', '</h4>') %}
+                        {% set formatted_text = formatted_text|replace('### ', '<h5>')|replace('\n', '</h5>') %}
+                        {{ formatted_text|safe }}
+                    {% else %}
+                        <p>No explanation data available. Please regenerate the report.</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
