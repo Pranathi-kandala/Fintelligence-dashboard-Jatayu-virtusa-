@@ -476,7 +476,7 @@ def register_routes(app):
     @app.route('/download-report-pdf/<int:report_id>')
     @login_required
     def download_report_pdf(report_id):
-        """Download a report as PDF instead of JSON."""
+        """Download a report directly as a print-friendly webpage."""
         report = Report.query.get_or_404(report_id)
         import logging
         logger = logging.getLogger('fintelligence')
@@ -486,86 +486,6 @@ def register_routes(app):
             flash('You do not have permission to download this report.', 'danger')
             return redirect(url_for('dashboard'))
         
-        # Safely parse JSON data
-        try:
-            report_data = json.loads(report.data)
-            # Ensure it's a dict to prevent template errors
-            if not isinstance(report_data, dict):
-                report_data = {}
-        except Exception as e:
-            logger.error(f"Error parsing report data JSON for PDF: {str(e)}")
-            report_data = {}  # Use empty dict on error
-        
-        # Get file information
-        file_upload = FileUpload.query.get(report.file_id)
-        
-        # Get current time in IST
-        ist_datetime = format_ist_time()
-        
-        # Select appropriate PDF template based on report type
-        try:
-            if report.report_type == 'balance_sheet':
-                template = 'balance_sheet_pdf.html'
-            elif report.report_type == 'income_statement':
-                template = 'income_statement_pdf.html'
-            elif report.report_type == 'cash_flow':
-                template = 'cash_flow_pdf.html'
-            elif report.report_type == 'analysis':
-                template = 'pdf_template.html'
-            else:
-                flash('Invalid report type for PDF generation.', 'danger')
-                return redirect(url_for('view_report', report_id=report.id))
-            
-            # Generate dynamic quarters for fallback data
-            def generate_fallback_quarters():
-                current_date = datetime.now()
-                current_year = current_date.year
-                current_month = current_date.month
-                
-                quarters = []
-                if current_month >= 1: quarters.append(f"Q1 {current_year}")  # Jan-Mar
-                if current_month >= 4: quarters.append(f"Q2 {current_year}")  # Apr-Jun
-                if current_month >= 7: quarters.append(f"Q3 {current_year}")  # Jul-Sep
-                if current_month >= 10: quarters.append(f"Q4 {current_year}")  # Oct-Dec
-                
-                # Ensure we have at least one quarter
-                if not quarters:
-                    quarters.append(f"Q1 {current_year}")
-                
-                return quarters
-            
-            # Get fallback quarters
-            fallback_quarters = generate_fallback_quarters()
-            
-            # Render HTML content with the report data
-            html_content = render_template(
-                template,
-                report=report,
-                data=report_data,
-                ist_datetime=ist_datetime,
-                fallback_quarters=fallback_quarters
-            )
-            
-            # Convert HTML to PDF
-            pdf_file = convert_html_to_pdf(html_content)
-            
-            if not pdf_file:
-                flash('Error generating PDF.', 'danger')
-                return redirect(url_for('view_report', report_id=report.id))
-            
-            # Generate filename based on report type and date
-            date_str = get_current_ist_time().strftime('%Y%m%d')
-            filename = f"{report.report_type}_{date_str}.pdf"
-            
-            # Return PDF file
-            response = make_response(pdf_file.getvalue())
-            response.headers['Content-Type'] = 'application/pdf'
-            response.headers['Content-Disposition'] = f'attachment; filename={filename}'
-            
-            return response
-        except Exception as e:
-            import traceback
-            logger.error(f"Error generating PDF: {str(e)}")
-            logger.error(traceback.format_exc())
-            flash(f'Error generating PDF: {str(e)}', 'danger')
-            return redirect(url_for('view_report', report_id=report.id))
+        # Simply redirect to the view_report page with a print parameter
+        # This will trigger browser's print dialog when the page loads
+        return redirect(url_for('view_report', report_id=report.id, print_mode=1))
