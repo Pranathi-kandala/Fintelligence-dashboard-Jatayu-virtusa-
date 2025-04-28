@@ -53,7 +53,7 @@
                     <table class="table table-bordered">
                         <thead class="table-primary">
                             <tr>
-                                <th colspan="2">Income Statement for the period ending {{ data.generated_at|replace('T', ' ')|replace('Z', '')|replace('.', ' ').split()[0] }}</th>
+                                <th colspan="2">Income Statement for the period ending {{ data.generated_at[:10] if data.generated_at else 'Today' }}</th>
                             </tr>
                         </thead>
                         <tbody>
