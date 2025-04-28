@@ -418,16 +418,18 @@ def generate_analysis(file_data):
     6. Strategic Recommendations
     7. Future Outlook
     
-    VERY IMPORTANT: Include EXACT JSON structures for charts with the following structure:
-    1. "quarterly_performance": An object with quarters as keys (Q1 2025, Q2 2025, Q3 2025, Q4 2025) 
+    MOST IMPORTANT: Your response MUST include these EXACT JSON structures for chart visualization:
+    
+    1. "quarterly_performance": An object with quarters as keys (like "Q1 2023", "Q2 2023") derived from the actual data periods,
        and each value containing revenue, expenses, profit, and margin for that quarter.
        Example:
        "quarterly_performance": {
-         "Q1 2025": {"revenue": 120000, "expenses": 95000, "profit": 25000, "margin": 20.83},
-         "Q2 2025": {"revenue": 135000, "expenses": 105000, "profit": 30000, "margin": 22.22}
+         "Q1 2023": {"revenue": 120000, "expenses": 95000, "profit": 25000, "margin": 20.83},
+         "Q2 2023": {"revenue": 135000, "expenses": 105000, "profit": 30000, "margin": 22.22}
        }
     
-    2. "expense_breakdown": An object with expense categories as keys and arrays of quarterly values.
+    2. "expense_breakdown": An object with expense categories extracted from the actual data as keys 
+       and arrays of quarterly values that match the quarters in quarterly_performance.
        Example:
        "expense_breakdown": {
          "Marketing": [25000, 28000, 30000, 35000],
@@ -441,7 +443,10 @@ def generate_analysis(file_data):
          "Debt-to-Equity": [0.8, 0.75, 0.7, 0.65]
        }
     
-    Format your response as a valid JSON with these exact structures to enable chart generation.
+    CRITICAL: These data structures MUST be based on the actual data provided, not invented or fabricated values.
+    All values must be calculated from the financial data provided.
+    
+    Format your entire response as valid JSON with these exact structures to enable chart generation.
     
     Here is the financial data:
     """

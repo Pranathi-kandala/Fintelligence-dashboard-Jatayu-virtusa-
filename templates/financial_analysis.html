@@ -371,30 +371,33 @@
         let quarterlyData;
         
         try {
-            // Try to extract data from the AI-generated report using various possible structures
+            // Extract data from the AI-generated report, ensuring we use actual data
             {% if data.quarterly_performance is defined and data.quarterly_performance %}
-                // Extract from quarterly_performance format
-                const quarters = Object.keys({{ data.quarterly_performance|tojson }});
-                const revenues = quarters.map(q => {{ data.quarterly_performance|tojson }}[q].revenue);
-                const expenses = quarters.map(q => {{ data.quarterly_performance|tojson }}[q].expenses);
-                const margins = quarters.map(q => {{ data.quarterly_performance|tojson }}[q].margin);
+                // Extract from quarterly_performance format - actual data from API
+                const quarterlyPerf = {{ data.quarterly_performance|tojson }};
+                const quarters = Object.keys(quarterlyPerf);
+                const revenues = quarters.map(q => quarterlyPerf[q].revenue);
+                const expenses = quarters.map(q => quarterlyPerf[q].expenses);
+                const profits = quarters.map(q => quarterlyPerf[q].profit);
+                const margins = quarters.map(q => quarterlyPerf[q].margin);
                 
-                // Get expense breakdown if available
+                // Get expense breakdown from actual data
                 {% if data.expense_breakdown is defined and data.expense_breakdown %}
                     const expenseBreakdown = {{ data.expense_breakdown|tojson }};
                 {% else %}
-                    const expenseBreakdown = {'Total': expenses};
+                    // Create a basic expense breakdown from the total expenses
+                    const expenseBreakdown = {'Total Expenses': expenses};
                 {% endif %}
                 
-                // Get financial ratios if available
+                // Get financial ratios from actual data
                 {% if data.financial_ratios is defined and data.financial_ratios %}
                     const financialRatios = {{ data.financial_ratios|tojson }};
                 {% else %}
+                    // If no ratios provided, create basic ones from the available data
                     const financialRatios = {
-                        'Current Ratio': [1.8, 1.9, 2.0, 2.1],
-                        'Debt-to-Equity': [0.8, 0.75, 0.7, 0.65],
-                        'ROI': [8.2, 9.1, 10.3, 11.5],
-                        'Asset Turnover': [1.1, 1.2, 1.3, 1.4]
+                        'Profit Margin (%)': margins,
+                        'Revenue Growth (%)': quarters.map((_, i) => 
+                            i > 0 ? ((revenues[i] - revenues[i-1]) / revenues[i-1] * 100).toFixed(2) : 0)
                     };
                 {% endif %}
                 
@@ -483,9 +486,9 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${quarter}</td>
-                    <td>₹${quarterlyData.revenues[i].toLocaleString()}</td>
-                    <td>₹${totalExpenses.toLocaleString()}</td>
-                    <td>₹${profit.toLocaleString()}</td>
+                    <td>$${quarterlyData.revenues[i].toLocaleString()}</td>
+                    <td>$${totalExpenses.toLocaleString()}</td>
+                    <td>$${profit.toLocaleString()}</td>
                     <td>${margin.toFixed(2)}%</td>
                 `;
                 perfTable.appendChild(row);
@@ -499,7 +502,7 @@
             data: {
                 labels: quarterlyData.labels,
                 datasets: [{
-                    label: 'Quarterly Revenue (₹)',
+                    label: 'Quarterly Revenue ($)',
                     data: quarterlyData.revenues,
                     borderColor: 'rgba(54, 162, 235, 1)',
                     backgroundColor: 'rgba(54, 162, 235, 0.1)',
@@ -515,7 +518,7 @@
                         beginAtZero: true,
                         ticks: {
                             callback: function(value) {
-                                return '₹' + value.toLocaleString();
+                                return "\$" + value.toLocaleString();
                             }
                         }
                     }
@@ -564,7 +567,7 @@
                         stacked: true,
                         ticks: {
                             callback: function(value) {
-                                return '₹' + value.toLocaleString();
+                                return "\$" + value.toLocaleString();
                             }
                         }
                     }
