@@ -134,15 +134,15 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% if data.operating_activities %}
-                        {% for item, value in data.operating_activities.items() %}
-                            {% if item != 'net_cash_from_operating_activities' %}
+                    {% if data.cash_flow_statement.operating_activities is defined %}
+                        {% for item, value in data.cash_flow_statement.operating_activities.items() %}
+                            {% if item != 'net_cash_from_operating' and item != 'net_operating_cash_flow' %}
                                 <tr>
-                                    <td>{{ item }}</td>
-                                    <td>${{ '{:,.2f}'.format(value) }}</td>
-                                    {% if data.previous_period is defined and data.previous_period.operating_activities is defined and item in data.previous_period.operating_activities %}
-                                        <td>${{ '{:,.2f}'.format(data.previous_period.operating_activities[item]) }}</td>
-                                        {% set change = ((value - data.previous_period.operating_activities[item]) / data.previous_period.operating_activities[item] * 100) if data.previous_period.operating_activities[item] != 0 else 0 %}
+                                    <td>{{ item|replace('_', ' ')|title }}</td>
+                                    <td>${{ '{:,.2f}'.format(value|float) }}</td>
+                                    {% if data.previous_period is defined and data.previous_period.cash_flow_statement is defined and data.previous_period.cash_flow_statement.operating_activities is defined and item in data.previous_period.cash_flow_statement.operating_activities %}
+                                        <td>${{ '{:,.2f}'.format(data.previous_period.cash_flow_statement.operating_activities[item]|float) }}</td>
+                                        {% set change = ((value|float - data.previous_period.cash_flow_statement.operating_activities[item]|float) / data.previous_period.cash_flow_statement.operating_activities[item]|float * 100) if data.previous_period.cash_flow_statement.operating_activities[item]|float != 0 else 0 %}
                                         <td class="{% if change > 0 and item not in ['depreciation_amortization', 'decrease_in_accounts_receivable', 'decrease_in_inventory'] %}positive{% elif change < 0 and item not in ['depreciation_amortization', 'decrease_in_accounts_receivable', 'decrease_in_inventory'] %}negative{% elif change > 0 and item in ['depreciation_amortization', 'decrease_in_accounts_receivable', 'decrease_in_inventory'] %}positive{% else %}negative{% endif %}">
                                             {{ '{:+.2f}'.format(change) }}%
                                         </td>
@@ -152,13 +152,27 @@
                         {% endfor %}
                         <tr>
                             <td><strong>Net Cash from Operating Activities</strong></td>
-                            <td><strong>${{ '{:,.2f}'.format(data.operating_activities.net_cash_from_operating_activities) }}</strong></td>
-                            {% if data.previous_period is defined and data.previous_period.operating_activities is defined and 'net_cash_from_operating_activities' in data.previous_period.operating_activities %}
-                                <td><strong>${{ '{:,.2f}'.format(data.previous_period.operating_activities.net_cash_from_operating_activities) }}</strong></td>
-                                {% set change = ((data.operating_activities.net_cash_from_operating_activities - data.previous_period.operating_activities.net_cash_from_operating_activities) / data.previous_period.operating_activities.net_cash_from_operating_activities * 100) if data.previous_period.operating_activities.net_cash_from_operating_activities != 0 else 0 %}
-                                <td class="{% if change > 0 %}positive{% elif change < 0 %}negative{% endif %}">
-                                    <strong>{{ '{:+.2f}'.format(change) }}%</strong>
-                                </td>
+                            <td class="text-end">
+                                {% if data.cash_flow_statement.net_cash_from_operating is defined %}
+                                    <strong>${{ "{:,.2f}".format(data.cash_flow_statement.net_cash_from_operating|float) }}</strong>
+                                {% elif data.cash_flow_statement.net_operating_cash_flow is defined %}
+                                    <strong>${{ "{:,.2f}".format(data.cash_flow_statement.net_operating_cash_flow|float) }}</strong>
+                                {% endif %}
+                            </td>
+                            {% if data.previous_period is defined and data.previous_period.cash_flow_statement is defined %}
+                                {% if data.previous_period.cash_flow_statement.net_cash_from_operating is defined and data.cash_flow_statement.net_cash_from_operating is defined %}
+                                    <td><strong>${{ '{:,.2f}'.format(data.previous_period.cash_flow_statement.net_cash_from_operating|float) }}</strong></td>
+                                    {% set change = ((data.cash_flow_statement.net_cash_from_operating|float - data.previous_period.cash_flow_statement.net_cash_from_operating|float) / data.previous_period.cash_flow_statement.net_cash_from_operating|float * 100) if data.previous_period.cash_flow_statement.net_cash_from_operating|float != 0 else 0 %}
+                                    <td class="{% if change > 0 %}positive{% elif change < 0 %}negative{% endif %}">
+                                        <strong>{{ '{:+.2f}'.format(change) }}%</strong>
+                                    </td>
+                                {% elif data.previous_period.cash_flow_statement.net_operating_cash_flow is defined and data.cash_flow_statement.net_operating_cash_flow is defined %}
+                                    <td><strong>${{ '{:,.2f}'.format(data.previous_period.cash_flow_statement.net_operating_cash_flow|float) }}</strong></td>
+                                    {% set change = ((data.cash_flow_statement.net_operating_cash_flow|float - data.previous_period.cash_flow_statement.net_operating_cash_flow|float) / data.previous_period.cash_flow_statement.net_operating_cash_flow|float * 100) if data.previous_period.cash_flow_statement.net_operating_cash_flow|float != 0 else 0 %}
+                                    <td class="{% if change > 0 %}positive{% elif change < 0 %}negative{% endif %}">
+                                        <strong>{{ '{:+.2f}'.format(change) }}%</strong>
+                                    </td>
+                                {% endif %}
                             {% endif %}
                         </tr>
                     {% else %}
@@ -185,15 +199,15 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% if data.investing_activities %}
-                        {% for item, value in data.investing_activities.items() %}
-                            {% if item != 'net_cash_from_investing_activities' %}
+                    {% if data.cash_flow_statement.investing_activities is defined %}
+                        {% for item, value in data.cash_flow_statement.investing_activities.items() %}
+                            {% if item != 'net_cash_from_investing' and item != 'net_investing_cash_flow' %}
                                 <tr>
-                                    <td>{{ item }}</td>
-                                    <td>${{ '{:,.2f}'.format(value) }}</td>
-                                    {% if data.previous_period is defined and data.previous_period.investing_activities is defined and item in data.previous_period.investing_activities %}
-                                        <td>${{ '{:,.2f}'.format(data.previous_period.investing_activities[item]) }}</td>
-                                        {% set change = ((value - data.previous_period.investing_activities[item]) / data.previous_period.investing_activities[item] * 100) if data.previous_period.investing_activities[item] != 0 else 0 %}
+                                    <td>{{ item|replace('_', ' ')|title }}</td>
+                                    <td>${{ '{:,.2f}'.format(value|float) }}</td>
+                                    {% if data.previous_period is defined and data.previous_period.cash_flow_statement is defined and data.previous_period.cash_flow_statement.investing_activities is defined and item in data.previous_period.cash_flow_statement.investing_activities %}
+                                        <td>${{ '{:,.2f}'.format(data.previous_period.cash_flow_statement.investing_activities[item]|float) }}</td>
+                                        {% set change = ((value|float - data.previous_period.cash_flow_statement.investing_activities[item]|float) / data.previous_period.cash_flow_statement.investing_activities[item]|float * 100) if data.previous_period.cash_flow_statement.investing_activities[item]|float != 0 else 0 %}
                                         <td class="{% if change > 0 and 'purchase' not in item|lower %}positive{% elif change < 0 and 'purchase' not in item|lower %}negative{% elif change < 0 and 'purchase' in item|lower %}positive{% else %}negative{% endif %}">
                                             {{ '{:+.2f}'.format(change) }}%
                                         </td>
@@ -203,13 +217,27 @@
                         {% endfor %}
                         <tr>
                             <td><strong>Net Cash from Investing Activities</strong></td>
-                            <td><strong>${{ '{:,.2f}'.format(data.investing_activities.net_cash_from_investing_activities) }}</strong></td>
-                            {% if data.previous_period is defined and data.previous_period.investing_activities is defined and 'net_cash_from_investing_activities' in data.previous_period.investing_activities %}
-                                <td><strong>${{ '{:,.2f}'.format(data.previous_period.investing_activities.net_cash_from_investing_activities) }}</strong></td>
-                                {% set change = ((data.investing_activities.net_cash_from_investing_activities - data.previous_period.investing_activities.net_cash_from_investing_activities) / data.previous_period.investing_activities.net_cash_from_investing_activities * 100) if data.previous_period.investing_activities.net_cash_from_investing_activities != 0 else 0 %}
-                                <td class="{% if change > 0 %}positive{% elif change < 0 %}negative{% endif %}">
-                                    <strong>{{ '{:+.2f}'.format(change) }}%</strong>
-                                </td>
+                            <td class="text-end">
+                                {% if data.cash_flow_statement.net_cash_from_investing is defined %}
+                                    <strong>${{ "{:,.2f}".format(data.cash_flow_statement.net_cash_from_investing|float) }}</strong>
+                                {% elif data.cash_flow_statement.net_investing_cash_flow is defined %}
+                                    <strong>${{ "{:,.2f}".format(data.cash_flow_statement.net_investing_cash_flow|float) }}</strong>
+                                {% endif %}
+                            </td>
+                            {% if data.previous_period is defined and data.previous_period.cash_flow_statement is defined %}
+                                {% if data.previous_period.cash_flow_statement.net_cash_from_investing is defined and data.cash_flow_statement.net_cash_from_investing is defined %}
+                                    <td><strong>${{ '{:,.2f}'.format(data.previous_period.cash_flow_statement.net_cash_from_investing|float) }}</strong></td>
+                                    {% set change = ((data.cash_flow_statement.net_cash_from_investing|float - data.previous_period.cash_flow_statement.net_cash_from_investing|float) / data.previous_period.cash_flow_statement.net_cash_from_investing|float * 100) if data.previous_period.cash_flow_statement.net_cash_from_investing|float != 0 else 0 %}
+                                    <td class="{% if change > 0 %}positive{% elif change < 0 %}negative{% endif %}">
+                                        <strong>{{ '{:+.2f}'.format(change) }}%</strong>
+                                    </td>
+                                {% elif data.previous_period.cash_flow_statement.net_investing_cash_flow is defined and data.cash_flow_statement.net_investing_cash_flow is defined %}
+                                    <td><strong>${{ '{:,.2f}'.format(data.previous_period.cash_flow_statement.net_investing_cash_flow|float) }}</strong></td>
+                                    {% set change = ((data.cash_flow_statement.net_investing_cash_flow|float - data.previous_period.cash_flow_statement.net_investing_cash_flow|float) / data.previous_period.cash_flow_statement.net_investing_cash_flow|float * 100) if data.previous_period.cash_flow_statement.net_investing_cash_flow|float != 0 else 0 %}
+                                    <td class="{% if change > 0 %}positive{% elif change < 0 %}negative{% endif %}">
+                                        <strong>{{ '{:+.2f}'.format(change) }}%</strong>
+                                    </td>
+                                {% endif %}
                             {% endif %}
                         </tr>
                     {% else %}
@@ -236,15 +264,15 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% if data.financing_activities %}
-                        {% for item, value in data.financing_activities.items() %}
-                            {% if item != 'net_cash_from_financing_activities' %}
+                    {% if data.cash_flow_statement.financing_activities is defined %}
+                        {% for item, value in data.cash_flow_statement.financing_activities.items() %}
+                            {% if item != 'net_cash_from_financing' and item != 'net_financing_cash_flow' %}
                                 <tr>
-                                    <td>{{ item }}</td>
-                                    <td>${{ '{:,.2f}'.format(value) }}</td>
-                                    {% if data.previous_period is defined and data.previous_period.financing_activities is defined and item in data.previous_period.financing_activities %}
-                                        <td>${{ '{:,.2f}'.format(data.previous_period.financing_activities[item]) }}</td>
-                                        {% set change = ((value - data.previous_period.financing_activities[item]) / data.previous_period.financing_activities[item] * 100) if data.previous_period.financing_activities[item] != 0 else 0 %}
+                                    <td>{{ item|replace('_', ' ')|title }}</td>
+                                    <td>${{ '{:,.2f}'.format(value|float) }}</td>
+                                    {% if data.previous_period is defined and data.previous_period.cash_flow_statement is defined and data.previous_period.cash_flow_statement.financing_activities is defined and item in data.previous_period.cash_flow_statement.financing_activities %}
+                                        <td>${{ '{:,.2f}'.format(data.previous_period.cash_flow_statement.financing_activities[item]|float) }}</td>
+                                        {% set change = ((value|float - data.previous_period.cash_flow_statement.financing_activities[item]|float) / data.previous_period.cash_flow_statement.financing_activities[item]|float * 100) if data.previous_period.cash_flow_statement.financing_activities[item]|float != 0 else 0 %}
                                         <td class="{% if change > 0 and 'repayment' not in item|lower and 'dividend' not in item|lower %}positive{% elif change < 0 and 'repayment' not in item|lower and 'dividend' not in item|lower %}negative{% elif change < 0 and ('repayment' in item|lower or 'dividend' in item|lower) %}positive{% else %}negative{% endif %}">
                                             {{ '{:+.2f}'.format(change) }}%
                                         </td>
@@ -254,13 +282,27 @@
                         {% endfor %}
                         <tr>
                             <td><strong>Net Cash from Financing Activities</strong></td>
-                            <td><strong>${{ '{:,.2f}'.format(data.financing_activities.net_cash_from_financing_activities) }}</strong></td>
-                            {% if data.previous_period is defined and data.previous_period.financing_activities is defined and 'net_cash_from_financing_activities' in data.previous_period.financing_activities %}
-                                <td><strong>${{ '{:,.2f}'.format(data.previous_period.financing_activities.net_cash_from_financing_activities) }}</strong></td>
-                                {% set change = ((data.financing_activities.net_cash_from_financing_activities - data.previous_period.financing_activities.net_cash_from_financing_activities) / data.previous_period.financing_activities.net_cash_from_financing_activities * 100) if data.previous_period.financing_activities.net_cash_from_financing_activities != 0 else 0 %}
-                                <td class="{% if change > 0 %}positive{% elif change < 0 %}negative{% endif %}">
-                                    <strong>{{ '{:+.2f}'.format(change) }}%</strong>
-                                </td>
+                            <td class="text-end">
+                                {% if data.cash_flow_statement.net_cash_from_financing is defined %}
+                                    <strong>${{ "{:,.2f}".format(data.cash_flow_statement.net_cash_from_financing|float) }}</strong>
+                                {% elif data.cash_flow_statement.net_financing_cash_flow is defined %}
+                                    <strong>${{ "{:,.2f}".format(data.cash_flow_statement.net_financing_cash_flow|float) }}</strong>
+                                {% endif %}
+                            </td>
+                            {% if data.previous_period is defined and data.previous_period.cash_flow_statement is defined %}
+                                {% if data.previous_period.cash_flow_statement.net_cash_from_financing is defined and data.cash_flow_statement.net_cash_from_financing is defined %}
+                                    <td><strong>${{ '{:,.2f}'.format(data.previous_period.cash_flow_statement.net_cash_from_financing|float) }}</strong></td>
+                                    {% set change = ((data.cash_flow_statement.net_cash_from_financing|float - data.previous_period.cash_flow_statement.net_cash_from_financing|float) / data.previous_period.cash_flow_statement.net_cash_from_financing|float * 100) if data.previous_period.cash_flow_statement.net_cash_from_financing|float != 0 else 0 %}
+                                    <td class="{% if change > 0 %}positive{% elif change < 0 %}negative{% endif %}">
+                                        <strong>{{ '{:+.2f}'.format(change) }}%</strong>
+                                    </td>
+                                {% elif data.previous_period.cash_flow_statement.net_financing_cash_flow is defined and data.cash_flow_statement.net_financing_cash_flow is defined %}
+                                    <td><strong>${{ '{:,.2f}'.format(data.previous_period.cash_flow_statement.net_financing_cash_flow|float) }}</strong></td>
+                                    {% set change = ((data.cash_flow_statement.net_financing_cash_flow|float - data.previous_period.cash_flow_statement.net_financing_cash_flow|float) / data.previous_period.cash_flow_statement.net_financing_cash_flow|float * 100) if data.previous_period.cash_flow_statement.net_financing_cash_flow|float != 0 else 0 %}
+                                    <td class="{% if change > 0 %}positive{% elif change < 0 %}negative{% endif %}">
+                                        <strong>{{ '{:+.2f}'.format(change) }}%</strong>
+                                    </td>
+                                {% endif %}
                             {% endif %}
                         </tr>
                     {% else %}
@@ -283,21 +325,29 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% if data.cash_summary %}
+                    {% if data.cash_flow_statement.beginning_cash is defined or data.cash_flow_statement.net_change_in_cash is defined or data.cash_flow_statement.ending_cash is defined %}
+                        {% if data.cash_flow_statement.beginning_cash is defined %}
                         <tr>
                             <td>Beginning Cash Balance</td>
-                            <td>${{ '{:,.2f}'.format(data.cash_summary.beginning_cash_balance) }}</td>
+                            <td>${{ '{:,.2f}'.format(data.cash_flow_statement.beginning_cash|float) }}</td>
                         </tr>
+                        {% endif %}
+                        
+                        {% if data.cash_flow_statement.net_change_in_cash is defined %}
                         <tr>
                             <td>Net Change in Cash</td>
-                            <td class="{% if data.cash_summary.net_change_in_cash > 0 %}positive{% elif data.cash_summary.net_change_in_cash < 0 %}negative{% endif %}">
-                                ${{ '{:,.2f}'.format(data.cash_summary.net_change_in_cash) }}
+                            <td class="{% if data.cash_flow_statement.net_change_in_cash|float > 0 %}positive{% elif data.cash_flow_statement.net_change_in_cash|float < 0 %}negative{% endif %}">
+                                ${{ '{:,.2f}'.format(data.cash_flow_statement.net_change_in_cash|float) }}
                             </td>
                         </tr>
+                        {% endif %}
+                        
+                        {% if data.cash_flow_statement.ending_cash is defined %}
                         <tr>
                             <td><strong>Ending Cash Balance</strong></td>
-                            <td><strong>${{ '{:,.2f}'.format(data.cash_summary.ending_cash_balance) }}</strong></td>
+                            <td><strong>${{ '{:,.2f}'.format(data.cash_flow_statement.ending_cash|float) }}</strong></td>
                         </tr>
+                        {% endif %}
                     {% else %}
                         <tr>
                             <td colspan="2">No cash summary data available</td>
