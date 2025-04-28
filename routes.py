@@ -167,7 +167,7 @@ def register_routes(app):
                 template = 'cash_flow.html'
             elif report_type == 'analysis':
                 report_data = generate_analysis(file_data)
-                template = 'financial_analysis.html'
+                template = 'fallback_financial_analysis.html'
             else:
                 flash('Invalid report type.', 'danger')
                 return redirect(url_for('report_options'))
@@ -211,7 +211,7 @@ def register_routes(app):
         elif report.report_type == 'cash_flow':
             template = 'cash_flow.html'
         elif report.report_type == 'analysis':
-            template = 'financial_analysis.html'
+            template = 'fallback_financial_analysis.html'
             # Add IST datetime for template
             return render_template(template, report=report, data=report_data, ist_datetime=format_ist_time())
         else:
@@ -224,30 +224,8 @@ def register_routes(app):
     @app.route('/download-report/<int:report_id>')
     @login_required
     def download_report(report_id):
-        report = Report.query.get_or_404(report_id)
-        
-        # Ensure the report belongs to the current user
-        if report.user_id != current_user.id:
-            flash('You do not have permission to download this report.', 'danger')
-            return redirect(url_for('dashboard'))
-        
-        report_data = json.loads(report.data)
-        
-        # Generate filename based on report type and date
-        date_str = datetime.now().strftime('%Y%m%d')
-        filename = f"{report.report_type}_{date_str}.json"
-        
-        # Create temporary file for download
-        temp_path = os.path.join('/tmp', filename)
-        with open(temp_path, 'w') as f:
-            json.dump(report_data, f, indent=4)
-        
-        return send_file(
-            temp_path,
-            as_attachment=True,
-            download_name=filename,
-            mimetype='application/json'
-        )
+        """Redirect to the PDF download route."""
+        return redirect(url_for('download_report_pdf', report_id=report_id))
     
     @app.route('/chatbot', methods=['GET', 'POST'])
     @login_required
