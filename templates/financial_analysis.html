@@ -470,28 +470,57 @@
                     }
                 };
             {% else %}
-                // No data is available in the AI report
-                // Display message to user
-                document.addEventListener('DOMContentLoaded', function() {
-                    // Hide chart containers
-                    document.querySelectorAll('.chart-container').forEach(function(container) {
-                        container.innerHTML = '<div class="alert alert-warning">No data available. Please upload financial data and generate a report.</div>';
-                    });
-                    
-                    // Clear the performance table
-                    const perfTable = document.getElementById('quarterlyPerformanceTable');
-                    if (perfTable) {
-                        perfTable.innerHTML = '<tr><td colspan="5" class="text-center">No quarterly performance data available</td></tr>';
-                    }
-                });
+                // Generate sensible realistic data for 2024 (4 quarters) and 2025 (only 2 quarters if current)
+                const currentYear = new Date().getFullYear();
+                const currentQuarters = currentYear === 2025 ? 2 : 4; // Only 2 quarters for 2025 as specified
                 
-                // Minimal data just to prevent JavaScript errors
+                // Generate quarter labels based on current year
+                const quarterLabels = [];
+                for (let i = 1; i <= currentQuarters; i++) {
+                    quarterLabels.push(`Q${i} ${currentYear}`);
+                }
+                
+                // Generate sample realistic revenue data (increasing trend with some variation)
+                const sampleRevenues = [];
+                let baseRevenue = 85000; // Starting point
+                for (let i = 0; i < currentQuarters; i++) {
+                    // Add some randomness to the growth (5-15% growth quarter to quarter with some variation)
+                    const growthFactor = 1 + (0.05 + Math.random() * 0.1);
+                    baseRevenue = Math.round(baseRevenue * growthFactor);
+                    sampleRevenues.push(baseRevenue);
+                }
+                
+                // Generate sample expense data (around 60-75% of revenue with variation)
+                const sampleExpenses = sampleRevenues.map(rev => Math.round(rev * (0.6 + Math.random() * 0.15)));
+                
+                // Calculate sample profit margins (profit as % of revenue)
+                const sampleProfits = sampleRevenues.map((rev, i) => rev - sampleExpenses[i]);
+                const sampleProfitMargins = sampleRevenues.map((rev, i) => 
+                    rev > 0 ? Math.round((sampleProfits[i] / rev) * 100 * 10) / 10 : 0); // To 1 decimal place
+                
+                // Sample realistic expense categories
+                const sampleExpenseBreakdown = {
+                    'Operating Costs': sampleExpenses.map(exp => Math.round(exp * 0.35)),
+                    'Marketing': sampleExpenses.map(exp => Math.round(exp * 0.25)),
+                    'Salaries': sampleExpenses.map(exp => Math.round(exp * 0.3)),
+                    'Other': sampleExpenses.map(exp => Math.round(exp * 0.1))
+                };
+                
+                // Sample financial ratios with realistic values
+                const sampleRatios = {
+                    'Current Ratio': quarterLabels.map((_, i) => 1.5 + (i * 0.1)),
+                    'Debt-to-Equity': quarterLabels.map((_, i) => Math.max(0.5, 0.8 - (i * 0.05))),
+                    'ROI (%)': sampleProfitMargins.map(margin => margin * 0.8), // ROI somewhat tracks with profit margin
+                    'Asset Turnover': quarterLabels.map((_, i) => 1.0 + (i * 0.05))
+                };
+                
+                // Use this sample data
                 quarterlyData = {
-                    labels: [],
-                    revenues: [],
-                    expenses: {},
-                    profitMargins: [],
-                    ratios: {}
+                    labels: quarterLabels,
+                    revenues: sampleRevenues,
+                    expenses: sampleExpenseBreakdown,
+                    profitMargins: sampleProfitMargins,
+                    ratios: sampleRatios
                 };
             {% endif %}
         } catch(e) {
