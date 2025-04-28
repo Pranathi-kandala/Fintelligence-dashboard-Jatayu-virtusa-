@@ -115,7 +115,7 @@
                     <thead>
                         <tr>
                             <th>Item</th>
-                            <th>Amount (₹)</th>
+                            <th>Amount ($)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -123,12 +123,12 @@
                             {% for item, value in data.assets.current_assets.items() %}
                                 <tr>
                                     <td>{{ item }}</td>
-                                    <td>₹{{ '{:,.2f}'.format(value) }}</td>
+                                    <td>${{ '{:,.2f}'.format(value) }}</td>
                                 </tr>
                             {% endfor %}
                             <tr>
                                 <td><strong>Total Current Assets</strong></td>
-                                <td><strong>₹{{ '{:,.2f}'.format(data.assets.total_current_assets) }}</strong></td>
+                                <td><strong>${{ '{:,.2f}'.format(data.assets.total_current_assets) }}</strong></td>
                             </tr>
                         {% else %}
                             <tr>
@@ -146,7 +146,7 @@
                     <thead>
                         <tr>
                             <th>Item</th>
-                            <th>Amount (₹)</th>
+                            <th>Amount ($)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -154,12 +154,12 @@
                             {% for item, value in data.assets.fixed_assets.items() %}
                                 <tr>
                                     <td>{{ item }}</td>
-                                    <td>₹{{ '{:,.2f}'.format(value) }}</td>
+                                    <td>${{ '{:,.2f}'.format(value) }}</td>
                                 </tr>
                             {% endfor %}
                             <tr>
                                 <td><strong>Total Fixed Assets</strong></td>
-                                <td><strong>₹{{ '{:,.2f}'.format(data.assets.total_fixed_assets) }}</strong></td>
+                                <td><strong>${{ '{:,.2f}'.format(data.assets.total_fixed_assets) }}</strong></td>
                             </tr>
                         {% else %}
                             <tr>
@@ -178,19 +178,19 @@
                     <thead>
                         <tr>
                             <th>Item</th>
-                            <th>Amount (₹)</th>
+                            <th>Amount ($)</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for item, value in data.assets.other_assets.items() %}
                             <tr>
                                 <td>{{ item }}</td>
-                                <td>₹{{ '{:,.2f}'.format(value) }}</td>
+                                <td>${{ '{:,.2f}'.format(value) }}</td>
                             </tr>
                         {% endfor %}
                         <tr>
                             <td><strong>Total Other Assets</strong></td>
-                            <td><strong>₹{{ '{:,.2f}'.format(data.assets.total_other_assets) }}</strong></td>
+                            <td><strong>${{ '{:,.2f}'.format(data.assets.total_other_assets) }}</strong></td>
                         </tr>
                     </tbody>
                 </table>
@@ -199,7 +199,11 @@
             
             <!-- Total Assets -->
             <div class="highlight-box">
-                <h3>Total Assets: ₹{{ '{:,.2f}'.format(data.assets.total_assets) }}</h3>
+                {% if data.assets is defined and data.assets.total_assets is defined %}
+                    <h3>Total Assets: ${{ '{:,.2f}'.format(data.assets.total_assets) }}</h3>
+                {% else %}
+                    <h3>Total Assets: $0.00</h3>
+                {% endif %}
             </div>
         </div>
 
@@ -213,7 +217,7 @@
                     <thead>
                         <tr>
                             <th>Item</th>
-                            <th>Amount (₹)</th>
+                            <th>Amount ($)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -221,12 +225,12 @@
                             {% for item, value in data.liabilities.current_liabilities.items() %}
                                 <tr>
                                     <td>{{ item }}</td>
-                                    <td>₹{{ '{:,.2f}'.format(value) }}</td>
+                                    <td>${{ '{:,.2f}'.format(value) }}</td>
                                 </tr>
                             {% endfor %}
                             <tr>
                                 <td><strong>Total Current Liabilities</strong></td>
-                                <td><strong>₹{{ '{:,.2f}'.format(data.liabilities.total_current_liabilities) }}</strong></td>
+                                <td><strong>${{ '{:,.2f}'.format(data.liabilities.total_current_liabilities) }}</strong></td>
                             </tr>
                         {% else %}
                             <tr>
@@ -244,7 +248,7 @@
                     <thead>
                         <tr>
                             <th>Item</th>
-                            <th>Amount (₹)</th>
+                            <th>Amount ($)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -252,12 +256,12 @@
                             {% for item, value in data.liabilities.long_term_liabilities.items() %}
                                 <tr>
                                     <td>{{ item }}</td>
-                                    <td>₹{{ '{:,.2f}'.format(value) }}</td>
+                                    <td>${{ '{:,.2f}'.format(value) }}</td>
                                 </tr>
                             {% endfor %}
                             <tr>
                                 <td><strong>Total Long-term Liabilities</strong></td>
-                                <td><strong>₹{{ '{:,.2f}'.format(data.liabilities.total_long_term_liabilities) }}</strong></td>
+                                <td><strong>${{ '{:,.2f}'.format(data.liabilities.total_long_term_liabilities) }}</strong></td>
                             </tr>
                         {% else %}
                             <tr>
@@ -270,7 +274,11 @@
             
             <!-- Total Liabilities -->
             <div class="highlight-box">
-                <h3>Total Liabilities: ₹{{ '{:,.2f}'.format(data.liabilities.total_liabilities) }}</h3>
+                {% if data.liabilities is defined and data.liabilities.total_liabilities is defined %}
+                    <h3>Total Liabilities: ${{ '{:,.2f}'.format(data.liabilities.total_liabilities) }}</h3>
+                {% else %}
+                    <h3>Total Liabilities: $0.00</h3>
+                {% endif %}
             </div>
         </div>
 
@@ -280,7 +288,7 @@
                 <thead>
                     <tr>
                         <th>Item</th>
-                        <th>Amount (₹)</th>
+                        <th>Amount ($)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -289,13 +297,13 @@
                             {% if item != 'total_equity' %}
                                 <tr>
                                     <td>{{ item }}</td>
-                                    <td>₹{{ '{:,.2f}'.format(value) }}</td>
+                                    <td>${{ '{:,.2f}'.format(value) }}</td>
                                 </tr>
                             {% endif %}
                         {% endfor %}
                         <tr>
                             <td><strong>Total Equity</strong></td>
-                            <td><strong>₹{{ '{:,.2f}'.format(data.equity.total_equity) }}</strong></td>
+                            <td><strong>${{ '{:,.2f}'.format(data.equity.total_equity) }}</strong></td>
                         </tr>
                     {% else %}
                         <tr>
