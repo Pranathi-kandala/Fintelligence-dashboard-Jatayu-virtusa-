@@ -352,9 +352,22 @@ def register_routes(app):
         # Get current time in IST
         ist_datetime = format_ist_time()
         
+        # Select appropriate PDF template based on report type
+        if report.report_type == 'balance_sheet':
+            template = 'balance_sheet_pdf.html'
+        elif report.report_type == 'income_statement':
+            template = 'income_statement_pdf.html'
+        elif report.report_type == 'cash_flow':
+            template = 'cash_flow_pdf.html'
+        elif report.report_type == 'analysis':
+            template = 'pdf_template.html'
+        else:
+            flash('Invalid report type for PDF generation.', 'danger')
+            return redirect(url_for('view_report', report_id=report.id))
+        
         # Render HTML content with the report data
         html_content = render_template(
-            'pdf_template.html',
+            template,
             report=report,
             data=report_data,
             ist_datetime=ist_datetime

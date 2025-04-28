@@ -367,24 +367,110 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Static sample data for visualizations
-        const quarterlyData = {
-            labels: ['Q1 2025', 'Q2 2025', 'Q3 2025', 'Q4 2025'],
-            revenues: [120000, 135000, 150000, 175000],
-            expenses: {
-                'Marketing': [25000, 28000, 30000, 35000],
-                'Operations': [45000, 47000, 50000, 55000],
-                'R&D': [15000, 16000, 18000, 20000],
-                'Admin': [10000, 14000, 18000, 27000]
-            },
-            profitMargins: [20.83, 22.22, 21.33, 21.71],
-            ratios: {
-                'Current Ratio': [1.8, 1.9, 2.0, 2.1],
-                'Debt-to-Equity': [0.8, 0.75, 0.7, 0.65],
-                'ROI': [8.2, 9.1, 10.3, 11.5],
-                'Asset Turnover': [1.1, 1.2, 1.3, 1.4]
-            }
-        };
+        // Try to extract data from the AI-generated report
+        let quarterlyData;
+        
+        try {
+            // Try to extract data from the AI-generated report using various possible structures
+            {% if data.quarterly_performance is defined and data.quarterly_performance %}
+                // Extract from quarterly_performance format
+                const quarters = Object.keys({{ data.quarterly_performance|tojson }});
+                const revenues = quarters.map(q => {{ data.quarterly_performance|tojson }}[q].revenue);
+                const expenses = quarters.map(q => {{ data.quarterly_performance|tojson }}[q].expenses);
+                const margins = quarters.map(q => {{ data.quarterly_performance|tojson }}[q].margin);
+                
+                // Get expense breakdown if available
+                {% if data.expense_breakdown is defined and data.expense_breakdown %}
+                    const expenseBreakdown = {{ data.expense_breakdown|tojson }};
+                {% else %}
+                    const expenseBreakdown = {'Total': expenses};
+                {% endif %}
+                
+                // Get financial ratios if available
+                {% if data.financial_ratios is defined and data.financial_ratios %}
+                    const financialRatios = {{ data.financial_ratios|tojson }};
+                {% else %}
+                    const financialRatios = {
+                        'Current Ratio': [1.8, 1.9, 2.0, 2.1],
+                        'Debt-to-Equity': [0.8, 0.75, 0.7, 0.65],
+                        'ROI': [8.2, 9.1, 10.3, 11.5],
+                        'Asset Turnover': [1.1, 1.2, 1.3, 1.4]
+                    };
+                {% endif %}
+                
+                quarterlyData = {
+                    labels: quarters,
+                    revenues: revenues,
+                    expenses: expenseBreakdown,
+                    profitMargins: margins,
+                    ratios: financialRatios
+                };
+            {% elif data.quarterly_data is defined and data.quarterly_data %}
+                // Alternative structure - quarterly_data
+                quarterlyData = {
+                    labels: {{ data.quarterly_data.quarters|tojson }},
+                    revenues: {{ data.quarterly_data.revenues|tojson }},
+                    expenses: {{ data.quarterly_data.expenses|tojson }},
+                    profitMargins: {{ data.quarterly_data.profit_margins|tojson }},
+                    ratios: {{ data.quarterly_data.ratios|tojson }}
+                };
+            {% elif data.quarterly_comparison is defined and data.quarterly_comparison %}
+                // Alternative structure - quarterly_comparison
+                quarterlyData = {
+                    labels: {{ data.quarterly_comparison.quarters|tojson }},
+                    revenues: {{ data.quarterly_comparison.revenue|tojson }},
+                    expenses: {
+                        'Total': {{ data.quarterly_comparison.expenses|tojson }}
+                    },
+                    profitMargins: {{ data.quarterly_comparison.profit_margin|tojson }},
+                    ratios: {
+                        'Current Ratio': [1.8, 1.9, 2.0, 2.1],
+                        'Debt-to-Equity': [0.8, 0.75, 0.7, 0.65],
+                        'ROI': [8.2, 9.1, 10.3, 11.5],
+                        'Asset Turnover': [1.1, 1.2, 1.3, 1.4]
+                    }
+                };
+            {% else %}
+                // Fallback data if nothing is found in the AI report
+                quarterlyData = {
+                    labels: ['Q1 2025', 'Q2 2025', 'Q3 2025', 'Q4 2025'],
+                    revenues: [120000, 135000, 150000, 175000],
+                    expenses: {
+                        'Marketing': [25000, 28000, 30000, 35000],
+                        'Operations': [45000, 47000, 50000, 55000],
+                        'R&D': [15000, 16000, 18000, 20000],
+                        'Admin': [10000, 14000, 18000, 27000]
+                    },
+                    profitMargins: [20.83, 22.22, 21.33, 21.71],
+                    ratios: {
+                        'Current Ratio': [1.8, 1.9, 2.0, 2.1],
+                        'Debt-to-Equity': [0.8, 0.75, 0.7, 0.65],
+                        'ROI': [8.2, 9.1, 10.3, 11.5],
+                        'Asset Turnover': [1.1, 1.2, 1.3, 1.4]
+                    }
+                };
+            {% endif %}
+        } catch(e) {
+            console.error("Error parsing AI data:", e);
+            // Fallback data if an error occurs
+            quarterlyData = {
+                labels: ['Q1 2025', 'Q2 2025', 'Q3 2025', 'Q4 2025'],
+                revenues: [120000, 135000, 150000, 175000],
+                expenses: {
+                    'Marketing': [25000, 28000, 30000, 35000],
+                    'Operations': [45000, 47000, 50000, 55000],
+                    'R&D': [15000, 16000, 18000, 20000],
+                    'Admin': [10000, 14000, 18000, 27000]
+                },
+                profitMargins: [20.83, 22.22, 21.33, 21.71],
+                ratios: {
+                    'Current Ratio': [1.8, 1.9, 2.0, 2.1],
+                    'Debt-to-Equity': [0.8, 0.75, 0.7, 0.65],
+                    'ROI': [8.2, 9.1, 10.3, 11.5],
+                    'Asset Turnover': [1.1, 1.2, 1.3, 1.4]
+                }
+            };
+        }
 
         // Populate quarterly performance table
         const perfTable = document.getElementById('quarterlyPerformanceTable');

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Cash Flow Statement Report</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            line-height: 1.5;
+        }
+        .container {
+            width: 100%;
+            max-width: 100%;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #0d6efd;
+            padding-bottom: 20px;
+        }
+        .header h1 {
+            color: #0d6efd;
+            margin-bottom: 10px;
+        }
+        .header p {
+            color: #666;
+            margin: 5px 0;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .section-title {
+            background-color: #0d6efd;
+            color: white;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+        .subsection {
+            margin-bottom: 20px;
+        }
+        .subsection-title {
+            color: #0d6efd;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+            padding: 10px;
+            text-align: left;
+        }
+        td {
+            padding: 10px;
+        }
+        ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .highlight-box {
+            border-left: 4px solid #0d6efd;
+            padding: 10px;
+            background-color: #f8f9fa;
+            margin-bottom: 15px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+            font-size: 12px;
+            color: #666;
+        }
+        .col-6 {
+            width: 48%;
+            display: inline-block;
+            vertical-align: top;
+        }
+        .text-muted {
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Cash Flow Statement</h1>
+            <p>Generated on: {{ ist_datetime }}</p>
+            <p>File: {{ report.file_upload.filename }}</p>
+        </div>
+
+        <!-- Summary -->
+        <div class="section">
+            <h2 class="section-title">Summary</h2>
+            {% if data.summary is defined and data.summary %}
+                <div class="highlight-box">{{ data.summary }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Operating Activities -->
+        <div class="section">
+            <h2 class="section-title">Cash Flow from Operating Activities</h2>
+            
+            {% if data.operating_activities is defined and data.operating_activities %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Amount (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in data.operating_activities %}
+                            <tr>
+                                <td>{{ item.description }}</td>
+                                <td>₹{{ item.amount }}</td>
+                            </tr>
+                        {% endfor %}
+                        {% if data.operating_activities_total is defined %}
+                            <tr>
+                                <td><strong>Net Cash from Operating Activities</strong></td>
+                                <td><strong>₹{{ data.operating_activities_total }}</strong></td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No operating activities data available</p>
+            {% endif %}
+        </div>
+
+        <!-- Investing Activities -->
+        <div class="section">
+            <h2 class="section-title">Cash Flow from Investing Activities</h2>
+            
+            {% if data.investing_activities is defined and data.investing_activities %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Amount (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in data.investing_activities %}
+                            <tr>
+                                <td>{{ item.description }}</td>
+                                <td>₹{{ item.amount }}</td>
+                            </tr>
+                        {% endfor %}
+                        {% if data.investing_activities_total is defined %}
+                            <tr>
+                                <td><strong>Net Cash from Investing Activities</strong></td>
+                                <td><strong>₹{{ data.investing_activities_total }}</strong></td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No investing activities data available</p>
+            {% endif %}
+        </div>
+
+        <!-- Financing Activities -->
+        <div class="section">
+            <h2 class="section-title">Cash Flow from Financing Activities</h2>
+            
+            {% if data.financing_activities is defined and data.financing_activities %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Amount (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in data.financing_activities %}
+                            <tr>
+                                <td>{{ item.description }}</td>
+                                <td>₹{{ item.amount }}</td>
+                            </tr>
+                        {% endfor %}
+                        {% if data.financing_activities_total is defined %}
+                            <tr>
+                                <td><strong>Net Cash from Financing Activities</strong></td>
+                                <td><strong>₹{{ data.financing_activities_total }}</strong></td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No financing activities data available</p>
+            {% endif %}
+        </div>
+
+        <!-- Net Cash Flow -->
+        <div class="section">
+            <h2 class="section-title">Net Increase/Decrease in Cash</h2>
+            {% if data.net_cash_flow is defined %}
+                <div class="highlight-box">
+                    <strong>Net Increase/Decrease in Cash: ₹{{ data.net_cash_flow }}</strong>
+                </div>
+            {% endif %}
+            
+            {% if data.beginning_cash_balance is defined %}
+                <div class="highlight-box">
+                    <strong>Beginning Cash Balance: ₹{{ data.beginning_cash_balance }}</strong>
+                </div>
+            {% endif %}
+            
+            {% if data.ending_cash_balance is defined %}
+                <div class="highlight-box">
+                    <strong>Ending Cash Balance: ₹{{ data.ending_cash_balance }}</strong>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Quarter-by-Quarter Comparison -->
+        <div class="section">
+            <h2 class="section-title">Quarter-by-Quarter Comparison</h2>
+            {% if data.quarterly_comparison is defined and data.quarterly_comparison %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            {% for quarter in data.quarterly_comparison.quarters %}
+                                <th>{{ quarter }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Operating Cash Flow</td>
+                            {% for ocf in data.quarterly_comparison.operating_cash_flow %}
+                                <td>₹{{ ocf }}</td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td>Investing Cash Flow</td>
+                            {% for icf in data.quarterly_comparison.investing_cash_flow %}
+                                <td>₹{{ icf }}</td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td>Financing Cash Flow</td>
+                            {% for fcf in data.quarterly_comparison.financing_cash_flow %}
+                                <td>₹{{ fcf }}</td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td>Net Cash Flow</td>
+                            {% for ncf in data.quarterly_comparison.net_cash_flow %}
+                                <td>₹{{ ncf }}</td>
+                            {% endfor %}
+                        </tr>
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No quarterly comparison data available</p>
+            {% endif %}
+        </div>
+        
+        <!-- Cash Flow Ratios -->
+        <div class="section">
+            <h2 class="section-title">Cash Flow Ratios</h2>
+            {% if data.ratios is defined and data.ratios %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ratio</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ratio, value in data.ratios.items() %}
+                            <tr>
+                                <td>{{ ratio }}</td>
+                                <td>{{ value }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No cash flow ratio data available</p>
+            {% endif %}
+        </div>
+
+        <!-- Analysis & Insights -->
+        <div class="section">
+            <h2 class="section-title">Analysis & Insights</h2>
+            {% if data.analysis is defined and data.analysis %}
+                {% if data.analysis is string %}
+                    <div class="highlight-box">{{ data.analysis }}</div>
+                {% else %}
+                    <ul>
+                        {% for point in data.analysis %}
+                            <li>{{ point }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% else %}
+                <p>No analysis available</p>
+            {% endif %}
+            
+            {% if data.recommendations is defined and data.recommendations %}
+                <h3 class="subsection-title">Recommendations</h3>
+                {% if data.recommendations is string %}
+                    <div class="highlight-box">{{ data.recommendations }}</div>
+                {% else %}
+                    <ul>
+                        {% for rec in data.recommendations %}
+                            <li>{{ rec }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        <div class="footer">
+            <p>Generated by Fintelligence AI | {{ ist_datetime }}</p>
+            <p>© 2025 Fintelligence - Financial Intelligence Platform</p>
+        </div>
+    </div>
+</body>
+</html>
