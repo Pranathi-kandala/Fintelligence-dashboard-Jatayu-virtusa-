@@ -293,8 +293,35 @@ def register_routes(app):
             flash('Invalid report type.', 'danger')
             return redirect(url_for('dashboard'))
         
-        # Add IST datetime for all templates
-        return render_template(template, report=report, data=report_data, ist_datetime=format_ist_time())
+        # Generate dynamic quarters for fallback data
+        def generate_fallback_quarters():
+            current_date = datetime.now()
+            current_year = current_date.year
+            current_month = current_date.month
+            
+            quarters = []
+            if current_month >= 1: quarters.append(f"Q1 {current_year}")  # Jan-Mar
+            if current_month >= 4: quarters.append(f"Q2 {current_year}")  # Apr-Jun
+            if current_month >= 7: quarters.append(f"Q3 {current_year}")  # Jul-Sep
+            if current_month >= 10: quarters.append(f"Q4 {current_year}")  # Oct-Dec
+            
+            # Ensure we have at least one quarter
+            if not quarters:
+                quarters.append(f"Q1 {current_year}")
+            
+            return quarters
+        
+        # Get fallback quarters
+        fallback_quarters = generate_fallback_quarters()
+        
+        # Add IST datetime and fallback quarters for all templates
+        return render_template(
+            template, 
+            report=report, 
+            data=report_data, 
+            ist_datetime=format_ist_time(),
+            fallback_quarters=fallback_quarters
+        )
     
     @app.route('/download-report/<int:report_id>')
     @login_required
@@ -468,12 +495,34 @@ def register_routes(app):
                 flash('Invalid report type for PDF generation.', 'danger')
                 return redirect(url_for('view_report', report_id=report.id))
             
+            # Generate dynamic quarters for fallback data
+            def generate_fallback_quarters():
+                current_date = datetime.now()
+                current_year = current_date.year
+                current_month = current_date.month
+                
+                quarters = []
+                if current_month >= 1: quarters.append(f"Q1 {current_year}")  # Jan-Mar
+                if current_month >= 4: quarters.append(f"Q2 {current_year}")  # Apr-Jun
+                if current_month >= 7: quarters.append(f"Q3 {current_year}")  # Jul-Sep
+                if current_month >= 10: quarters.append(f"Q4 {current_year}")  # Oct-Dec
+                
+                # Ensure we have at least one quarter
+                if not quarters:
+                    quarters.append(f"Q1 {current_year}")
+                
+                return quarters
+            
+            # Get fallback quarters
+            fallback_quarters = generate_fallback_quarters()
+            
             # Render HTML content with the report data
             html_content = render_template(
                 template,
                 report=report,
                 data=report_data,
-                ist_datetime=ist_datetime
+                ist_datetime=ist_datetime,
+                fallback_quarters=fallback_quarters
             )
             
             # Convert HTML to PDF
