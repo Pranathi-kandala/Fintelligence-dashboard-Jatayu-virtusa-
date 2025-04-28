@@ -82,7 +82,7 @@
                 <div class="col-md-3 mb-3">
                     <div class="card text-white bg-primary">
                         <div class="card-body text-center">
-                            <h3 class="card-title">₹580K</h3>
+                            <h3 class="card-title">$580K</h3>
                             <p class="card-text">Total Revenue</p>
                         </div>
                     </div>
@@ -90,7 +90,7 @@
                 <div class="col-md-3 mb-3">
                     <div class="card text-white bg-success">
                         <div class="card-body text-center">
-                            <h3 class="card-title">₹125K</h3>
+                            <h3 class="card-title">$125K</h3>
                             <p class="card-text">Net Profit</p>
                         </div>
                     </div>
@@ -126,9 +126,9 @@
                     <thead class="table-light">
                         <tr>
                             <th>Quarter</th>
-                            <th>Revenue (₹)</th>
-                            <th>Expenses (₹)</th>
-                            <th>Profit (₹)</th>
+                            <th>Revenue ($)</th>
+                            <th>Expenses ($)</th>
+                            <th>Profit ($)</th>
                             <th>Margin (%)</th>
                         </tr>
                     </thead>
@@ -381,9 +381,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${quarter}</td>
-            <td>₹${revenues[i].toLocaleString()}</td>
-            <td>₹${expenses[i].toLocaleString()}</td>
-            <td>₹${profits[i].toLocaleString()}</td>
+            <td>$${revenues[i].toLocaleString()}</td>
+            <td>$${expenses[i].toLocaleString()}</td>
+            <td>$${profits[i].toLocaleString()}</td>
             <td>${margins[i]}%</td>
         `;
         tableBody.appendChild(row);
@@ -396,7 +396,7 @@ document.addEventListener('DOMContentLoaded', function() {
         data: {
             labels: quarters,
             datasets: [{
-                label: 'Revenue (₹)',
+                label: 'Revenue ($)',
                 data: revenues,
                 backgroundColor: 'rgba(54, 162, 235, 0.2)',
                 borderColor: 'rgba(54, 162, 235, 1)',
@@ -412,7 +412,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     beginAtZero: true,
                     ticks: {
                         callback: function(value) {
-                            return '₹' + value.toLocaleString();
+                            return '$' + value.toLocaleString();
                         }
                     }
                 }
@@ -460,7 +460,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     stacked: true,
                     ticks: {
                         callback: function(value) {
-                            return '₹' + value.toLocaleString();
+                            return '$' + value.toLocaleString();
                         }
                     }
                 }

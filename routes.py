@@ -230,6 +230,7 @@ def register_routes(app):
                 # Add IST datetime for all templates
                 return render_template(template, report=report, data=report_data, ist_datetime=format_ist_time())
             except Exception as report_error:
+                import traceback
                 logger.error(f"Error generating specific report: {str(report_error)}")
                 logger.error(traceback.format_exc())
                 # Use fallback data for the report

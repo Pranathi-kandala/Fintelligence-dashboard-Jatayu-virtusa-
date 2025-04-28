@@ -260,8 +260,12 @@
             
             <!-- Total Expenses -->
             <div class="highlight-box">
-                <h3>Total Expenses: ₹{{ '{:,.2f}'.format(data.expenses.total_expenses) }}</h3>
-                {% if data.previous_period is defined and data.previous_period.expenses is defined and data.previous_period.expenses.total_expenses is defined %}
+                {% if data.expenses is defined and data.expenses.total_expenses is defined %}
+                    <h3>Total Expenses: ${{ '{:,.2f}'.format(data.expenses.total_expenses) }}</h3>
+                {% else %}
+                    <h3>Total Expenses: $0.00</h3>
+                {% endif %}
+                {% if data.previous_period is defined and data.previous_period.expenses is defined and data.previous_period.expenses.total_expenses is defined and data.expenses is defined and data.expenses.total_expenses is defined %}
                     {% set expense_change = ((data.expenses.total_expenses - data.previous_period.expenses.total_expenses) / data.previous_period.expenses.total_expenses * 100) if data.previous_period.expenses.total_expenses != 0 else 0 %}
                     <p class="{% if expense_change > 0 %}negative{% elif expense_change < 0 %}positive{% endif %}">
                         Change from previous period: {{ '{:+.2f}'.format(expense_change) }}%
@@ -277,10 +281,10 @@
                 <thead>
                     <tr>
                         <th>Metric</th>
-                        <th>Amount (₹)</th>
+                        <th>Amount ($)</th>
                         <th>Margin (%)</th>
                         {% if data.previous_period is defined %}
-                        <th>Previous Period (₹)</th>
+                        <th>Previous Period ($)</th>
                         <th>Previous Margin (%)</th>
                         {% endif %}
                     </tr>
@@ -291,10 +295,10 @@
                             {% if metric != 'net_profit_margin' %}
                                 <tr>
                                     <td>{{ metric|replace('_', ' ')|title }}</td>
-                                    <td>₹{{ '{:,.2f}'.format(info.value) }}</td>
+                                    <td>${{ '{:,.2f}'.format(info.value) }}</td>
                                     <td>{{ '{:.2f}'.format(info.margin) }}%</td>
                                     {% if data.previous_period is defined and data.previous_period.profit_metrics is defined and metric in data.previous_period.profit_metrics %}
-                                        <td>₹{{ '{:,.2f}'.format(data.previous_period.profit_metrics[metric].value) }}</td>
+                                        <td>${{ '{:,.2f}'.format(data.previous_period.profit_metrics[metric].value) }}</td>
                                         <td>{{ '{:.2f}'.format(data.previous_period.profit_metrics[metric].margin) }}%</td>
                                     {% endif %}
                                 </tr>
