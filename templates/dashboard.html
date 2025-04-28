@@ -16,7 +16,10 @@
             <div class="card-body">
                 <h5 class="card-title"><i class="fas fa-upload me-2"></i>Upload Financial Data</h5>
                 <p class="card-text">Upload your CSV, XLSX, or PDF financial data for AI processing.</p>
-                <a href="{{ url_for('upload') }}" class="btn btn-light mt-2">Upload Files</a>
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('upload') }}" class="btn btn-light mt-2">Upload Files</a>
+                    <a href="{{ url_for('demo_analysis') }}" class="btn btn-warning mt-2">View Demo Analysis</a>
+                </div>
             </div>
         </div>
     </div>

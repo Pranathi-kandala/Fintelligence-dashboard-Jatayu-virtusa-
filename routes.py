@@ -320,3 +320,9 @@ def register_routes(app):
         explanation = explain_ai_decision(report.report_type, report_data)
         
         return render_template('explainability.html', report=report, explanation=explanation)
+        
+    @app.route('/demo-analysis')
+    @login_required
+    def demo_analysis():
+        """Show a demo financial analysis with static charts."""
+        return render_template('demo_analysis.html')

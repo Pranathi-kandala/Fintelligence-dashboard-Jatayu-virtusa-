@@ -1,0 +1,455 @@
+{% extends "base.html" %}
+
+{% block title %}Financial Analysis Demo - Fintelligence{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="display-5 fw-bold"><i class="fas fa-chart-pie me-2"></i>Financial Analysis</h1>
+            <p class="lead">Comprehensive financial analysis with insights and recommendations.</p>
+        </div>
+        <div>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+                <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Executive Summary -->
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Executive Summary</h5>
+    </div>
+    <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+                <i class="fas fa-circle text-primary me-2"></i> Quarterly revenue shows consistent growth trend of 15% YoY
+            </li>
+            <li class="list-group-item">
+                <i class="fas fa-circle text-primary me-2"></i> Profit margins increased by 2.5% since Q1 2025
+            </li>
+            <li class="list-group-item">
+                <i class="fas fa-circle text-primary me-2"></i> Operational efficiency improved, with reduced cost-to-revenue ratio
+            </li>
+            <li class="list-group-item">
+                <i class="fas fa-circle text-primary me-2"></i> Liquidity position strong with current ratio of 2.1
+            </li>
+        </ul>
+    </div>
+</div>
+
+<!-- Financial Dashboard -->
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Financial Dashboard</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <!-- Quarterly Revenue Trend -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Quarterly Revenue Trend</h6>
+                        <div class="chart-container">
+                            <canvas id="revenueTrendChart" height="250"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Expense Breakdown -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Expense Breakdown</h6>
+                        <div class="chart-container">
+                            <canvas id="expenseBreakdownChart" height="250"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profitability Metrics -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Profitability Metrics</h6>
+                        <div class="chart-container">
+                            <canvas id="profitabilityChart" height="250"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Financial Ratios -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Key Financial Ratios</h6>
+                        <div class="chart-container">
+                            <canvas id="ratioChart" height="250"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quarterly Financial Performance -->
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Quarterly Financial Performance</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead class="table-primary">
+                    <tr>
+                        <th>Quarter</th>
+                        <th>Revenue</th>
+                        <th>Expenses</th>
+                        <th>Profit</th>
+                        <th>Margin</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Q1 2025</td>
+                        <td>$120,000</td>
+                        <td>$95,000</td>
+                        <td>$25,000</td>
+                        <td>20.83%</td>
+                    </tr>
+                    <tr>
+                        <td>Q2 2025</td>
+                        <td>$135,000</td>
+                        <td>$105,000</td>
+                        <td>$30,000</td>
+                        <td>22.22%</td>
+                    </tr>
+                    <tr>
+                        <td>Q3 2025</td>
+                        <td>$150,000</td>
+                        <td>$118,000</td>
+                        <td>$32,000</td>
+                        <td>21.33%</td>
+                    </tr>
+                    <tr>
+                        <td>Q4 2025</td>
+                        <td>$175,000</td>
+                        <td>$137,000</td>
+                        <td>$38,000</td>
+                        <td>21.71%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Financial Health Assessment -->
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Financial Health Assessment</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <!-- Liquidity Analysis -->
+            <div class="col-md-4 mb-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h6 class="card-title">Liquidity Analysis</h6>
+                        <p class="card-text">
+                            Current ratio (2.1) and quick ratio (1.8) indicate healthy short-term liquidity position. The company can comfortably meet its short-term obligations.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Solvency Analysis -->
+            <div class="col-md-4 mb-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h6 class="card-title">Solvency Analysis</h6>
+                        <p class="card-text">
+                            Debt-to-equity ratio has improved from 0.8 to 0.65 over the year, indicating better long-term financial stability and lower financial risk.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Efficiency Ratios -->
+            <div class="col-md-4 mb-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h6 class="card-title">Efficiency Ratios</h6>
+                        <p class="card-text">
+                            Asset turnover increased from 1.1 to 1.4, showing improved efficiency in using assets to generate revenue.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Risk Assessment -->
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Risk Assessment</h5>
+    </div>
+    <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+                <i class="fas fa-exclamation-triangle text-warning me-2"></i> Economic downturn could impact consumer spending and affect revenue growth
+            </li>
+            <li class="list-group-item">
+                <i class="fas fa-exclamation-triangle text-warning me-2"></i> Increasing competition in the market may pressure profit margins
+            </li>
+            <li class="list-group-item">
+                <i class="fas fa-exclamation-triangle text-warning me-2"></i> Supply chain disruptions remain a moderate risk to operational stability
+            </li>
+        </ul>
+    </div>
+</div>
+
+<!-- Strategic Recommendations & Future Outlook -->
+<div class="row mb-4">
+    <!-- Strategic Recommendations -->
+    <div class="col-md-6 mb-3">
+        <div class="card h-100 bg-success text-white">
+            <div class="card-body">
+                <h5 class="card-title">Strategic Recommendations</h5>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item bg-success text-white border-light">
+                        <i class="fas fa-check-circle me-2"></i> Increase investment in R&D to maintain competitive edge
+                    </li>
+                    <li class="list-group-item bg-success text-white border-light">
+                        <i class="fas fa-check-circle me-2"></i> Optimize marketing expenses to improve ROI
+                    </li>
+                    <li class="list-group-item bg-success text-white border-light">
+                        <i class="fas fa-check-circle me-2"></i> Explore new market opportunities to diversify revenue
+                    </li>
+                    <li class="list-group-item bg-success text-white border-light">
+                        <i class="fas fa-check-circle me-2"></i> Implement cost reduction measures in operations
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Future Outlook -->
+    <div class="col-md-6 mb-3">
+        <div class="card h-100 bg-primary text-white">
+            <div class="card-body">
+                <h5 class="card-title">Future Outlook</h5>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item bg-primary text-white border-light">
+                        <i class="fas fa-chart-line me-2"></i> Projected revenue growth of 15-20% in the next fiscal year
+                    </li>
+                    <li class="list-group-item bg-primary text-white border-light">
+                        <i class="fas fa-chart-line me-2"></i> Profit margins expected to improve by 2-3 percentage points
+                    </li>
+                    <li class="list-group-item bg-primary text-white border-light">
+                        <i class="fas fa-chart-line me-2"></i> Strong growth potential in emerging markets
+                    </li>
+                    <li class="list-group-item bg-primary text-white border-light">
+                        <i class="fas fa-chart-line me-2"></i> New product launches will drive additional revenue
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Navigation Buttons -->
+<div class="row mt-4">
+    <div class="col-12 d-flex justify-content-between">
+        <a href="{{ url_for('report_options') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back to Report Options
+        </a>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+            <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+        </a>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Static sample data for visualizations
+        const quarterlyData = {
+            labels: ['Q1 2025', 'Q2 2025', 'Q3 2025', 'Q4 2025'],
+            revenues: [120000, 135000, 150000, 175000],
+            expenses: {
+                'Marketing': [25000, 28000, 30000, 35000],
+                'Operations': [45000, 47000, 50000, 55000],
+                'R&D': [15000, 16000, 18000, 20000],
+                'Admin': [10000, 14000, 18000, 27000]
+            },
+            profitMargins: [20.83, 22.22, 21.33, 21.71],
+            ratios: {
+                'Current Ratio': [1.8, 1.9, 2.0, 2.1],
+                'Debt-to-Equity': [0.8, 0.75, 0.7, 0.65],
+                'ROI': [8.2, 9.1, 10.3, 11.5],
+                'Asset Turnover': [1.1, 1.2, 1.3, 1.4]
+            }
+        };
+
+        // Revenue Trend Chart
+        const revenueTrendCtx = document.getElementById('revenueTrendChart').getContext('2d');
+        new Chart(revenueTrendCtx, {
+            type: 'line',
+            data: {
+                labels: quarterlyData.labels,
+                datasets: [{
+                    label: 'Quarterly Revenue ($)',
+                    data: quarterlyData.revenues,
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                    borderWidth: 2,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Expense Breakdown Chart
+        const expenseBreakdownCtx = document.getElementById('expenseBreakdownChart').getContext('2d');
+        
+        // Prepare data for stacked bar chart
+        const expenseDatasets = [];
+        const expenseColors = [
+            'rgba(255, 99, 132, 0.7)',
+            'rgba(75, 192, 192, 0.7)',
+            'rgba(255, 205, 86, 0.7)',
+            'rgba(201, 203, 207, 0.7)'
+        ];
+        
+        let colorIndex = 0;
+        for (const [category, values] of Object.entries(quarterlyData.expenses)) {
+            expenseDatasets.push({
+                label: category,
+                data: values,
+                backgroundColor: expenseColors[colorIndex % expenseColors.length],
+                borderColor: expenseColors[colorIndex % expenseColors.length].replace('0.7', '1'),
+                borderWidth: 1
+            });
+            colorIndex++;
+        }
+
+        new Chart(expenseBreakdownCtx, {
+            type: 'bar',
+            data: {
+                labels: quarterlyData.labels,
+                datasets: expenseDatasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        stacked: true,
+                    },
+                    y: {
+                        stacked: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Profitability Chart
+        const profitabilityCtx = document.getElementById('profitabilityChart').getContext('2d');
+        new Chart(profitabilityCtx, {
+            type: 'bar',
+            data: {
+                labels: quarterlyData.labels,
+                datasets: [{
+                    label: 'Profit Margin (%)',
+                    data: quarterlyData.profitMargins,
+                    backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Financial Ratios Chart
+        const ratioCtx = document.getElementById('ratioChart').getContext('2d');
+        
+        // Prepare data for radar chart
+        const ratioLabels = Object.keys(quarterlyData.ratios);
+        const ratioDatasets = [];
+        
+        for (let i = 0; i < quarterlyData.labels.length; i++) {
+            const quarterData = [];
+            for (const ratio of ratioLabels) {
+                quarterData.push(quarterlyData.ratios[ratio][i]);
+            }
+            
+            ratioDatasets.push({
+                label: quarterlyData.labels[i],
+                data: quarterData,
+                backgroundColor: `rgba(54, 162, 235, ${0.2 + (i * 0.1)})`,
+                borderColor: `rgba(54, 162, 235, ${0.7 + (i * 0.1)})`,
+                borderWidth: 1
+            });
+        }
+        
+        new Chart(ratioCtx, {
+            type: 'radar',
+            data: {
+                labels: ratioLabels,
+                datasets: ratioDatasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
