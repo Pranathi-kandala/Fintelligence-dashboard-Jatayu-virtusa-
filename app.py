@@ -1,5 +1,7 @@
 import os
 import logging
+import jinja2
+import markupsafe
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
@@ -29,6 +31,15 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 }
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16MB max upload size
+
+# Custom template filters
+@app.template_filter('nl2br')
+def nl2br_filter(s):
+    """Convert newlines to <br> tags."""
+    if not s:
+        return ""
+    s = str(s)
+    return markupsafe.Markup(s.replace('\n', '<br>'))
 
 # Set up login manager
 login_manager = LoginManager()

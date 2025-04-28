@@ -208,7 +208,7 @@ def register_routes(app):
         elif report.report_type == 'cash_flow':
             template = 'cash_flow.html'
         elif report.report_type == 'analysis':
-            template = 'analysis.html'
+            template = 'analysis_new.html'
         else:
             flash('Invalid report type.', 'danger')
             return redirect(url_for('dashboard'))
