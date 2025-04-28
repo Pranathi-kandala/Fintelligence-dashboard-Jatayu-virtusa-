@@ -216,8 +216,10 @@
                         <p class="card-text">
                             {% if data.liquidity_analysis is defined and data.liquidity_analysis %}
                                 {{ data.liquidity_analysis }}
+                            {% elif data.error is defined %}
+                                <i class="fas fa-exclamation-triangle me-2"></i> Unable to analyze liquidity due to insufficient data.
                             {% else %}
-                                Current ratio (2.1) and quick ratio (1.8) indicate healthy short-term liquidity position. The company can comfortably meet its short-term obligations.
+                                <i class="fas fa-exclamation-triangle me-2"></i> Please upload financial data with balance sheet information to analyze liquidity.
                             {% endif %}
                         </p>
                     </div>
@@ -232,8 +234,10 @@
                         <p class="card-text">
                             {% if data.solvency_analysis is defined and data.solvency_analysis %}
                                 {{ data.solvency_analysis }}
+                            {% elif data.error is defined %}
+                                <i class="fas fa-exclamation-triangle me-2"></i> Unable to analyze solvency due to insufficient data.
                             {% else %}
-                                Debt-to-equity ratio has improved from 0.8 to 0.65 over the past year, indicating better long-term financial stability and lower financial risk.
+                                <i class="fas fa-exclamation-triangle me-2"></i> Please upload financial data with debt and equity information to analyze solvency.
                             {% endif %}
                         </p>
                     </div>
@@ -248,8 +252,10 @@
                         <p class="card-text">
                             {% if data.efficiency_ratios is defined and data.efficiency_ratios %}
                                 {{ data.efficiency_ratios }}
+                            {% elif data.error is defined %}
+                                <i class="fas fa-exclamation-triangle me-2"></i> Unable to analyze efficiency ratios due to insufficient data.
                             {% else %}
-                                Asset turnover increased from 1.1 to 1.4, showing improved efficiency in using assets to generate revenue.
+                                <i class="fas fa-exclamation-triangle me-2"></i> Please upload financial data with revenue and asset information to analyze efficiency ratios.
                             {% endif %}
                         </p>
                     </div>
@@ -278,15 +284,13 @@
                         </li>
                     {% endfor %}
                 {% endif %}
+            {% elif data.error is defined %}
+                <li class="list-group-item">
+                    <i class="fas fa-exclamation-triangle text-warning me-2"></i> Unable to assess risks due to insufficient financial data.
+                </li>
             {% else %}
                 <li class="list-group-item">
-                    <i class="fas fa-exclamation-triangle text-warning me-2"></i> Economic downturn could impact consumer spending and affect revenue growth.
-                </li>
-                <li class="list-group-item">
-                    <i class="fas fa-exclamation-triangle text-warning me-2"></i> Increasing competition in the market may pressure profit margins.
-                </li>
-                <li class="list-group-item">
-                    <i class="fas fa-exclamation-triangle text-warning me-2"></i> Supply chain disruptions remain a moderate risk to operational stability.
+                    <i class="fas fa-exclamation-triangle text-warning me-2"></i> Please upload complete financial data for comprehensive risk assessment.
                 </li>
             {% endif %}
         </ul>
