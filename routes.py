@@ -156,34 +156,100 @@ def register_routes(app):
             logger.debug(f"File data format: {file_data.get('format', 'unknown')}")
             logger.debug(f"File data columns: {file_data.get('columns', [])}")
             
-            if report_type == 'balance_sheet':
-                report_data = generate_balance_sheet(file_data)
-                template = 'balance_sheet.html'
-            elif report_type == 'income_statement':
-                report_data = generate_income_statement(file_data)
-                template = 'income_statement.html'
-            elif report_type == 'cash_flow':
-                report_data = generate_cash_flow(file_data)
-                template = 'cash_flow.html'
-            elif report_type == 'analysis':
-                report_data = generate_analysis(file_data)
-                template = 'fallback_financial_analysis.html'
-            else:
-                flash('Invalid report type.', 'danger')
-                return redirect(url_for('report_options'))
-            
-            # Save report to database
-            report = Report(
+            # Check if report already exists
+            existing_report = Report.query.filter_by(
+                file_id=file_id,
                 report_type=report_type,
-                data=json.dumps(report_data),
-                user_id=current_user.id,
-                file_id=file_id
-            )
-            db.session.add(report)
-            db.session.commit()
+                user_id=current_user.id
+            ).first()
             
-            # Add IST datetime for all templates
-            return render_template(template, report=report, data=report_data, ist_datetime=format_ist_time())
+            # If report exists, load it
+            if existing_report:
+                try:
+                    report_data = json.loads(existing_report.data)
+                    # Ensure it's a dictionary to prevent template errors
+                    if not isinstance(report_data, dict):
+                        report_data = {}
+                except Exception as e:
+                    logger.error(f"JSON decode error for existing report: {str(e)}")
+                    # Provide empty dict if there's a JSON parsing error
+                    report_data = {}
+                    
+                if report_type == 'balance_sheet':
+                    template = 'balance_sheet.html'
+                elif report_type == 'income_statement':
+                    template = 'income_statement.html'
+                elif report_type == 'cash_flow':
+                    template = 'cash_flow.html'
+                elif report_type == 'analysis':
+                    template = 'fallback_financial_analysis.html'
+                else:
+                    flash('Invalid report type.', 'danger')
+                    return redirect(url_for('report_options'))
+                
+                return render_template(template, report=existing_report, data=report_data, ist_datetime=format_ist_time())
+            
+            # Generate new report
+            try:
+                if report_type == 'balance_sheet':
+                    report_data = generate_balance_sheet(file_data)
+                    template = 'balance_sheet.html'
+                elif report_type == 'income_statement':
+                    report_data = generate_income_statement(file_data)
+                    template = 'income_statement.html'
+                elif report_type == 'cash_flow':
+                    report_data = generate_cash_flow(file_data)
+                    template = 'cash_flow.html'
+                elif report_type == 'analysis':
+                    report_data = generate_analysis(file_data)
+                    template = 'fallback_financial_analysis.html'
+                else:
+                    flash('Invalid report type.', 'danger')
+                    return redirect(url_for('report_options'))
+                
+                # Ensure report_data is a dictionary to prevent template errors
+                if not isinstance(report_data, dict):
+                    report_data = {}
+                
+                # Save report to database - safely handle JSON serialization
+                try:
+                    json_data = json.dumps(report_data)
+                except Exception as json_error:
+                    logger.error(f"JSON encoding error: {str(json_error)}")
+                    json_data = '{}'  # Use empty dict if serialization fails
+                
+                report = Report(
+                    report_type=report_type,
+                    data=json_data,
+                    user_id=current_user.id,
+                    file_id=file_id
+                )
+                db.session.add(report)
+                db.session.commit()
+                
+                # Add IST datetime for all templates
+                return render_template(template, report=report, data=report_data, ist_datetime=format_ist_time())
+            except Exception as report_error:
+                logger.error(f"Error generating specific report: {str(report_error)}")
+                logger.error(traceback.format_exc())
+                # Use fallback data for the report
+                report_data = {}
+                # Create report with empty data
+                report = Report(
+                    report_type=report_type,
+                    data='{}',
+                    user_id=current_user.id,
+                    file_id=file_id
+                )
+                db.session.add(report)
+                db.session.commit()
+                
+                if report_type == 'analysis':
+                    template = 'fallback_financial_analysis.html'
+                    return render_template(template, report=report, data={}, ist_datetime=format_ist_time())
+                else:
+                    flash(f'Error generating report: {str(report_error)}', 'danger')
+                    return redirect(url_for('report_options'))
         
         except Exception as e:
             import traceback
@@ -196,13 +262,23 @@ def register_routes(app):
     @login_required
     def view_report(report_id):
         report = Report.query.get_or_404(report_id)
+        import logging
+        logger = logging.getLogger('fintelligence')
         
         # Ensure the report belongs to the current user
         if report.user_id != current_user.id:
             flash('You do not have permission to view this report.', 'danger')
             return redirect(url_for('dashboard'))
         
-        report_data = json.loads(report.data)
+        # Safely parse JSON data
+        try:
+            report_data = json.loads(report.data)
+            # Ensure it's a dict to prevent template errors
+            if not isinstance(report_data, dict):
+                report_data = {}
+        except Exception as e:
+            logger.error(f"Error parsing report data JSON: {str(e)}")
+            report_data = {}  # Use empty dict on error
         
         if report.report_type == 'balance_sheet':
             template = 'balance_sheet.html'
@@ -212,8 +288,6 @@ def register_routes(app):
             template = 'cash_flow.html'
         elif report.report_type == 'analysis':
             template = 'fallback_financial_analysis.html'
-            # Add IST datetime for template
-            return render_template(template, report=report, data=report_data, ist_datetime=format_ist_time())
         else:
             flash('Invalid report type.', 'danger')
             return redirect(url_for('dashboard'))
@@ -260,20 +334,37 @@ def register_routes(app):
             db.session.add(user_chat)
             
             # Process with AI and get response
-            user_files = FileUpload.query.filter_by(user_id=current_user.id, processed=True).all()
-            file_data = []
+            import logging
+            logger = logging.getLogger('fintelligence')
             
-            for file in user_files:
-                reports = Report.query.filter_by(file_id=file.id).all()
-                if reports:
-                    for report in reports:
-                        file_data.append({
-                            'filename': file.filename,
-                            'report_type': report.report_type,
-                            'data': json.loads(report.data)
-                        })
-            
-            ai_response = process_chat_query(user_message, file_data)
+            try:
+                user_files = FileUpload.query.filter_by(user_id=current_user.id, processed=True).all()
+                file_data = []
+                
+                for file in user_files:
+                    reports = Report.query.filter_by(file_id=file.id).all()
+                    if reports:
+                        for report in reports:
+                            try:
+                                report_json = json.loads(report.data)
+                                if not isinstance(report_json, dict):
+                                    report_json = {}
+                            except Exception as json_error:
+                                logger.error(f"Error parsing report JSON for chatbot: {str(json_error)}")
+                                report_json = {}
+                                
+                            file_data.append({
+                                'filename': file.filename,
+                                'report_type': report.report_type,
+                                'data': report_json
+                            })
+                
+                ai_response = process_chat_query(user_message, file_data)
+            except Exception as e:
+                import traceback
+                logger.error(f"Error processing chat query: {str(e)}")
+                logger.error(traceback.format_exc())
+                ai_response = "I'm sorry, I encountered an error while processing your question. Please try again with a more specific query about your financial data."
             
             # Save AI response
             ai_chat = ChatMessage(
@@ -294,14 +385,35 @@ def register_routes(app):
     @login_required
     def explainability(report_id):
         report = Report.query.get_or_404(report_id)
+        import logging
+        logger = logging.getLogger('fintelligence')
         
         # Ensure the report belongs to the current user
         if report.user_id != current_user.id:
             flash('You do not have permission to view this explanation.', 'danger')
             return redirect(url_for('dashboard'))
         
-        report_data = json.loads(report.data)
-        explanation = explain_ai_decision(report.report_type, report_data)
+        # Safely parse JSON data
+        try:
+            report_data = json.loads(report.data)
+            # Ensure it's a dict to prevent errors
+            if not isinstance(report_data, dict):
+                report_data = {}
+        except Exception as e:
+            logger.error(f"Error parsing report data JSON for explanation: {str(e)}")
+            report_data = {}  # Use empty dict on error
+        
+        try:
+            explanation = explain_ai_decision(report.report_type, report_data)
+        except Exception as e:
+            import traceback
+            logger.error(f"Error generating AI explanation: {str(e)}")
+            logger.error(traceback.format_exc())
+            explanation = {
+                "process": "The AI model encountered issues while explaining this report.",
+                "factors": ["Data structure might be incomplete", "Some keys might be missing in the data"],
+                "alternatives": ["Try regenerating the report", "Upload more detailed financial data"]
+            }
         
         return render_template('explainability.html', report=report, explanation=explanation)
         
@@ -316,13 +428,23 @@ def register_routes(app):
     def download_report_pdf(report_id):
         """Download a report as PDF instead of JSON."""
         report = Report.query.get_or_404(report_id)
+        import logging
+        logger = logging.getLogger('fintelligence')
         
         # Ensure the report belongs to the current user
         if report.user_id != current_user.id:
             flash('You do not have permission to download this report.', 'danger')
             return redirect(url_for('dashboard'))
         
-        report_data = json.loads(report.data)
+        # Safely parse JSON data
+        try:
+            report_data = json.loads(report.data)
+            # Ensure it's a dict to prevent template errors
+            if not isinstance(report_data, dict):
+                report_data = {}
+        except Exception as e:
+            logger.error(f"Error parsing report data JSON for PDF: {str(e)}")
+            report_data = {}  # Use empty dict on error
         
         # Get file information
         file_upload = FileUpload.query.get(report.file_id)
@@ -331,40 +453,47 @@ def register_routes(app):
         ist_datetime = format_ist_time()
         
         # Select appropriate PDF template based on report type
-        if report.report_type == 'balance_sheet':
-            template = 'balance_sheet_pdf.html'
-        elif report.report_type == 'income_statement':
-            template = 'income_statement_pdf.html'
-        elif report.report_type == 'cash_flow':
-            template = 'cash_flow_pdf.html'
-        elif report.report_type == 'analysis':
-            template = 'pdf_template.html'
-        else:
-            flash('Invalid report type for PDF generation.', 'danger')
+        try:
+            if report.report_type == 'balance_sheet':
+                template = 'balance_sheet_pdf.html'
+            elif report.report_type == 'income_statement':
+                template = 'income_statement_pdf.html'
+            elif report.report_type == 'cash_flow':
+                template = 'cash_flow_pdf.html'
+            elif report.report_type == 'analysis':
+                template = 'pdf_template.html'
+            else:
+                flash('Invalid report type for PDF generation.', 'danger')
+                return redirect(url_for('view_report', report_id=report.id))
+            
+            # Render HTML content with the report data
+            html_content = render_template(
+                template,
+                report=report,
+                data=report_data,
+                ist_datetime=ist_datetime
+            )
+            
+            # Convert HTML to PDF
+            pdf_file = convert_html_to_pdf(html_content)
+            
+            if not pdf_file:
+                flash('Error generating PDF.', 'danger')
+                return redirect(url_for('view_report', report_id=report.id))
+            
+            # Generate filename based on report type and date
+            date_str = get_current_ist_time().strftime('%Y%m%d')
+            filename = f"{report.report_type}_{date_str}.pdf"
+            
+            # Return PDF file
+            response = make_response(pdf_file.getvalue())
+            response.headers['Content-Type'] = 'application/pdf'
+            response.headers['Content-Disposition'] = f'attachment; filename={filename}'
+            
+            return response
+        except Exception as e:
+            import traceback
+            logger.error(f"Error generating PDF: {str(e)}")
+            logger.error(traceback.format_exc())
+            flash(f'Error generating PDF: {str(e)}', 'danger')
             return redirect(url_for('view_report', report_id=report.id))
-        
-        # Render HTML content with the report data
-        html_content = render_template(
-            template,
-            report=report,
-            data=report_data,
-            ist_datetime=ist_datetime
-        )
-        
-        # Convert HTML to PDF
-        pdf_file = convert_html_to_pdf(html_content)
-        
-        if not pdf_file:
-            flash('Error generating PDF.', 'danger')
-            return redirect(url_for('view_report', report_id=report.id))
-        
-        # Generate filename based on report type and date
-        date_str = get_current_ist_time().strftime('%Y%m%d')
-        filename = f"{report.report_type}_{date_str}.pdf"
-        
-        # Return PDF file
-        response = make_response(pdf_file.getvalue())
-        response.headers['Content-Type'] = 'application/pdf'
-        response.headers['Content-Disposition'] = f'attachment; filename={filename}'
-        
-        return response
