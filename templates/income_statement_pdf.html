@@ -90,9 +90,17 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Income Statement</h1>
-            <p>Generated on: {{ ist_datetime }}</p>
-            <p>Fintelligence AI-Powered Financial Analysis</p>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+                <div>
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDQwMCAxMDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImJnR3JhZGllbnQiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMmE0MzY1Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzMxODJjZSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgCiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCwwKSI+CiAgICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0idXJsKCNiZ0dyYWRpZW50KSIgcng9IjEwIi8+CiAgICA8cGF0aCBkPSJNNjAgMzAgTDYwIDcwIEwzNDAgNzAiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIi8+CiAgICA8cGF0aCBkPSJNODAgNTAgTDEyMCA0MCBMMTYwIDYwIEwyMDAgMzAgTDI0MCA0NSBMMjgwIDU1IEwzMjAgMzUiIHN0cm9rZT0iIzM4YjJhYyIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIi8+CiAgICA8Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSIyNSIgZmlsbD0iIzRmZDFjNSIgb3BhY2l0eT0iMC44Ii8+CiAgICA8dGV4dCB4PSI1MCIgeT0iNTgiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyNCIgZm9udC13ZWlnaHQ9ImJvbGQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiNmZmYiPiQ8L3RleHQ+CiAgICA8dGV4dCB4PSIyMDAiIHk9Ijk1IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjZmZmIj5BSS1Qb3dlcmVkIEZpbmFuY2lhbCBBbmFseXNpczwvdGV4dD4KICAgIDx0ZXh0IHg9IjIwMCIgeT0iMjgiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyOCIgZm9udC13ZWlnaHQ9ImJvbGQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiNmZmYiPkZJTlRFTExJR0VOQ0U8L3RleHQ+CiAgPC9nPgo8L3N2Zz4=" alt="Fintelligence Logo" width="250">
+                </div>
+                <div style="text-align: right;">
+                    <p><strong>Report Date:</strong> {{ ist_datetime }}</p>
+                    <p><strong>Document:</strong> Income Statement</p>
+                    <p><strong>Prepared By:</strong> Fintelligence AI</p>
+                </div>
+            </div>
+            <h1 style="text-align: center; color: #2a4365; margin: 20px 0; border-bottom: 2px solid #3182ce; padding-bottom: 10px;">Income Statement</h1>
         </div>
 
         <div class="section">
