@@ -289,26 +289,35 @@
             </div>
             <div class="card-body">
                 <div class="row">
-                    {% for key, value in data.metrics.items() %}
-                    <div class="col-md-4 col-sm-6 mb-3">
-                        <div class="card h-100">
-                            <div class="card-body text-center">
-                                <h5 class="card-title">{{ key|replace('_', ' ')|title }}</h5>
-                                <p class="display-5 fw-bold text-primary mb-0">
-                                    {% if value is number %}
-                                        {% if 'ratio' in key or 'margin' in key or 'percent' in key %}
-                                            {{ "%.2f"|format(value) }}
+                    {% if data.metrics is defined and data.metrics %}
+                        {% for key, value in data.metrics.items() %}
+                        <div class="col-md-4 col-sm-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">{{ key|replace('_', ' ')|title }}</h5>
+                                    <p class="display-5 fw-bold text-primary mb-0">
+                                        {% if value is number %}
+                                            {% if 'ratio' in key or 'margin' in key or 'percent' in key %}
+                                                {{ "%.2f"|format(value) }}
+                                            {% else %}
+                                                ${{ "{:,.2f}".format(value) }}
+                                            {% endif %}
                                         {% else %}
-                                            ${{ "{:,.2f}".format(value) }}
+                                            {{ value }}
                                         {% endif %}
-                                    {% else %}
-                                        {{ value }}
-                                    {% endif %}
-                                </p>
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    {% endfor %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                No financial metrics available for this cash flow statement. Please refer to the summary section for key insights.
+                            </div>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
