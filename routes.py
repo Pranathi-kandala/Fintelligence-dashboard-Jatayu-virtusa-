@@ -210,6 +210,10 @@ def register_routes(app):
                 # Ensure report_data is a dictionary to prevent template errors
                 if not isinstance(report_data, dict):
                     report_data = {}
+                    
+                # Add required fields if missing
+                if report_type == 'cash_flow' and 'metrics' not in report_data:
+                    report_data['metrics'] = {}
                 
                 # Save report to database - safely handle JSON serialization
                 try:
@@ -277,6 +281,21 @@ def register_routes(app):
             # Ensure it's a dict to prevent template errors
             if not isinstance(report_data, dict):
                 report_data = {}
+                
+            # Add required fields if missing for specific report types
+            if report.report_type == 'cash_flow':
+                # Add metrics field if missing
+                if 'metrics' not in report_data:
+                    report_data['metrics'] = {}
+                # Add cash_flow_statement field if missing
+                if 'cash_flow_statement' not in report_data:
+                    report_data['cash_flow_statement'] = {}
+                # Add insights and recommendations if missing
+                if 'insights' not in report_data:
+                    report_data['insights'] = ["Analysis of cash flow patterns is pending."]
+                if 'recommendations' not in report_data:
+                    report_data['recommendations'] = ["Review your cash flow statement for further insights."]
+                    
         except Exception as e:
             logger.error(f"Error parsing report data JSON: {str(e)}")
             report_data = {}  # Use empty dict on error

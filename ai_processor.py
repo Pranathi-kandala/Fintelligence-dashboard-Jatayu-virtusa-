@@ -354,6 +354,7 @@ def generate_cash_flow(file_data):
     Returns:
         dict: Cash flow statement data and insights
     """
+    # Ensure the function returns required fields to prevent template errors
     import logging
     logger = logging.getLogger('fintelligence')
     
