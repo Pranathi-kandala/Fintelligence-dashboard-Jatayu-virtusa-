@@ -1,0 +1,514 @@
+Microsoft Windows [Version 10.0.22631.4890]
+(c) Microsoft Corporation. All rights reserved.
+
+D:\FinancialIntelligence>python -m venv venv
+
+D:\FinancialIntelligence>venv\Scripts\activate
+
+(venv) D:\FinancialIntelligence>pip install flask-login flask flask-sqlalchemy gunicorn psycopg2-binary flask-wtf pandas numpy openpyxl pypdf2 google-generativeai anthropic xhtml2pdf pytz openai email-validator
+Collecting flask-login
+  Using cached Flask_Login-0.6.3-py3-none-any.whl.metadata (5.8 kB)
+Collecting flask
+  Using cached flask-3.1.0-py3-none-any.whl.metadata (2.7 kB)
+Collecting flask-sqlalchemy
+  Using cached flask_sqlalchemy-3.1.1-py3-none-any.whl.metadata (3.4 kB)
+Collecting gunicorn
+  Using cached gunicorn-23.0.0-py3-none-any.whl.metadata (4.4 kB)
+Collecting psycopg2-binary
+  Using cached psycopg2_binary-2.9.10-cp312-cp312-win_amd64.whl.metadata (5.0 kB)
+Collecting flask-wtf
+  Using cached flask_wtf-1.2.2-py3-none-any.whl.metadata (3.4 kB)
+Collecting pandas
+  Using cached pandas-2.2.3-cp312-cp312-win_amd64.whl.metadata (19 kB)
+Collecting numpy
+  Downloading numpy-2.2.5-cp312-cp312-win_amd64.whl.metadata (60 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 60.8/60.8 kB 816.2 kB/s eta 0:00:00
+Collecting openpyxl
+  Downloading openpyxl-3.1.5-py2.py3-none-any.whl.metadata (2.5 kB)
+Collecting pypdf2
+  Downloading pypdf2-3.0.1-py3-none-any.whl.metadata (6.8 kB)
+Collecting google-generativeai
+  Downloading google_generativeai-0.8.5-py3-none-any.whl.metadata (3.9 kB)
+Collecting anthropic
+  Downloading anthropic-0.50.0-py3-none-any.whl.metadata (25 kB)
+Collecting xhtml2pdf
+  Downloading xhtml2pdf-0.2.17-py3-none-any.whl.metadata (22 kB)
+Collecting pytz
+  Using cached pytz-2025.2-py2.py3-none-any.whl.metadata (22 kB)
+Collecting openai
+  Downloading openai-1.76.0-py3-none-any.whl.metadata (25 kB)
+Collecting email-validator
+  Using cached email_validator-2.2.0-py3-none-any.whl.metadata (25 kB)
+Collecting Werkzeug>=1.0.1 (from flask-login)
+  Using cached werkzeug-3.1.3-py3-none-any.whl.metadata (3.7 kB)
+Collecting Jinja2>=3.1.2 (from flask)
+  Using cached jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
+Collecting itsdangerous>=2.2 (from flask)
+  Using cached itsdangerous-2.2.0-py3-none-any.whl.metadata (1.9 kB)
+Collecting click>=8.1.3 (from flask)
+  Using cached click-8.1.8-py3-none-any.whl.metadata (2.3 kB)
+Collecting blinker>=1.9 (from flask)
+  Using cached blinker-1.9.0-py3-none-any.whl.metadata (1.6 kB)
+Collecting sqlalchemy>=2.0.16 (from flask-sqlalchemy)
+  Using cached sqlalchemy-2.0.40-cp312-cp312-win_amd64.whl.metadata (9.9 kB)
+Collecting packaging (from gunicorn)
+  Downloading packaging-25.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting wtforms (from flask-wtf)
+  Using cached wtforms-3.2.1-py3-none-any.whl.metadata (5.3 kB)
+Collecting python-dateutil>=2.8.2 (from pandas)
+  Using cached python_dateutil-2.9.0.post0-py2.py3-none-any.whl.metadata (8.4 kB)
+Collecting tzdata>=2022.7 (from pandas)
+  Using cached tzdata-2025.2-py2.py3-none-any.whl.metadata (1.4 kB)
+Collecting et-xmlfile (from openpyxl)
+  Downloading et_xmlfile-2.0.0-py3-none-any.whl.metadata (2.7 kB)
+Collecting google-ai-generativelanguage==0.6.15 (from google-generativeai)
+  Using cached google_ai_generativelanguage-0.6.15-py3-none-any.whl.metadata (5.7 kB)
+Collecting google-api-core (from google-generativeai)
+  Using cached google_api_core-2.24.2-py3-none-any.whl.metadata (3.0 kB)
+Collecting google-api-python-client (from google-generativeai)
+  Downloading google_api_python_client-2.168.0-py3-none-any.whl.metadata (6.7 kB)
+Collecting google-auth>=2.15.0 (from google-generativeai)
+  Downloading google_auth-2.39.0-py2.py3-none-any.whl.metadata (6.2 kB)
+Collecting protobuf (from google-generativeai)
+  Using cached protobuf-6.30.2-cp310-abi3-win_amd64.whl.metadata (593 bytes)
+Collecting pydantic (from google-generativeai)
+  Using cached pydantic-2.11.3-py3-none-any.whl.metadata (65 kB)
+Collecting tqdm (from google-generativeai)
+  Using cached tqdm-4.67.1-py3-none-any.whl.metadata (57 kB)
+Collecting typing-extensions (from google-generativeai)
+  Downloading typing_extensions-4.13.2-py3-none-any.whl.metadata (3.0 kB)
+Collecting proto-plus<2.0.0dev,>=1.22.3 (from google-ai-generativelanguage==0.6.15->google-generativeai)
+  Using cached proto_plus-1.26.1-py3-none-any.whl.metadata (2.2 kB)
+Collecting protobuf (from google-generativeai)
+  Using cached protobuf-5.29.4-cp310-abi3-win_amd64.whl.metadata (592 bytes)
+Collecting anyio<5,>=3.5.0 (from anthropic)
+  Using cached anyio-4.9.0-py3-none-any.whl.metadata (4.7 kB)
+Collecting distro<2,>=1.7.0 (from anthropic)
+  Using cached distro-1.9.0-py3-none-any.whl.metadata (6.8 kB)
+Collecting httpx<1,>=0.25.0 (from anthropic)
+  Using cached httpx-0.28.1-py3-none-any.whl.metadata (7.1 kB)
+Collecting jiter<1,>=0.4.0 (from anthropic)
+  Using cached jiter-0.9.0-cp312-cp312-win_amd64.whl.metadata (5.3 kB)
+Collecting sniffio (from anthropic)
+  Using cached sniffio-1.3.1-py3-none-any.whl.metadata (3.9 kB)
+Collecting arabic-reshaper>=3.0.0 (from xhtml2pdf)
+  Downloading arabic_reshaper-3.0.0-py3-none-any.whl.metadata (12 kB)
+Collecting html5lib>=1.1 (from xhtml2pdf)
+  Downloading html5lib-1.1-py2.py3-none-any.whl.metadata (16 kB)
+Collecting Pillow>=8.1.1 (from xhtml2pdf)
+  Downloading pillow-11.2.1-cp312-cp312-win_amd64.whl.metadata (9.1 kB)
+Collecting pyHanko>=0.12.1 (from xhtml2pdf)
+  Downloading pyhanko-0.26.0-py3-none-any.whl.metadata (9.4 kB)
+Collecting pyhanko-certvalidator>=0.19.5 (from xhtml2pdf)
+  Downloading pyhanko_certvalidator-0.26.8-py3-none-any.whl.metadata (5.5 kB)
+Collecting pypdf>=3.1.0 (from xhtml2pdf)
+  Downloading pypdf-5.4.0-py3-none-any.whl.metadata (7.3 kB)
+Collecting python-bidi>=0.5.0 (from xhtml2pdf)
+  Downloading python_bidi-0.6.6-cp312-cp312-win_amd64.whl.metadata (5.0 kB)
+Collecting reportlab<5,>=4.0.4 (from xhtml2pdf)
+  Downloading reportlab-4.4.0-py3-none-any.whl.metadata (1.8 kB)
+Collecting svglib>=1.2.1 (from xhtml2pdf)
+  Downloading svglib-1.5.1.tar.gz (913 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 913.9/913.9 kB 8.3 MB/s eta 0:00:00
+  Installing build dependencies ... done
+  Getting requirements to build wheel ... done
+  Preparing metadata (pyproject.toml) ... done
+Collecting dnspython>=2.0.0 (from email-validator)
+  Using cached dnspython-2.7.0-py3-none-any.whl.metadata (5.8 kB)
+Collecting idna>=2.0.0 (from email-validator)
+  Using cached idna-3.10-py3-none-any.whl.metadata (10 kB)
+Collecting colorama (from click>=8.1.3->flask)
+  Using cached colorama-0.4.6-py2.py3-none-any.whl.metadata (17 kB)
+Collecting googleapis-common-protos<2.0.0,>=1.56.2 (from google-api-core->google-generativeai)
+  Downloading googleapis_common_protos-1.70.0-py3-none-any.whl.metadata (9.3 kB)
+Collecting requests<3.0.0,>=2.18.0 (from google-api-core->google-generativeai)
+  Using cached requests-2.32.3-py3-none-any.whl.metadata (4.6 kB)
+Collecting cachetools<6.0,>=2.0.0 (from google-auth>=2.15.0->google-generativeai)
+  Using cached cachetools-5.5.2-py3-none-any.whl.metadata (5.4 kB)
+Collecting pyasn1-modules>=0.2.1 (from google-auth>=2.15.0->google-generativeai)
+  Using cached pyasn1_modules-0.4.2-py3-none-any.whl.metadata (3.5 kB)
+Collecting rsa<5,>=3.1.4 (from google-auth>=2.15.0->google-generativeai)
+  Downloading rsa-4.9.1-py3-none-any.whl.metadata (5.6 kB)
+Collecting six>=1.9 (from html5lib>=1.1->xhtml2pdf)
+  Using cached six-1.17.0-py2.py3-none-any.whl.metadata (1.7 kB)
+Collecting webencodings (from html5lib>=1.1->xhtml2pdf)
+  Using cached webencodings-0.5.1-py2.py3-none-any.whl.metadata (2.1 kB)
+Collecting certifi (from httpx<1,>=0.25.0->anthropic)
+  Downloading certifi-2025.4.26-py3-none-any.whl.metadata (2.5 kB)
+Collecting httpcore==1.* (from httpx<1,>=0.25.0->anthropic)
+  Downloading httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
+Collecting h11>=0.16 (from httpcore==1.*->httpx<1,>=0.25.0->anthropic)
+  Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+Collecting MarkupSafe>=2.0 (from Jinja2>=3.1.2->flask)
+  Using cached MarkupSafe-3.0.2-cp312-cp312-win_amd64.whl.metadata (4.1 kB)
+Collecting annotated-types>=0.6.0 (from pydantic->google-generativeai)
+  Using cached annotated_types-0.7.0-py3-none-any.whl.metadata (15 kB)
+Collecting pydantic-core==2.33.1 (from pydantic->google-generativeai)
+  Using cached pydantic_core-2.33.1-cp312-cp312-win_amd64.whl.metadata (6.9 kB)
+Collecting typing-inspection>=0.4.0 (from pydantic->google-generativeai)
+  Using cached typing_inspection-0.4.0-py3-none-any.whl.metadata (2.6 kB)
+Collecting asn1crypto>=1.5.1 (from pyHanko>=0.12.1->xhtml2pdf)
+  Downloading asn1crypto-1.5.1-py2.py3-none-any.whl.metadata (13 kB)
+Collecting qrcode>=7.3.1 (from pyHanko>=0.12.1->xhtml2pdf)
+  Downloading qrcode-8.1-py3-none-any.whl.metadata (17 kB)
+Collecting tzlocal>=4.3 (from pyHanko>=0.12.1->xhtml2pdf)
+  Downloading tzlocal-5.3.1-py3-none-any.whl.metadata (7.6 kB)
+Collecting pyyaml>=6.0 (from pyHanko>=0.12.1->xhtml2pdf)
+  Using cached PyYAML-6.0.2-cp312-cp312-win_amd64.whl.metadata (2.1 kB)
+Collecting cryptography>=43.0.3 (from pyHanko>=0.12.1->xhtml2pdf)
+  Downloading cryptography-44.0.2-cp39-abi3-win_amd64.whl.metadata (5.7 kB)
+Collecting defusedxml~=0.7.1 (from pyHanko>=0.12.1->xhtml2pdf)
+  Using cached defusedxml-0.7.1-py2.py3-none-any.whl.metadata (32 kB)
+Collecting oscrypto>=1.1.0 (from pyhanko-certvalidator>=0.19.5->xhtml2pdf)
+  Downloading oscrypto-1.3.0-py2.py3-none-any.whl.metadata (15 kB)
+Collecting uritools>=3.0.1 (from pyhanko-certvalidator>=0.19.5->xhtml2pdf)
+  Downloading uritools-4.0.3-py3-none-any.whl.metadata (4.7 kB)
+Collecting chardet (from reportlab<5,>=4.0.4->xhtml2pdf)
+  Using cached chardet-5.2.0-py3-none-any.whl.metadata (3.4 kB)
+Collecting greenlet>=1 (from sqlalchemy>=2.0.16->flask-sqlalchemy)
+  Downloading greenlet-3.2.1-cp312-cp312-win_amd64.whl.metadata (4.2 kB)
+Collecting lxml (from svglib>=1.2.1->xhtml2pdf)
+  Downloading lxml-5.4.0-cp312-cp312-win_amd64.whl.metadata (3.6 kB)
+Collecting tinycss2>=0.6.0 (from svglib>=1.2.1->xhtml2pdf)
+  Downloading tinycss2-1.4.0-py3-none-any.whl.metadata (3.0 kB)
+Collecting cssselect2>=0.2.0 (from svglib>=1.2.1->xhtml2pdf)
+  Downloading cssselect2-0.8.0-py3-none-any.whl.metadata (2.9 kB)
+Collecting httplib2<1.0.0,>=0.19.0 (from google-api-python-client->google-generativeai)
+  Using cached httplib2-0.22.0-py3-none-any.whl.metadata (2.6 kB)
+Collecting google-auth-httplib2<1.0.0,>=0.2.0 (from google-api-python-client->google-generativeai)
+  Using cached google_auth_httplib2-0.2.0-py2.py3-none-any.whl.metadata (2.2 kB)
+Collecting uritemplate<5,>=3.0.1 (from google-api-python-client->google-generativeai)
+  Using cached uritemplate-4.1.1-py2.py3-none-any.whl.metadata (2.9 kB)
+Collecting cffi>=1.12 (from cryptography>=43.0.3->pyHanko>=0.12.1->xhtml2pdf)
+  Downloading cffi-1.17.1-cp312-cp312-win_amd64.whl.metadata (1.6 kB)
+Collecting grpcio<2.0dev,>=1.33.2 (from google-api-core[grpc]!=2.0.*,!=2.1.*,!=2.10.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*,!=2.8.*,!=2.9.*,<3.0.0dev,>=1.34.1->google-ai-generativelanguage==0.6.15->google-generativeai)
+  Using cached grpcio-1.71.0-cp312-cp312-win_amd64.whl.metadata (4.0 kB)
+Collecting grpcio-status<2.0.dev0,>=1.33.2 (from google-api-core[grpc]!=2.0.*,!=2.1.*,!=2.10.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*,!=2.8.*,!=2.9.*,<3.0.0dev,>=1.34.1->google-ai-generativelanguage==0.6.15->google-generativeai)
+  Using cached grpcio_status-1.71.0-py3-none-any.whl.metadata (1.1 kB)
+Collecting pyparsing!=3.0.0,!=3.0.1,!=3.0.2,!=3.0.3,<4,>=2.4.2 (from httplib2<1.0.0,>=0.19.0->google-api-python-client->google-generativeai)
+  Using cached pyparsing-3.2.3-py3-none-any.whl.metadata (5.0 kB)
+Collecting pyasn1<0.7.0,>=0.6.1 (from pyasn1-modules>=0.2.1->google-auth>=2.15.0->google-generativeai)
+  Using cached pyasn1-0.6.1-py3-none-any.whl.metadata (8.4 kB)
+Collecting charset-normalizer<4,>=2 (from requests<3.0.0,>=2.18.0->google-api-core->google-generativeai)
+  Using cached charset_normalizer-3.4.1-cp312-cp312-win_amd64.whl.metadata (36 kB)
+Collecting urllib3<3,>=1.21.1 (from requests<3.0.0,>=2.18.0->google-api-core->google-generativeai)
+  Downloading urllib3-2.4.0-py3-none-any.whl.metadata (6.5 kB)
+Collecting pycparser (from cffi>=1.12->cryptography>=43.0.3->pyHanko>=0.12.1->xhtml2pdf)
+  Using cached pycparser-2.22-py3-none-any.whl.metadata (943 bytes)
+Using cached Flask_Login-0.6.3-py3-none-any.whl (17 kB)
+Using cached flask-3.1.0-py3-none-any.whl (102 kB)
+Using cached flask_sqlalchemy-3.1.1-py3-none-any.whl (25 kB)
+Using cached gunicorn-23.0.0-py3-none-any.whl (85 kB)
+Using cached psycopg2_binary-2.9.10-cp312-cp312-win_amd64.whl (1.2 MB)
+Using cached flask_wtf-1.2.2-py3-none-any.whl (12 kB)
+Using cached pandas-2.2.3-cp312-cp312-win_amd64.whl (11.5 MB)
+Downloading numpy-2.2.5-cp312-cp312-win_amd64.whl (12.6 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12.6/12.6 MB 677.0 kB/s eta 0:00:00
+Downloading openpyxl-3.1.5-py2.py3-none-any.whl (250 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 250.9/250.9 kB 467.3 kB/s eta 0:00:00
+Downloading pypdf2-3.0.1-py3-none-any.whl (232 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 232.6/232.6 kB 568.6 kB/s eta 0:00:00
+Downloading google_generativeai-0.8.5-py3-none-any.whl (155 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 155.4/155.4 kB 516.7 kB/s eta 0:00:00
+Using cached google_ai_generativelanguage-0.6.15-py3-none-any.whl (1.3 MB)
+Downloading anthropic-0.50.0-py3-none-any.whl (245 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 245.3/245.3 kB 577.5 kB/s eta 0:00:00
+Downloading xhtml2pdf-0.2.17-py3-none-any.whl (125 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 125.3/125.3 kB 615.6 kB/s eta 0:00:00
+Using cached pytz-2025.2-py2.py3-none-any.whl (509 kB)
+Downloading openai-1.76.0-py3-none-any.whl (661 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 661.2/661.2 kB 586.5 kB/s eta 0:00:00
+Using cached email_validator-2.2.0-py3-none-any.whl (33 kB)
+Using cached anyio-4.9.0-py3-none-any.whl (100 kB)
+Downloading arabic_reshaper-3.0.0-py3-none-any.whl (20 kB)
+Using cached blinker-1.9.0-py3-none-any.whl (8.5 kB)
+Using cached click-8.1.8-py3-none-any.whl (98 kB)
+Using cached distro-1.9.0-py3-none-any.whl (20 kB)
+Using cached dnspython-2.7.0-py3-none-any.whl (313 kB)
+Using cached google_api_core-2.24.2-py3-none-any.whl (160 kB)
+Downloading google_auth-2.39.0-py2.py3-none-any.whl (212 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 212.3/212.3 kB 616.1 kB/s eta 0:00:00
+Downloading html5lib-1.1-py2.py3-none-any.whl (112 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 112.2/112.2 kB 592.6 kB/s eta 0:00:00
+Using cached httpx-0.28.1-py3-none-any.whl (73 kB)
+Downloading httpcore-1.0.9-py3-none-any.whl (78 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 78.8/78.8 kB 548.4 kB/s eta 0:00:00
+Using cached idna-3.10-py3-none-any.whl (70 kB)
+Using cached itsdangerous-2.2.0-py3-none-any.whl (16 kB)
+Using cached jinja2-3.1.6-py3-none-any.whl (134 kB)
+Using cached jiter-0.9.0-cp312-cp312-win_amd64.whl (207 kB)
+Downloading pillow-11.2.1-cp312-cp312-win_amd64.whl (2.7 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.7/2.7 MB 433.1 kB/s eta 0:00:00
+Using cached protobuf-5.29.4-cp310-abi3-win_amd64.whl (434 kB)
+Using cached pydantic-2.11.3-py3-none-any.whl (443 kB)
+Using cached pydantic_core-2.33.1-cp312-cp312-win_amd64.whl (2.0 MB)
+Downloading pyhanko-0.26.0-py3-none-any.whl (447 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 447.2/447.2 kB 582.6 kB/s eta 0:00:00
+Downloading pyhanko_certvalidator-0.26.8-py3-none-any.whl (109 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 109.9/109.9 kB 579.2 kB/s eta 0:00:00
+Downloading pypdf-5.4.0-py3-none-any.whl (302 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 302.3/302.3 kB 566.0 kB/s eta 0:00:00
+Downloading python_bidi-0.6.6-cp312-cp312-win_amd64.whl (160 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 160.3/160.3 kB 600.0 kB/s eta 0:00:00
+Using cached python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
+Downloading reportlab-4.4.0-py3-none-any.whl (2.0 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.0/2.0 MB 583.8 kB/s eta 0:00:00
+Using cached sniffio-1.3.1-py3-none-any.whl (10 kB)
+Using cached sqlalchemy-2.0.40-cp312-cp312-win_amd64.whl (2.1 MB)
+Using cached tqdm-4.67.1-py3-none-any.whl (78 kB)
+Downloading typing_extensions-4.13.2-py3-none-any.whl (45 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 45.8/45.8 kB 564.5 kB/s eta 0:00:00
+Using cached tzdata-2025.2-py2.py3-none-any.whl (347 kB)
+Using cached werkzeug-3.1.3-py3-none-any.whl (224 kB)
+Downloading et_xmlfile-2.0.0-py3-none-any.whl (18 kB)
+Downloading google_api_python_client-2.168.0-py3-none-any.whl (13.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 13.3/13.3 MB 577.1 kB/s eta 0:00:00
+Downloading packaging-25.0-py3-none-any.whl (66 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 66.5/66.5 kB 598.2 kB/s eta 0:00:00
+Using cached wtforms-3.2.1-py3-none-any.whl (152 kB)
+Using cached annotated_types-0.7.0-py3-none-any.whl (13 kB)
+Downloading asn1crypto-1.5.1-py2.py3-none-any.whl (105 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 105.0/105.0 kB 551.2 kB/s eta 0:00:00
+Using cached cachetools-5.5.2-py3-none-any.whl (10 kB)
+Downloading cryptography-44.0.2-cp39-abi3-win_amd64.whl (3.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.2/3.2 MB 580.3 kB/s eta 0:00:00
+Downloading cssselect2-0.8.0-py3-none-any.whl (15 kB)
+Using cached defusedxml-0.7.1-py2.py3-none-any.whl (25 kB)
+Using cached google_auth_httplib2-0.2.0-py2.py3-none-any.whl (9.3 kB)
+Downloading googleapis_common_protos-1.70.0-py3-none-any.whl (294 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 294.5/294.5 kB 568.6 kB/s eta 0:00:00
+Downloading greenlet-3.2.1-cp312-cp312-win_amd64.whl (296 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 296.2/296.2 kB 590.8 kB/s eta 0:00:00
+Using cached httplib2-0.22.0-py3-none-any.whl (96 kB)
+Using cached MarkupSafe-3.0.2-cp312-cp312-win_amd64.whl (15 kB)
+Downloading oscrypto-1.3.0-py2.py3-none-any.whl (194 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 194.6/194.6 kB 380.8 kB/s eta 0:00:00
+Using cached proto_plus-1.26.1-py3-none-any.whl (50 kB)
+Using cached pyasn1_modules-0.4.2-py3-none-any.whl (181 kB)
+Using cached PyYAML-6.0.2-cp312-cp312-win_amd64.whl (156 kB)
+Downloading qrcode-8.1-py3-none-any.whl (45 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 45.7/45.7 kB 754.7 kB/s eta 0:00:00
+Using cached requests-2.32.3-py3-none-any.whl (64 kB)
+Downloading certifi-2025.4.26-py3-none-any.whl (159 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 159.6/159.6 kB 597.5 kB/s eta 0:00:00
+Downloading rsa-4.9.1-py3-none-any.whl (34 kB)
+Using cached six-1.17.0-py2.py3-none-any.whl (11 kB)
+Downloading tinycss2-1.4.0-py3-none-any.whl (26 kB)
+Using cached typing_inspection-0.4.0-py3-none-any.whl (14 kB)
+Downloading tzlocal-5.3.1-py3-none-any.whl (18 kB)
+Using cached uritemplate-4.1.1-py2.py3-none-any.whl (10 kB)
+Downloading uritools-4.0.3-py3-none-any.whl (10 kB)
+Using cached webencodings-0.5.1-py2.py3-none-any.whl (11 kB)
+Using cached chardet-5.2.0-py3-none-any.whl (199 kB)
+Using cached colorama-0.4.6-py2.py3-none-any.whl (25 kB)
+Downloading lxml-5.4.0-cp312-cp312-win_amd64.whl (3.8 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.8/3.8 MB 561.4 kB/s eta 0:00:00
+Downloading cffi-1.17.1-cp312-cp312-win_amd64.whl (181 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 182.0/182.0 kB 550.4 kB/s eta 0:00:00
+Using cached charset_normalizer-3.4.1-cp312-cp312-win_amd64.whl (102 kB)
+Using cached grpcio-1.71.0-cp312-cp312-win_amd64.whl (4.3 MB)
+Using cached grpcio_status-1.71.0-py3-none-any.whl (14 kB)
+Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+Using cached pyasn1-0.6.1-py3-none-any.whl (83 kB)
+Using cached pyparsing-3.2.3-py3-none-any.whl (111 kB)
+Downloading urllib3-2.4.0-py3-none-any.whl (128 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 128.7/128.7 kB 543.3 kB/s eta 0:00:00
+Using cached pycparser-2.22-py3-none-any.whl (117 kB)
+Building wheels for collected packages: svglib
+  Building wheel for svglib (pyproject.toml) ... done
+  Created wheel for svglib: filename=svglib-1.5.1-py3-none-any.whl size=31022 sha256=079496ae007b1cc65e6efec3c639983c78e3436aecd49b8cc17269643603b2f4
+  Stored in directory: c:\users\dell\appdata\local\pip\cache\wheels\9c\a3\80\b15b7e7a70fc699803bfe258ec8eb09db5ad15e1b0871871c5
+Successfully built svglib
+Installing collected packages: webencodings, pytz, python-bidi, asn1crypto, arabic-reshaper, urllib3, uritools, uritemplate, tzdata, typing-extensions, tinycss2, sniffio, six, pyyaml, pypdf2, pypdf, pyparsing, pycparser, pyasn1, psycopg2-binary, protobuf, Pillow, packaging, oscrypto, numpy, MarkupSafe, lxml, jiter, itsdangerous, idna, h11, grpcio, greenlet, et-xmlfile, dnspython, distro, defusedxml, colorama, charset-normalizer, chardet, certifi, cachetools, blinker, annotated-types, wtforms, Werkzeug, tzlocal, typing-inspection, tqdm, sqlalchemy, rsa, requests, reportlab, qrcode, python-dateutil, pydantic-core, pyasn1-modules, proto-plus, openpyxl, Jinja2, httplib2, httpcore, html5lib, gunicorn, googleapis-common-protos, email-validator, cssselect2, click, cffi, anyio, svglib, pydantic, pandas, httpx, grpcio-status, google-auth, flask, cryptography, pyhanko-certvalidator, openai, google-auth-httplib2, google-api-core, flask-wtf, flask-sqlalchemy, flask-login, anthropic, pyHanko, google-api-python-client, xhtml2pdf, google-ai-generativelanguage, google-generativeai
+Successfully installed Jinja2-3.1.6 MarkupSafe-3.0.2 Pillow-11.2.1 Werkzeug-3.1.3 annotated-types-0.7.0 anthropic-0.50.0 anyio-4.9.0 arabic-reshaper-3.0.0 asn1crypto-1.5.1 blinker-1.9.0 cachetools-5.5.2 certifi-2025.4.26 cffi-1.17.1 chardet-5.2.0 charset-normalizer-3.4.1 click-8.1.8 colorama-0.4.6 cryptography-44.0.2 cssselect2-0.8.0 defusedxml-0.7.1 distro-1.9.0 dnspython-2.7.0 email-validator-2.2.0 et-xmlfile-2.0.0 flask-3.1.0 flask-login-0.6.3 flask-sqlalchemy-3.1.1 flask-wtf-1.2.2 google-ai-generativelanguage-0.6.15 google-api-core-2.24.2 google-api-python-client-2.168.0 google-auth-2.39.0 google-auth-httplib2-0.2.0 google-generativeai-0.8.5 googleapis-common-protos-1.70.0 greenlet-3.2.1 grpcio-1.71.0 grpcio-status-1.71.0 gunicorn-23.0.0 h11-0.16.0 html5lib-1.1 httpcore-1.0.9 httplib2-0.22.0 httpx-0.28.1 idna-3.10 itsdangerous-2.2.0 jiter-0.9.0 lxml-5.4.0 numpy-2.2.5 openai-1.76.0 openpyxl-3.1.5 oscrypto-1.3.0 packaging-25.0 pandas-2.2.3 proto-plus-1.26.1 protobuf-5.29.4 psycopg2-binary-2.9.10 pyHanko-0.26.0 pyasn1-0.6.1 pyasn1-modules-0.4.2 pycparser-2.22 pydantic-2.11.3 pydantic-core-2.33.1 pyhanko-certvalidator-0.26.8 pyparsing-3.2.3 pypdf-5.4.0 pypdf2-3.0.1 python-bidi-0.6.6 python-dateutil-2.9.0.post0 pytz-2025.2 pyyaml-6.0.2 qrcode-8.1 reportlab-4.4.0 requests-2.32.3 rsa-4.9.1 six-1.17.0 sniffio-1.3.1 sqlalchemy-2.0.40 svglib-1.5.1 tinycss2-1.4.0 tqdm-4.67.1 typing-extensions-4.13.2 typing-inspection-0.4.0 tzdata-2025.2 tzlocal-5.3.1 uritemplate-4.1.1 uritools-4.0.3 urllib3-2.4.0 webencodings-0.5.1 wtforms-3.2.1 xhtml2pdf-0.2.17
+
+[notice] A new release of pip is available: 24.0 -> 25.1
+[notice] To update, run: python.exe -m pip install --upgrade pip
+
+(venv) D:\FinancialIntelligence>python main,py
+C:\Python312\python.exe: can't open file 'D:\\FinancialIntelligence\\main,py': [Errno 2] No such file or directory
+
+(venv) D:\FinancialIntelligence>python main.py
+WARNING:fintelligence:GEMINI_API_KEY environment variable not set
+ * Tip: There are .env files present. Install python-dotenv to use them.
+ * Serving Flask app 'app'
+ * Debug mode: on
+INFO:werkzeug:WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.29.18:5000
+INFO:werkzeug:Press CTRL+C to quit
+INFO:werkzeug: * Restarting with stat
+WARNING:fintelligence:GEMINI_API_KEY environment variable not set
+ * Tip: There are .env files present. Install python-dotenv to use them.
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 680-596-435
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:51:57] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:51:59] "GET /static/js/main.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:51:59] "GET /static/css/style.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:52:03] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:52:29] "GET /register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:52:29] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:52:29] "GET /static/js/main.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:52:43] "GET /login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:52:43] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:52:43] "GET /static/js/main.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:52:55] "POST /login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:52:55] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:52:55] "GET /static/js/main.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:53:04] "GET /register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:53:04] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:53:04] "GET /static/js/main.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:53:29] "POST /register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:53:29] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:53:29] "GET /static/js/main.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:53:46] "POST /register HTTP/1.1" 302 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:53:46] "GET /login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:53:47] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:53:47] "GET /static/js/main.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:53:55] "POST /login HTTP/1.1" 302 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:53:55] "GET /dashboard HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:53:55] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:53:55] "GET /static/js/main.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:53:58] "GET /upload HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:53:58] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:53:58] "GET /static/js/main.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:54:39] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:54:39] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:54:39] "GET /static/js/main.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:54:40] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:54:53] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:54:54] "GET /static/js/main.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:54:54] "GET /static/css/style.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:54:54] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:55:01] "GET /register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:55:01] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:55:01] "GET /static/js/main.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:55:07] "GET /login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:55:07] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:55:07] "GET /static/js/main.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:55:23] "POST /login HTTP/1.1" 302 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:55:24] "GET /dashboard HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:55:24] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:55:24] "GET /static/js/main.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:55:28] "GET /upload HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:55:28] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:55:28] "GET /static/js/main.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:55:36] "POST /upload HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\flask\app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\werkzeug\middleware\proxy_fix.py", line 183, in __call__
+    return self.app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\flask\app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FinancialIntelligence\routes.py", line 90, in upload
+    file.save(temp_path)
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\werkzeug\datastructures\file_storage.py", line 129, in save
+    dst = open(dst, "wb")
+          ^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp\\New_Realistic_Financial_Data.csv'
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:55:36] "GET /upload?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:55:38] "GET /upload?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:55:38] "GET /upload?__debugger__=yes&cmd=resource&f=console.png&s=o630IpTouNOQMKGNLoz9 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:55:38] "GET /upload?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:56:12] "POST /upload HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\flask\app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\werkzeug\middleware\proxy_fix.py", line 183, in __call__
+    return self.app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\flask\app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FinancialIntelligence\routes.py", line 90, in upload
+    file.save(temp_path)
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\werkzeug\datastructures\file_storage.py", line 129, in save
+    dst = open(dst, "wb")
+          ^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp\\Updated_Realistic_Financial_Data.csv'
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:56:12] "GET /upload?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:56:12] "GET /upload?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:56:12] "GET /upload?__debugger__=yes&cmd=resource&f=console.png&s=o630IpTouNOQMKGNLoz9 HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:56:12] "GET /upload?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:56:18] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:56:18] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:56:18] "GET /static/js/main.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:56:38] "GET /register HTTP/1.1" 302 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:56:38] "GET /dashboard HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:56:38] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:56:38] "GET /static/js/main.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:56:40] "GET /upload HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:56:40] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:56:40] "GET /static/js/main.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:56:48] "POST /upload HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\flask\app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\werkzeug\middleware\proxy_fix.py", line 183, in __call__
+    return self.app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\flask\app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FinancialIntelligence\routes.py", line 90, in upload
+    file.save(temp_path)
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\werkzeug\datastructures\file_storage.py", line 129, in save
+    dst = open(dst, "wb")
+          ^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp\\New_Realistic_Financial_Data.csv'
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:56:48] "GET /upload?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:56:48] "GET /upload?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:56:48] "GET /upload?__debugger__=yes&cmd=resource&f=console.png&s=o630IpTouNOQMKGNLoz9 HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Apr/2025 09:56:48] "GET /upload?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 304 -
