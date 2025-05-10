@@ -516,7 +516,8 @@ def process_ai_response(response_text, report_type, file_data):
         result = ensure_response_structure(result, report_type)
         
         # Create standard report structure expected by templates
-        # These are required to show numeric values in reports
+        # Templates expect a nested structure with report_type key
+        final_result = {}
         if report_type == 'balance_sheet':
             # Ensure we have assets, liabilities and equity with numeric values
             if 'assets' not in result or not isinstance(result['assets'], dict):
@@ -527,6 +528,23 @@ def process_ai_response(response_text, report_type, file_data):
                 
             if 'equity' not in result or not isinstance(result['equity'], dict):
                 result['equity'] = {'total': 0.0}
+                
+            # Create the expected nested structure for the balance_sheet template
+            final_result = {
+                'balance_sheet': result,  # Nest everything under balance_sheet
+                'generated_at': result.get('generated_at', datetime.now().isoformat()),
+                'error': result.get('error', None)
+            }
+            
+            # Add insights at top level for template access
+            if 'insights' in result:
+                final_result['insights'] = result['insights']
+            
+            # Add quarters at top level for template access
+            if 'quarters' in result:
+                final_result['quarters'] = result['quarters']
+            
+            return final_result
         
         elif report_type == 'income_statement':
             # Ensure revenue and expenses sections exist with numeric values
@@ -538,6 +556,23 @@ def process_ai_response(response_text, report_type, file_data):
                 
             if 'profit_loss' not in result or not isinstance(result['profit_loss'], dict):
                 result['profit_loss'] = {'gross_profit': 0.0, 'operating_profit': 0.0, 'net_profit': 0.0}
+                
+            # Create the expected nested structure for the income_statement template
+            final_result = {
+                'income_statement': result,  # Nest everything under income_statement
+                'generated_at': result.get('generated_at', datetime.now().isoformat()),
+                'error': result.get('error', None)
+            }
+            
+            # Add insights at top level for template access
+            if 'insights' in result:
+                final_result['insights'] = result['insights']
+            
+            # Add quarters at top level for template access
+            if 'quarters' in result:
+                final_result['quarters'] = result['quarters']
+            
+            return final_result
         
         elif report_type == 'cash_flow':
             # Ensure cash flow sections exist with numeric values
@@ -552,42 +587,105 @@ def process_ai_response(response_text, report_type, file_data):
                 
             if 'summary' not in result or not isinstance(result['summary'], dict):
                 result['summary'] = {'beginning_cash': 0.0, 'net_change': 0.0, 'ending_cash': 0.0}
-        
+                
+            # Create the expected nested structure for the cash_flow template
+            final_result = {
+                'cash_flow_statement': result,  # Nest everything under cash_flow_statement
+                'generated_at': result.get('generated_at', datetime.now().isoformat()),
+                'error': result.get('error', None)
+            }
+            
+            # Add insights at top level for template access
+            if 'insights' in result:
+                final_result['insights'] = result['insights']
+            
+            # Add quarters at top level for template access
+            if 'quarters' in result:
+                final_result['quarters'] = result['quarters']
+            
+            return final_result
+            
+        elif report_type == 'analysis':
+            # Return the analysis data as is with added error field
+            result['error'] = result.get('error', None)
+            return result
+            
+        # Default case - just return the result with added error field
+        result['error'] = result.get('error', None)
         return result
     
     except Exception as e:
         logger.error(f"Error processing AI response: {str(e)}")
         
-        # Create fallback structure with error information
-        fallback = {
+        # Create base fallback structure
+        base_fallback = {
             "error": f"Failed to process AI response: {str(e)}",
             "generated_at": datetime.now().isoformat()
         }
         
+        # Create report-specific nested structures with proper fallback values
         if report_type == 'balance_sheet':
-            fallback['assets'] = {'total': 0.0}
-            fallback['liabilities'] = {'total': 0.0}
-            fallback['equity'] = {'total': 0.0}
-            fallback['insights'] = ["Error processing data. Please try again."]
+            report_data = {
+                "assets": {'current_assets': {}, 'non_current_assets': {}, 'total': 0.0},
+                "liabilities": {'current_liabilities': {}, 'long_term_liabilities': {}, 'total': 0.0},
+                "equity": {'total': 0.0},
+                "insights": ["Error processing data. Please try again."],
+                "generated_at": datetime.now().isoformat(),
+                "error": base_fallback["error"]
+            }
+            
+            # Return properly nested structure for balance sheet template
+            return {
+                "balance_sheet": report_data,
+                "generated_at": base_fallback["generated_at"],
+                "error": base_fallback["error"],
+                "insights": report_data["insights"]
+            }
         
         elif report_type == 'income_statement':
-            fallback['revenue'] = {'total': 0.0}
-            fallback['expenses'] = {'total': 0.0}
-            fallback['profit_loss'] = {'gross_profit': 0.0, 'net_profit': 0.0}
-            fallback['insights'] = ["Error processing data. Please try again."]
+            report_data = {
+                "revenue": {'total': 0.0},
+                "expenses": {'total': 0.0},
+                "profit_loss": {'gross_profit': 0.0, 'net_profit': 0.0},
+                "insights": ["Error processing data. Please try again."],
+                "generated_at": datetime.now().isoformat(),
+                "error": base_fallback["error"]
+            }
+            
+            # Return properly nested structure for income statement template
+            return {
+                "income_statement": report_data,
+                "generated_at": base_fallback["generated_at"],
+                "error": base_fallback["error"],
+                "insights": report_data["insights"]
+            }
         
         elif report_type == 'cash_flow':
-            fallback['operating_activities'] = {'total': 0.0}
-            fallback['investing_activities'] = {'total': 0.0}
-            fallback['financing_activities'] = {'total': 0.0}
-            fallback['summary'] = {'net_change': 0.0}
-            fallback['insights'] = ["Error processing data. Please try again."]
+            report_data = {
+                "operating_activities": {'total': 0.0},
+                "investing_activities": {'total': 0.0},
+                "financing_activities": {'total': 0.0},
+                "summary": {'beginning_cash': 0.0, 'net_change': 0.0, 'ending_cash': 0.0},
+                "insights": ["Error processing data. Please try again."],
+                "generated_at": datetime.now().isoformat(),
+                "error": base_fallback["error"]
+            }
+            
+            # Return properly nested structure for cash flow template
+            return {
+                "cash_flow_statement": report_data,
+                "generated_at": base_fallback["generated_at"],
+                "error": base_fallback["error"],
+                "insights": report_data["insights"]
+            }
         
         elif report_type == 'analysis':
-            fallback['overview'] = {"financial_health": "Analysis error"}
-            fallback['recommendations'] = ["Please try generating the analysis again."]
+            base_fallback['overview'] = {"financial_health": "Analysis error"}
+            base_fallback['recommendations'] = ["Please try generating the analysis again."]
+            return base_fallback
         
-        return fallback
+        # Default fallback
+        return base_fallback
 
 def generate_income_statement(file_data):
     """
