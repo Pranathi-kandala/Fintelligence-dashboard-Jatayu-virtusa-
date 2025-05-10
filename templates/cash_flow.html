@@ -198,10 +198,12 @@
                             <tr class="table-primary">
                                 <th>Net Cash from Investing Activities</th>
                                 <td class="text-end">
-                                    {% if data.cash_flow_statement.net_cash_from_investing is defined %}
+                                    {% if data.cash_flow_statement is defined and data.cash_flow_statement.net_cash_from_investing is defined %}
                                         ${{ "{:,.2f}".format(data.cash_flow_statement.net_cash_from_investing|float) }}
-                                    {% elif data.cash_flow_statement.net_investing_cash_flow is defined %}
+                                    {% elif data.cash_flow_statement is defined and data.cash_flow_statement.net_investing_cash_flow is defined %}
                                         ${{ "{:,.2f}".format(data.cash_flow_statement.net_investing_cash_flow|float) }}
+                                    {% else %}
+                                        $0.00
                                     {% endif %}
                                 </td>
                             </tr>
@@ -211,38 +213,49 @@
                                 <th colspan="2">Cash Flows from Financing Activities</th>
                             </tr>
                             
-                            {% if data.cash_flow_statement.financing_activities is mapping %}
-                                {% for key, value in data.cash_flow_statement.financing_activities.items() %}
+                            {% if data.cash_flow_statement is defined and data.cash_flow_statement.financing_activities is defined %}
+                                {% if data.cash_flow_statement.financing_activities is mapping %}
+                                    {% for key, value in data.cash_flow_statement.financing_activities.items() %}
+                                    <tr>
+                                        <td>{{ key|replace('_', ' ')|title }}</td>
+                                        <td class="text-end">{{ value if value is string else "${:,.2f}".format(value|float) }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                {% elif data.cash_flow_statement.financing_activities is iterable and data.cash_flow_statement.financing_activities is not string %}
+                                    {% for item in data.cash_flow_statement.financing_activities %}
+                                        {% if item is mapping %}
+                                            {% for key, value in item.items() %}
+                                            <tr>
+                                                <td>{{ key|replace('_', ' ')|title }}</td>
+                                                <td class="text-end">{{ value if value is string else "${:,.2f}".format(value|float) }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        {% else %}
+                                            <tr>
+                                                <td colspan="2">{{ item }}</td>
+                                            </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            {% else %}
                                 <tr>
-                                    <td>{{ key|replace('_', ' ')|title }}</td>
-                                    <td class="text-end">{{ value if value is string else "${:,.2f}".format(value|float) }}</td>
+                                    <td colspan="2" class="text-center text-muted">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        Financing activities information not available
+                                    </td>
                                 </tr>
-                                {% endfor %}
-                            {% elif data.cash_flow_statement.financing_activities is iterable and data.cash_flow_statement.financing_activities is not string %}
-                                {% for item in data.cash_flow_statement.financing_activities %}
-                                    {% if item is mapping %}
-                                        {% for key, value in item.items() %}
-                                        <tr>
-                                            <td>{{ key|replace('_', ' ')|title }}</td>
-                                            <td class="text-end">{{ value if value is string else "${:,.2f}".format(value|float) }}</td>
-                                        </tr>
-                                        {% endfor %}
-                                    {% else %}
-                                        <tr>
-                                            <td colspan="2">{{ item }}</td>
-                                        </tr>
-                                    {% endif %}
-                                {% endfor %}
                             {% endif %}
                             
                             <!-- Net Cash from Financing Activities -->
                             <tr class="table-primary">
                                 <th>Net Cash from Financing Activities</th>
                                 <td class="text-end">
-                                    {% if data.cash_flow_statement.net_cash_from_financing is defined %}
+                                    {% if data.cash_flow_statement is defined and data.cash_flow_statement.net_cash_from_financing is defined %}
                                         ${{ "{:,.2f}".format(data.cash_flow_statement.net_cash_from_financing|float) }}
-                                    {% elif data.cash_flow_statement.net_financing_cash_flow is defined %}
+                                    {% elif data.cash_flow_statement is defined and data.cash_flow_statement.net_financing_cash_flow is defined %}
                                         ${{ "{:,.2f}".format(data.cash_flow_statement.net_financing_cash_flow|float) }}
+                                    {% else %}
+                                        $0.00
                                     {% endif %}
                                 </td>
                             </tr>
@@ -251,28 +264,16 @@
                             <tr class="table-success">
                                 <th>Net Change in Cash</th>
                                 <td class="text-end">
-                                    {% if data.cash_flow_statement is defined %}
-                                        {% if data.cash_flow_statement.net_change_in_cash is defined %}
-                                            {% if data.cash_flow_statement.net_change_in_cash is mapping %}
-                                                {% for key, value in data.cash_flow_statement.net_change_in_cash.items() %}
-                                                    {{ key|replace('_', ' ')|title }}: {{ value if value is string else "${:,.2f}".format(value|float) }}<br>
-                                                {% endfor %}
-                                            {% elif data.cash_flow_statement.net_change_in_cash is number or data.cash_flow_statement.net_change_in_cash is string %}
-                                                ${{ "{:,.2f}".format(data.cash_flow_statement.net_change_in_cash|float) }}
-                                            {% else %}
-                                                <span class="text-muted">Invalid format</span>
-                                            {% endif %}
-                                        {% elif data.operating_activities is defined and data.investing_activities is defined and data.financing_activities is defined %}
-                                            {% set net_op = data.operating_activities.net_cash_from_operating_activities|float if data.operating_activities.net_cash_from_operating_activities is defined else 0 %}
-                                            {% set net_inv = data.investing_activities.net_cash_from_investing_activities|float if data.investing_activities.net_cash_from_investing_activities is defined else 0 %}
-                                            {% set net_fin = data.financing_activities.net_cash_from_financing_activities|float if data.financing_activities.net_cash_from_financing_activities is defined else 0 %}
-                                            {% set calc_total = net_op + net_inv + net_fin %}
-                                            ${{ "{:,.2f}".format(calc_total) }}
+                                    {% if data.cash_flow_statement is defined and data.cash_flow_statement.net_change_in_cash is defined %}
+                                        {% if data.cash_flow_statement.net_change_in_cash is mapping %}
+                                            {% for key, value in data.cash_flow_statement.net_change_in_cash.items() %}
+                                                {{ key|replace('_', ' ')|title }}: {{ value if value is string else "${:,.2f}".format(value|float) }}<br>
+                                            {% endfor %}
                                         {% else %}
-                                            <span class="text-muted">Not available</span>
+                                            ${{ "{:,.2f}".format(data.cash_flow_statement.net_change_in_cash|float) }}
                                         {% endif %}
                                     {% else %}
-                                        <span class="text-muted">Not available</span>
+                                        $0.00
                                     {% endif %}
                                 </td>
                             </tr>
@@ -290,7 +291,7 @@
                                             ${{ "{:,.2f}".format(data.cash_flow_statement.ending_cash|float) }}
                                         {% endif %}
                                     {% else %}
-                                        <span class="text-muted">Not available</span>
+                                        $0.00
                                     {% endif %}
                                 </td>
                             </tr>

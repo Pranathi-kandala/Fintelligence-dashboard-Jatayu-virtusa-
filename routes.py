@@ -347,6 +347,25 @@ def register_routes(app):
                 # Add cash_flow_statement field if missing
                 if 'cash_flow_statement' not in report_data:
                     report_data['cash_flow_statement'] = {}
+                # Add required cash flow sections if missing
+                if 'beginning_cash' not in report_data.get('cash_flow_statement', {}):
+                    report_data['cash_flow_statement']['beginning_cash'] = 0
+                if 'operating_activities' not in report_data.get('cash_flow_statement', {}):
+                    report_data['cash_flow_statement']['operating_activities'] = []
+                if 'net_cash_from_operating' not in report_data.get('cash_flow_statement', {}):
+                    report_data['cash_flow_statement']['net_cash_from_operating'] = 0
+                if 'investing_activities' not in report_data.get('cash_flow_statement', {}):
+                    report_data['cash_flow_statement']['investing_activities'] = []
+                if 'net_cash_from_investing' not in report_data.get('cash_flow_statement', {}):
+                    report_data['cash_flow_statement']['net_cash_from_investing'] = 0
+                if 'financing_activities' not in report_data.get('cash_flow_statement', {}):
+                    report_data['cash_flow_statement']['financing_activities'] = []
+                if 'net_cash_from_financing' not in report_data.get('cash_flow_statement', {}):
+                    report_data['cash_flow_statement']['net_cash_from_financing'] = 0
+                if 'net_change_in_cash' not in report_data.get('cash_flow_statement', {}):
+                    report_data['cash_flow_statement']['net_change_in_cash'] = 0
+                if 'ending_cash' not in report_data.get('cash_flow_statement', {}):
+                    report_data['cash_flow_statement']['ending_cash'] = 0
                 # Add insights and recommendations if missing
                 if 'insights' not in report_data:
                     report_data['insights'] = ["Analysis of cash flow patterns is pending."]
