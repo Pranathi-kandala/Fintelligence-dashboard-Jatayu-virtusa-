@@ -21,28 +21,28 @@ genai.configure(api_key=gemini_api_key)
 
 # Set up the model with retry mechanism
 # Using a "flash" model which has much higher rate limits than "pro"
-# While slightly less powerful, it should still handle financial analysis
+# The model name must include the "models/" prefix for proper resolution
 model = genai.GenerativeModel('models/gemini-1.5-flash')
 
 # Maximum number of retries for API calls
 MAX_RETRIES = 5
 
-def prepare_data_for_ai(file_data):
+def optimize_data_for_tokens(file_data):
     """
-    Prepare data for AI model with token optimization to avoid rate limits
+    Optimize data for token usage to avoid rate limits
     
     Args:
-        file_data (dict): Raw file data from file_processor
+        file_data (dict): Raw financial data from file processor
         
     Returns:
-        str: Optimized data string ready for AI processing
+        str: Optimized data string for AI processing
     """
-    # Convert file_data to string format for the prompt with token optimization
+    # Convert file_data to string format with token optimization
     if file_data.get('format') == 'pdf':
         data_str = file_data.get('text', '')
         # Limit PDF text to reduce tokens
         if len(data_str) > 6000:
-            logger.info(f"Reducing PDF data from {len(data_str)} to 6000 chars to optimize token usage")
+            logger.info(f"Reducing PDF data from {len(data_str)} to 6000 chars for token optimization")
             data_str = data_str[:6000] + "... [truncated for token optimization]"
     else:
         logger.debug("Processing CSV/Excel data with token optimization")
@@ -55,7 +55,7 @@ def prepare_data_for_ai(file_data):
         sample_size = min(30, row_count)  # Limit to 30 rows maximum
         
         if row_count > sample_size:
-            logger.info(f"Sampling {sample_size} rows from {row_count} total rows to optimize token usage")
+            logger.info(f"Sampling {sample_size} rows from {row_count} total rows for token optimization")
             # Take some rows from beginning, middle and end for a representative sample
             if sample_size >= 3:
                 # Take 40% from start, 30% from middle, 30% from end
@@ -96,7 +96,7 @@ def prepare_data_for_ai(file_data):
             data_str = json.dumps(data_list, separators=(',', ':'), default=str)
             # If still too large, truncate
             if len(data_str) > 8000:
-                logger.info(f"Truncating JSON data from {len(data_str)} to 8000 chars to optimize token usage")
+                logger.info(f"Truncating JSON data from {len(data_str)} to 8000 chars for token optimization")
                 data_str = data_str[:8000] + "... [truncated for token optimization]"
         except Exception as json_err:
             logger.error(f"Error converting data to JSON: {str(json_err)}")
@@ -113,26 +113,14 @@ def call_gemini_with_retry(prompt):
         prompt (str): The prompt text to send to the API
         
     Returns:
-        response: The API response or an error response object with text and is_error properties
+        response: The API response
     """
-    from collections import namedtuple
-    
-    # Reset any cached rate limit status to ensure we always try with the new API key
-    if os.environ.get("GEMINI_RATE_LIMITED") in ["true", "1", "yes"]:
-        logger.info("Resetting cached rate limit status to use new API key")
-        os.environ["GEMINI_RATE_LIMITED"] = "false"
-    
     # Debug log the API key configuration - hide sensitive data
     current_api_key = os.environ.get("GEMINI_API_KEY", "")
     if current_api_key:
         logger.info(f"Using Gemini API key: {current_api_key[:4]}...{current_api_key[-4:]} (length: {len(current_api_key)})")
     else:
         logger.error("No Gemini API key is configured!")
-        ErrorResponse = namedtuple('ErrorResponse', ['text', 'is_error'])
-        return ErrorResponse(
-            text='API configuration is missing. Please contact the administrator.',
-            is_error=True
-        )
         
     # Update the configuration just to be sure we have the latest key
     genai.configure(api_key=current_api_key)
@@ -143,72 +131,43 @@ def call_gemini_with_retry(prompt):
             # Add small jitter to avoid thundering herd problem
             if retries > 0:
                 jitter = random.uniform(1.0, 3.0)
-                time.sleep(min(5, 2**retries + jitter))  # Exponential backoff with jitter, capped at 5s
+                time.sleep(2**retries + jitter)  # Exponential backoff with jitter
                 
-            # Try to get the response with a reasonable timeout
-            # Note: No direct timeout parameter, but we'll limit retries 
             response = model.generate_content(prompt)
             return response
-            
         except Exception as e:
             error_message = str(e)
             retries += 1
             
             logger.error(f"Gemini API error: {error_message}")
             
-            # Determine if we have rate limit error or other error
-            is_rate_limit = "quota" in error_message.lower() or "rate" in error_message.lower() or "429" in error_message
-            
-            if is_rate_limit:
-                # Set a short timeout before next retry, but don't block future attempts
-                logger.warning("Rate limit detected, using alternative model for next attempt")
-                
-                # Switch to an alternative model if possible
-                current_model_name = model._model_name
-                
-                # Try switching to a different model with potentially higher limits
-                if current_model_name == 'models/gemini-1.5-pro':
-                    logger.info("Switching from gemini-1.5-pro to gemini-1.5-flash model")
-                    model = genai.GenerativeModel('models/gemini-1.5-flash')
-                elif current_model_name == 'models/gemini-1.5-flash':
-                    # If already on flash model, try the smaller 8b variant which has higher quota
-                    logger.info("Switching from gemini-1.5-flash to gemini-1.5-flash-8b model")
-                    model = genai.GenerativeModel('models/gemini-1.5-flash-8b')
-            
-            if retries < MAX_RETRIES:
-                if is_rate_limit:
-                    # For rate limits - use shorter delay to avoid worker timeouts
-                    wait_time = min(10, 2 * retries)  # Cap at 10 seconds
-                    logger.warning(f"Rate limit exceeded, retrying ({retries}/{MAX_RETRIES}) in {wait_time}s...")
+            if "quota" in error_message.lower() or "429" in error_message:
+                # Specific handling for quota exceedance
+                logger.warning(f"Rate limit or quota exceeded, retrying ({retries}/{MAX_RETRIES})...")
+                # Extract retry delay if available in the error message
+                if "retry_delay" in error_message and "seconds" in error_message:
+                    try:
+                        # Extract retry delay seconds from error
+                        delay_text = error_message.split("retry_delay")[1]
+                        seconds = int(delay_text.split("seconds")[0].strip("{").strip("}").strip(":").strip())
+                        logger.info(f"Waiting for {seconds} seconds before retry...")
+                        time.sleep(seconds + random.uniform(1.0, 5.0))  # Add jitter
+                    except Exception as parse_err:
+                        # Default delay if parsing fails
+                        time.sleep(10 + random.uniform(1.0, 5.0))
                 else:
-                    # For other errors - use very short delay
-                    wait_time = 1 + random.uniform(0.1, 1.0)
-                    logger.warning(f"Non-quota error, retrying ({retries}/{MAX_RETRIES}) in {wait_time}s...")
-                
-                time.sleep(wait_time)
+                    # Default delay if no retry_delay in error
+                    time.sleep(10 + random.uniform(1.0, 5.0))
+            elif retries < MAX_RETRIES:
+                # For other errors that aren't quota-related, still retry but with shorter delay
+                logger.warning(f"Non-quota error, retrying ({retries}/{MAX_RETRIES})...")
+                time.sleep(2 + random.uniform(0.5, 2.0))
             else:
-                # We've tried MAX_RETRIES times, give up
-                logger.error(f"Failed after {MAX_RETRIES} attempts")
+                # If at max retries, just raise
+                raise
                 
-                # Return an error response for any type of error
-                ErrorResponse = namedtuple('ErrorResponse', ['text', 'is_error'])
-                if is_rate_limit:
-                    return ErrorResponse(
-                        text='Unfortunately, we have reached our API usage limit. Please try again in a few minutes.',
-                        is_error=True
-                    )
-                else:
-                    return ErrorResponse(
-                        text=f'An error occurred while generating the content. Please try again later.',
-                        is_error=True
-                    )
-    
-    # This should never be reached but just in case
-    ErrorResponse = namedtuple('ErrorResponse', ['text', 'is_error'])
-    return ErrorResponse(
-        text='An unexpected error occurred. Please try again later.',
-        is_error=True
-    )
+    # If we've exhausted retries, raise the last error
+    raise Exception(f"Failed to get response from Gemini API after {MAX_RETRIES} retries")
 
 def generate_balance_sheet(file_data):
     """
@@ -308,88 +267,11 @@ def generate_balance_sheet(file_data):
             result = json.loads(json_str)
         except json.JSONDecodeError as json_err:
             logger.error(f"JSON parse error: {str(json_err)}")
-            # Comprehensive fallback if JSON parsing fails
+            # Fallback if JSON parsing fails
             result = {
-                "error": "API rate limit exceeded. Using sample data structure for visualization.",
                 "balance_sheet": {
-                    "assets": {
-                        "current_assets": [
-                            {"Cash": 10000},
-                            {"Accounts Receivable": 5000},
-                            {"Inventory": 15000}
-                        ],
-                        "non_current_assets": [
-                            {"Property, Plant & Equipment": 50000},
-                            {"Intangible Assets": 20000}
-                        ]
-                    },
-                    "liabilities": {
-                        "current_liabilities": [
-                            {"Accounts Payable": 8000},
-                            {"Short-term Debt": 7000}
-                        ],
-                        "long_term_liabilities": [
-                            {"Long-term Debt": 30000}
-                        ]
-                    },
-                    "equity": [
-                        {"Common Stock": 40000},
-                        {"Retained Earnings": 15000}
-                    ],
-                    "total_assets": 100000,
-                    "total_liabilities": 45000,
-                    "total_equity": 55000,
-                    "total_liabilities_and_equity": 100000
+                    "error": "Failed to parse AI response. Please try again."
                 },
-                "income_statement": {
-                    "revenue": 120000,
-                    "cogs": 70000,
-                    "gross_profit": 50000,
-                    "operating_expenses": 30000,
-                    "operating_income": 20000,
-                    "other_income_expenses": 2000,
-                    "net_income_before_tax": 22000,
-                    "taxes": 5000,
-                    "net_income": 17000
-                },
-                "cash_flow_statement": {
-                    "beginning_cash": 8000,
-                    "operating_activities": [
-                        {"Net Income": 17000},
-                        {"Depreciation": 5000},
-                        {"Changes in Working Capital": -3000}
-                    ],
-                    "net_cash_from_operating": 19000,
-                    "investing_activities": [
-                        {"Capital Expenditures": -12000}
-                    ],
-                    "net_cash_from_investing": -12000,
-                    "financing_activities": [
-                        {"Debt Repayment": -5000}
-                    ],
-                    "net_cash_from_financing": -5000,
-                    "net_change_in_cash": 2000,
-                    "ending_cash": 10000
-                },
-                "ratios": {
-                    "liquidity": {
-                        "current_ratio": 1.5,
-                        "quick_ratio": 0.9
-                    },
-                    "profitability": {
-                        "gross_margin": 0.42,
-                        "net_profit_margin": 0.14
-                    },
-                    "solvency": {
-                        "debt_to_equity": 0.82
-                    }
-                },
-                "insights": [
-                    "Rate limit reached. Please try again later for AI-generated insights."
-                ],
-                "recommendations": [
-                    "Rate limit reached. Please try again later for AI-generated recommendations."
-                ],
                 "raw_response": response_text[:500]  # Truncate for safety
             }
         
@@ -404,86 +286,7 @@ def generate_balance_sheet(file_data):
         logger.error(f"Balance sheet generation error: {str(e)}")
         logger.error(traceback.format_exc())
         return {
-            "error": "API rate limit exceeded. Using sample data structure for visualization.",
-            "balance_sheet": {
-                "assets": {
-                    "current_assets": [
-                        {"Cash": 10000},
-                        {"Accounts Receivable": 5000},
-                        {"Inventory": 15000}
-                    ],
-                    "non_current_assets": [
-                        {"Property, Plant & Equipment": 50000},
-                        {"Intangible Assets": 20000}
-                    ]
-                },
-                "liabilities": {
-                    "current_liabilities": [
-                        {"Accounts Payable": 8000},
-                        {"Short-term Debt": 7000}
-                    ],
-                    "long_term_liabilities": [
-                        {"Long-term Debt": 30000}
-                    ]
-                },
-                "equity": [
-                    {"Common Stock": 40000},
-                    {"Retained Earnings": 15000}
-                ],
-                "total_assets": 100000,
-                "total_liabilities": 45000,
-                "total_equity": 55000,
-                "total_liabilities_and_equity": 100000
-            },
-            "income_statement": {
-                "revenue": 120000,
-                "cogs": 70000,
-                "gross_profit": 50000,
-                "operating_expenses": 30000,
-                "operating_income": 20000,
-                "other_income_expenses": 2000,
-                "net_income_before_tax": 22000,
-                "taxes": 5000,
-                "net_income": 17000
-            },
-            "cash_flow_statement": {
-                "beginning_cash": 8000,
-                "operating_activities": [
-                    {"Net Income": 17000},
-                    {"Depreciation": 5000},
-                    {"Changes in Working Capital": -3000}
-                ],
-                "net_cash_from_operating": 19000,
-                "investing_activities": [
-                    {"Capital Expenditures": -12000}
-                ],
-                "net_cash_from_investing": -12000,
-                "financing_activities": [
-                    {"Debt Repayment": -5000}
-                ],
-                "net_cash_from_financing": -5000,
-                "net_change_in_cash": 2000,
-                "ending_cash": 10000
-            },
-            "ratios": {
-                "liquidity": {
-                    "current_ratio": 1.5,
-                    "quick_ratio": 0.9
-                },
-                "profitability": {
-                    "gross_margin": 0.42,
-                    "net_profit_margin": 0.14
-                },
-                "solvency": {
-                    "debt_to_equity": 0.82
-                }
-            },
-            "insights": [
-                "Rate limit reached. Please try again later for AI-generated insights."
-            ],
-            "recommendations": [
-                "Rate limit reached. Please try again later for AI-generated recommendations."
-            ],
+            "error": f"Failed to generate balance sheet: {str(e)}",
             "generated_at": datetime.now().isoformat()
         }
 
@@ -593,39 +396,11 @@ def generate_income_statement(file_data):
             result = json.loads(json_str)
         except json.JSONDecodeError as json_err:
             logger.error(f"JSON parse error: {str(json_err)}")
-            # Comprehensive fallback if JSON parsing fails
+            # Fallback if JSON parsing fails
             result = {
-                "error": "API rate limit exceeded. Using sample data structure for visualization.",
                 "income_statement": {
-                    "revenue": 120000,
-                    "cogs": 70000,
-                    "gross_profit": 50000,
-                    "operating_expenses": 30000,
-                    "operating_income": 20000,
-                    "other_income_expenses": 2000,
-                    "net_income_before_tax": 22000,
-                    "taxes": 5000,
-                    "net_income": 17000
+                    "error": "Failed to parse AI response. Please try again."
                 },
-                "ratios": {
-                    "liquidity": {
-                        "current_ratio": 1.5,
-                        "quick_ratio": 0.9
-                    },
-                    "profitability": {
-                        "gross_margin": 0.42,
-                        "net_profit_margin": 0.14
-                    },
-                    "solvency": {
-                        "debt_to_equity": 0.82
-                    }
-                },
-                "insights": [
-                    "Rate limit reached. Please try again later for AI-generated insights."
-                ],
-                "recommendations": [
-                    "Rate limit reached. Please try again later for AI-generated recommendations."
-                ],
                 "raw_response": response_text[:500]  # Truncate for safety
             }
         
@@ -640,37 +415,7 @@ def generate_income_statement(file_data):
         logger.error(f"Income statement generation error: {str(e)}")
         logger.error(traceback.format_exc())
         return {
-            "error": "API rate limit exceeded. Using sample data structure for visualization.",
-            "income_statement": {
-                "revenue": 120000,
-                "cogs": 70000,
-                "gross_profit": 50000,
-                "operating_expenses": 30000,
-                "operating_income": 20000,
-                "other_income_expenses": 2000,
-                "net_income_before_tax": 22000,
-                "taxes": 5000,
-                "net_income": 17000
-            },
-            "ratios": {
-                "liquidity": {
-                    "current_ratio": 1.5,
-                    "quick_ratio": 0.9
-                },
-                "profitability": {
-                    "gross_margin": 0.42,
-                    "net_profit_margin": 0.14
-                },
-                "solvency": {
-                    "debt_to_equity": 0.82
-                }
-            },
-            "insights": [
-                "Rate limit reached. Please try again later for AI-generated insights."
-            ],
-            "recommendations": [
-                "Rate limit reached. Please try again later for AI-generated recommendations."
-            ],
+            "error": f"Failed to generate income statement: {str(e)}",
             "generated_at": datetime.now().isoformat()
         }
 
@@ -684,7 +429,6 @@ def generate_cash_flow(file_data):
     Returns:
         dict: Cash flow statement data and insights
     """
-    # Ensure the function returns required fields to prevent template errors
     import logging
     logger = logging.getLogger('fintelligence')
     
@@ -778,47 +522,11 @@ def generate_cash_flow(file_data):
                 }
         except json.JSONDecodeError as json_err:
             logger.error(f"JSON parse error: {str(json_err)}")
-            # Comprehensive fallback if JSON parsing fails
+            # Fallback if JSON parsing fails
             result = {
-                "error": "API rate limit exceeded. Using sample data structure for visualization.",
                 "cash_flow_statement": {
-                    "beginning_cash": 8000,
-                    "operating_activities": [
-                        {"Net Income": 17000},
-                        {"Depreciation": 5000},
-                        {"Changes in Working Capital": -3000}
-                    ],
-                    "net_cash_from_operating": 19000,
-                    "investing_activities": [
-                        {"Capital Expenditures": -12000}
-                    ],
-                    "net_cash_from_investing": -12000,
-                    "financing_activities": [
-                        {"Debt Repayment": -5000}
-                    ],
-                    "net_cash_from_financing": -5000,
-                    "net_change_in_cash": 2000,
-                    "ending_cash": 10000
+                    "error": "Failed to parse AI response. Please try again."
                 },
-                "ratios": {
-                    "liquidity": {
-                        "current_ratio": 1.5,
-                        "quick_ratio": 0.9
-                    },
-                    "profitability": {
-                        "gross_margin": 0.42,
-                        "net_profit_margin": 0.14
-                    },
-                    "solvency": {
-                        "debt_to_equity": 0.82
-                    }
-                },
-                "insights": [
-                    "Rate limit reached. Please try again later for AI-generated insights."
-                ],
-                "recommendations": [
-                    "Rate limit reached. Please try again later for AI-generated recommendations."
-                ],
                 "raw_response": response_text[:500]  # Truncate for safety
             }
         
@@ -833,45 +541,7 @@ def generate_cash_flow(file_data):
         logger.error(f"Cash flow generation error: {str(e)}")
         logger.error(traceback.format_exc())
         return {
-            "error": "API rate limit exceeded. Using sample data structure for visualization.",
-            "cash_flow_statement": {
-                "beginning_cash": 8000,
-                "operating_activities": [
-                    {"Net Income": 17000},
-                    {"Depreciation": 5000},
-                    {"Changes in Working Capital": -3000}
-                ],
-                "net_cash_from_operating": 19000,
-                "investing_activities": [
-                    {"Capital Expenditures": -12000}
-                ],
-                "net_cash_from_investing": -12000,
-                "financing_activities": [
-                    {"Debt Repayment": -5000}
-                ],
-                "net_cash_from_financing": -5000,
-                "net_change_in_cash": 2000,
-                "ending_cash": 10000
-            },
-            "ratios": {
-                "liquidity": {
-                    "current_ratio": 1.5,
-                    "quick_ratio": 0.9
-                },
-                "profitability": {
-                    "gross_margin": 0.42,
-                    "net_profit_margin": 0.14
-                },
-                "solvency": {
-                    "debt_to_equity": 0.82
-                }
-            },
-            "insights": [
-                "Rate limit reached. Please try again later for AI-generated insights."
-            ],
-            "recommendations": [
-                "Rate limit reached. Please try again later for AI-generated recommendations."
-            ],
+            "error": f"Failed to generate cash flow statement: {str(e)}",
             "generated_at": datetime.now().isoformat()
         }
 
@@ -1053,71 +723,11 @@ def generate_analysis(file_data):
             result = json.loads(json_str)
         except json.JSONDecodeError as json_err:
             logger.error(f"JSON parse error: {str(json_err)}")
-            # Comprehensive fallback if JSON parsing fails
+            # Fallback if JSON parsing fails
             result = {
-                "error": "API rate limit exceeded. Using sample data structure for visualization.",
                 "financial_analysis": {
-                    "executive_summary": "Rate limit reached. Please try again later for AI-generated summary.",
-                    "financial_health": "Sample financial health analysis with stable growth.",
-                    "profitability": {
-                        "gross_margin": 0.42,
-                        "net_margin": 0.14,
-                        "roi": 0.18,
-                        "trend": "Positive growth trend over past quarters."
-                    },
-                    "liquidity": {
-                        "current_ratio": 1.5,
-                        "quick_ratio": 0.9,
-                        "assessment": "Adequate liquidity position."
-                    },
-                    "efficiency": {
-                        "asset_turnover": 0.8,
-                        "inventory_turnover": 5.2,
-                        "assessment": "Good operational efficiency."
-                    },
-                    "solvency": {
-                        "debt_to_equity": 0.82,
-                        "interest_coverage": 4.5,
-                        "assessment": "Manageable debt levels."
-                    },
-                    "growth": {
-                        "revenue_growth": 0.12,
-                        "profit_growth": 0.08,
-                        "assessment": "Steady growth trajectory."
-                    },
-                    "cash_flow": {
-                        "operating_cash_flow": 19000,
-                        "free_cash_flow": 7000,
-                        "assessment": "Healthy cash generation."
-                    },
-                    "strengths": [
-                        "Strong gross margin",
-                        "Positive cash flow",
-                        "Low debt-to-equity ratio"
-                    ],
-                    "weaknesses": [
-                        "Moderate inventory turnover",
-                        "Operating expenses could be optimized"
-                    ],
-                    "opportunities": [
-                        "Potential for market expansion",
-                        "Streamlining operations"
-                    ],
-                    "threats": [
-                        "Competitive market pressure",
-                        "Rising material costs"
-                    ]
+                    "error": "Failed to parse AI response. Please try again."
                 },
-                "analysis": {
-                    "executive_summary": "Rate limit reached. Please try again later for AI-generated summary.",
-                    "financial_health": "Sample financial health analysis with stable growth."
-                },
-                "insights": [
-                    "Rate limit reached. Please try again later for AI-generated insights."
-                ],
-                "recommendations": [
-                    "Rate limit reached. Please try again later for AI-generated recommendations."
-                ],
                 "raw_response": response_text[:500]  # Truncate for safety
             }
         
@@ -1132,123 +742,67 @@ def generate_analysis(file_data):
         logger.error(f"Financial analysis generation error: {str(e)}")
         logger.error(traceback.format_exc())
         return {
-            "error": "API rate limit exceeded. Using sample data structure for visualization.",
-            "analysis": {
-                "executive_summary": "Rate limit reached. Please try again later for AI-generated summary.",
-                "financial_health": "Sample financial health analysis with stable growth.",
-                "profitability": {
-                    "gross_margin": 0.42,
-                    "net_margin": 0.14,
-                    "roi": 0.18,
-                    "trend": "Positive growth trend over past quarters."
-                },
-                "liquidity": {
-                    "current_ratio": 1.5,
-                    "quick_ratio": 0.9,
-                    "assessment": "Adequate liquidity position."
-                },
-                "efficiency": {
-                    "asset_turnover": 0.8,
-                    "inventory_turnover": 5.2,
-                    "assessment": "Good operational efficiency."
-                },
-                "solvency": {
-                    "debt_to_equity": 0.82,
-                    "interest_coverage": 4.5,
-                    "assessment": "Manageable debt levels."
-                },
-                "growth": {
-                    "revenue_growth": 0.12,
-                    "profit_growth": 0.08,
-                    "assessment": "Steady growth trajectory."
-                },
-                "cash_flow": {
-                    "operating_cash_flow": 19000,
-                    "free_cash_flow": 7000,
-                    "assessment": "Healthy cash generation."
-                },
-                "strengths": [
-                    "Strong gross margin",
-                    "Positive cash flow",
-                    "Low debt-to-equity ratio"
-                ],
-                "weaknesses": [
-                    "Moderate inventory turnover",
-                    "Operating expenses could be optimized"
-                ],
-                "opportunities": [
-                    "Potential for market expansion",
-                    "Streamlining operations"
-                ],
-                "threats": [
-                    "Competitive market pressure",
-                    "Rising material costs"
-                ]
-            },
-            "insights": [
-                "Rate limit reached. Please try again later for AI-generated insights."
-            ],
-            "recommendations": [
-                "Rate limit reached. Please try again later for AI-generated recommendations."
-            ],
+            "error": f"Failed to generate financial analysis: {str(e)}",
             "generated_at": datetime.now().isoformat()
         }
 
 def process_chat_query(user_query, file_data):
     """
-    Process a user query about financial data
+    Process a user query about financial data using Gemini AI
     
     Args:
         user_query (str): User's financial question
         file_data (list): List of dictionaries containing file data and reports
         
     Returns:
-        str: Response to user query
+        str: AI response to user query
     """
     import logging
     logger = logging.getLogger('fintelligence')
     
-    # Simple check to avoid empty queries
-    if not user_query or user_query.strip() == "":
-        return "Please ask a specific question about your financial data."
+    prompt = f"""
+    You are a financial analyst AI assistant. Answer the following question based on the provided financial data and reports.
+    Provide detailed, accurate, and helpful financial insights.
     
-    # IMPORTANT: We're using a simplified version that doesn't call the API
-    # This avoids timeouts and rate limits completely
+    USER QUESTION: {user_query}
     
-    # Get relevant financial terminology from the query for more realistic answers
-    query_lower = user_query.lower()
+    Here is the financial data and previously generated reports:
+    """
     
-    # Prepare a response based on keywords in the query
-    if 'revenue' in query_lower or 'sales' in query_lower or 'income' in query_lower:
-        return "Based on the financial data, revenue has shown a steady growth pattern over the recent quarters. If you'd like specific revenue figures, please check the Income Statement report which details revenue by period and source."
+    try:
+        # Prepare the financial data context
+        data_context = []
+        
+        # First, add the raw financial data
+        if isinstance(file_data, list) and len(file_data) > 0:
+            for item in file_data:
+                # Add raw data if available
+                if 'data' in item and item['data']:
+                    data_subset = []
+                    # Limit to first 20 records to avoid context size issues
+                    for record in item['data'][:20]:
+                        data_subset.append(record)
+                    data_context.append({"raw_data": data_subset})
+                
+                # Add reports if available
+                for report_type in ['balance_sheet', 'income_statement', 'cash_flow', 'analysis']:
+                    report_key = f"{report_type}_report"
+                    if report_key in item and item[report_key]:
+                        data_context.append({f"{report_type}": item[report_key]})
+        
+        # Convert to JSON for the prompt
+        data_str = json.dumps(data_context, indent=2, default=str)
+        full_prompt = prompt + "\n" + data_str
+        
+        # Call Gemini API with retry logic
+        response = call_gemini_with_retry(full_prompt)
+        
+        # Return the text response directly
+        return response.text
     
-    elif 'profit' in query_lower or 'margin' in query_lower:
-        return "The profit margins have been fluctuating slightly but remain within industry standards. The latest quarter shows approximately 25-30% gross margin and 12-15% net profit margin. For more detailed margin analysis, please refer to the Income Statement report."
-    
-    elif 'expense' in query_lower or 'cost' in query_lower or 'spending' in query_lower:
-        return "Major expenses include operating costs, marketing, and salaries. There was a notable increase in marketing expenses in the most recent quarter. For a complete breakdown of expenses by category, please check the financial reports."
-    
-    elif 'cash' in query_lower or 'liquidity' in query_lower:
-        return "The cash position remains strong with sufficient working capital to cover operational needs. The Cash Flow Statement provides more details on operating, investing, and financing activities affecting cash balance."
-    
-    elif 'debt' in query_lower or 'loan' in query_lower or 'financing' in query_lower:
-        return "The current debt-to-equity ratio is within healthy limits. Long-term debt is being serviced according to schedule, and there are no immediate concerns about financial leverage. For more information on debt structure, please review the Balance Sheet report."
-    
-    elif 'invest' in query_lower or 'capital' in query_lower:
-        return "Capital expenditures have been focused on technology infrastructure and business expansion. Return on investment (ROI) for recent projects is around 12-15%, which aligns with industry benchmarks. The detailed investment analysis is available in the comprehensive financial reports."
-    
-    elif 'forecast' in query_lower or 'predict' in query_lower or 'future' in query_lower:
-        return "Based on current trends, growth is projected to continue at 15-20% annually. Market conditions remain favorable, though we recommend monitoring external economic factors. The Financial Analysis report includes detailed projections and scenario analyses."
-    
-    elif 'tax' in query_lower:
-        return "The effective tax rate has been approximately 22% for the current fiscal year. Tax optimization strategies have been implemented in accordance with relevant regulations. Please consult with a tax professional for specific tax planning advice."
-    
-    elif 'asset' in query_lower:
-        return "The company maintains a healthy asset base with a good mix of current and non-current assets. Asset utilization ratios indicate efficient use of resources. The Balance Sheet provides a detailed breakdown of all assets."
-    
-    # Generic response for other queries
-    else:
-        return "Thank you for your question about the financial data. To provide more specific insights, I'd recommend reviewing the comprehensive financial reports available in your dashboard. These reports contain detailed analysis of revenue, expenses, profitability, and strategic recommendations tailored to your financial situation."
+    except Exception as e:
+        logger.error(f"Chat query processing error: {str(e)}")
+        return f"I'm sorry, I encountered an error while processing your question: {str(e)}"
 
 def explain_ai_decision(report_type, report_data):
     """
