@@ -58,31 +58,30 @@ pip install -r requirements_local.txt
 
 ## Step 4: Set Up the Database
 
-### Option 1: Use PostgreSQL (Recommended)
-
-Run the helper script:
+Run the database setup helper script:
 
 ```bash
 python create_windows_db.py
 ```
 
-This will:
+This script gives you two options:
+
+### Option 1: PostgreSQL (Recommended for Production)
+
+If you choose PostgreSQL, the script will:
 1. Check if PostgreSQL is installed
 2. Ask for your PostgreSQL superuser credentials
 3. Create a new database and user for Fintelligence
-4. Update your .env file with the database connection string
+4. Update your `.env` file with the database connection string
 
-### Option 2: Use SQLite (Simpler)
+### Option 2: SQLite (Simpler, No Configuration)
 
-Create a `.env` file in the project root with:
+If you choose SQLite, the script will:
+1. Create the necessary directory structure
+2. Configure the application to use SQLite
+3. Set up a template `.env` file
 
-```
-# Use SQLite (the application will default to this if DATABASE_URL is not set)
-# GEMINI API key (required for chatbot)
-GEMINI_API_KEY=your_gemini_api_key
-# Flask secret key (for session security)
-SECRET_KEY=your_secret_key_here
-```
+The SQLite database will be automatically created in the `instance` folder when you first run the application. This option requires no additional database software.
 
 ## Step 5: Complete Environment Setup
 

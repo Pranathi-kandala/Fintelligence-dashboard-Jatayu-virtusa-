@@ -44,12 +44,23 @@ def check_environment_vars():
 def setup_database():
     """Create database tables if they don't exist"""
     try:
-        from main import app, db
+        # First make sure the instance directory exists
+        instance_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instance')
+        os.makedirs(instance_dir, exist_ok=True)
+        
+        # Import app and db only after ensuring the instance directory exists
+        from app import app, db
+        
+        # Create database tables
         with app.app_context():
             db.create_all()
+            
         print("✓ Database tables created successfully")
+        print(f"  Database URI: {app.config['SQLALCHEMY_DATABASE_URI']}")
     except Exception as e:
         print(f"❌ Error setting up database: {e}")
+        import traceback
+        traceback.print_exc()
         sys.exit(1)
 
 def run_app():

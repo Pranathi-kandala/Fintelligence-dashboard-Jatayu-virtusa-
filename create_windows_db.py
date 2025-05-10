@@ -140,22 +140,128 @@ def update_env_file(db_url):
         print(f"\nPlease add the following line to your .env file manually:")
         print(f"DATABASE_URL={db_url}")
 
+def setup_neon_db():
+    """Set up Neon.tech PostgreSQL database"""
+    try:
+        print("\n--- Neon PostgreSQL Setup ---")
+        print("To use Neon.tech PostgreSQL:")
+        print("1. Sign up for a free account at https://neon.tech")
+        print("2. Create a new project")
+        print("3. On your project dashboard, find and copy the connection string")
+        print("   (It should look like: postgresql://user:password@endpoint/dbname)\n")
+        
+        db_url = input("Paste your Neon connection string here: ")
+        
+        if not db_url.startswith("postgresql://"):
+            print("❌ Invalid connection string. It should start with 'postgresql://'")
+            return False
+        
+        # Update .env file with Neon connection
+        env_file = '.env'
+        if os.path.exists(env_file):
+            # Read existing content to avoid overwriting other settings
+            with open(env_file, 'r') as f:
+                lines = [line for line in f.readlines() if not line.startswith('DATABASE_URL=')]
+            
+            with open(env_file, 'w') as f:
+                f.writelines(lines)
+                f.write(f'DATABASE_URL={db_url}\n')
+        else:
+            # Create new .env file
+            with open(env_file, 'w') as f:
+                f.write(f'DATABASE_URL={db_url}\n')
+                f.write('# Add your GEMINI_API_KEY below\n')
+                f.write('GEMINI_API_KEY=your_gemini_api_key\n')
+                f.write('# Add a secret key for Flask\n')
+                f.write('SECRET_KEY=your_secret_key_here\n')
+        
+        print("✓ Neon PostgreSQL configuration complete")
+        return True
+    except Exception as e:
+        print(f"Error setting up Neon database: {e}")
+        return False
+
+def setup_sqlite_db():
+    """Set up SQLite database as a simpler alternative"""
+    try:
+        # Create instance directory if it doesn't exist
+        instance_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instance')
+        os.makedirs(instance_dir, exist_ok=True)
+        
+        # Set up .env file for SQLite
+        env_file = '.env'
+        if os.path.exists(env_file):
+            # Read existing content to avoid overwriting other settings
+            with open(env_file, 'r') as f:
+                lines = [line for line in f.readlines() if not line.startswith('DATABASE_URL=')]
+            
+            with open(env_file, 'w') as f:
+                f.writelines(lines)
+                # We're not adding DATABASE_URL, letting the app default to SQLite
+                f.write('# Using SQLite local database by default\n')
+        else:
+            # Create new .env file
+            with open(env_file, 'w') as f:
+                f.write('# Using SQLite local database by default\n')
+                f.write('# Add your GEMINI_API_KEY below\n')
+                f.write('GEMINI_API_KEY=your_gemini_api_key\n')
+                f.write('# Add a secret key for Flask\n')
+                f.write('SECRET_KEY=your_secret_key_here\n')
+        
+        print("✓ SQLite configuration complete")
+        sqlite_path = os.path.join(instance_dir, 'fintelligence.db')
+        print(f"✓ Database will be created at: {sqlite_path}")
+        
+        return True
+    except Exception as e:
+        print(f"Error setting up SQLite: {e}")
+        return False
+
 if __name__ == "__main__":
-    print("Fintelligence - PostgreSQL Database Setup for Windows")
-    print("===================================================")
+    print("Fintelligence - Database Setup for Windows")
+    print("=========================================")
     
-    if not check_psql_installation():
-        print("❌ PostgreSQL is not installed or not in your PATH.")
-        print("Please install PostgreSQL from https://www.postgresql.org/download/windows/")
+    # Ask user which database to use
+    print("\nChoose a database option:")
+    print("1. Local PostgreSQL (recommended for production)")
+    print("2. SQLite (simple, no configuration needed)")
+    print("3. Neon.tech PostgreSQL (cloud-hosted, free tier available)")
+    
+    choice = input("Enter 1, 2, or 3: ")
+    
+    if choice == "1":
+        # PostgreSQL setup
+        if not check_psql_installation():
+            print("❌ PostgreSQL is not installed or not in your PATH.")
+            print("Please install PostgreSQL from https://www.postgresql.org/download/windows/")
+            print("Or, choose SQLite option for simpler setup.")
+            sys.exit(1)
+        
+        print("✓ PostgreSQL is installed")
+        
+        host, port, superuser, password = get_database_credentials()
+        db_url = create_database_and_user(host, port, superuser, password)
+        update_env_file(db_url)
+        
+        print("\nPostgreSQL setup complete!")
+    elif choice == "2":
+        # SQLite setup
+        if setup_sqlite_db():
+            print("\nSQLite setup complete!")
+        else:
+            print("\nSQLite setup failed. Please check the error message.")
+            sys.exit(1)
+    elif choice == "3":
+        # Neon.tech PostgreSQL setup
+        if setup_neon_db():
+            print("\nNeon PostgreSQL setup complete!")
+        else:
+            print("\nNeon setup failed. Please check the error message.")
+            sys.exit(1)
+    else:
+        print("Invalid choice. Please run the script again and enter 1, 2, or 3.")
         sys.exit(1)
     
-    print("✓ PostgreSQL is installed")
-    
-    host, port, superuser, password = get_database_credentials()
-    db_url = create_database_and_user(host, port, superuser, password)
-    update_env_file(db_url)
-    
-    print("\nDatabase setup complete!")
     print("\nNext steps:")
     print("1. Update your .env file with your GEMINI_API_KEY")
     print("2. Run 'python run_locally.py' to start the application")

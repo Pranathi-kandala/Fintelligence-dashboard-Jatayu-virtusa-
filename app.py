@@ -38,7 +38,14 @@ instance_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'inst
 os.makedirs(instance_folder, exist_ok=True)
 
 # Configure database
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///instance/fintelligence.db")
+if os.environ.get("DATABASE_URL"):
+    # Use PostgreSQL if DATABASE_URL is provided
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+else:
+    # Otherwise, use SQLite with absolute path to ensure it works on Windows
+    sqlite_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instance', 'fintelligence.db')
+    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{sqlite_path}"
+
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
     "pool_pre_ping": True,
