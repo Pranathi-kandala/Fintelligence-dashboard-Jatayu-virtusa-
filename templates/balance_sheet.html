@@ -104,11 +104,20 @@
                                     </tr>
                                 {% endif %}
                             {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="2" class="text-center text-muted">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        Current assets information not available
+                                    </td>
+                                </tr>
+                            {% endif %}
                             
                             <tr>
                                 <th colspan="2">Non-Current Assets</th>
                             </tr>
-                            {% for asset in data.balance_sheet.assets.non_current_assets %}
+                            {% if data.balance_sheet is defined and data.balance_sheet.assets is defined and data.balance_sheet.assets.non_current_assets is defined %}
+                                {% for asset in data.balance_sheet.assets.non_current_assets %}
                                 {% if asset is mapping %}
                                     {% for key, value in asset.items() %}
                                     <tr>
@@ -122,6 +131,14 @@
                                     </tr>
                                 {% endif %}
                             {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="2" class="text-center text-muted">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        Non-current assets information not available
+                                    </td>
+                                </tr>
+                            {% endif %}
                             
                             <!-- Total Assets -->
                             <tr class="table-primary">
@@ -141,7 +158,8 @@
                             <tr>
                                 <th colspan="2">Current Liabilities</th>
                             </tr>
-                            {% for liability in data.balance_sheet.liabilities.current_liabilities %}
+                            {% if data.balance_sheet is defined and data.balance_sheet.liabilities is defined and data.balance_sheet.liabilities.current_liabilities is defined %}
+                                {% for liability in data.balance_sheet.liabilities.current_liabilities %}
                                 {% if liability is mapping %}
                                     {% for key, value in liability.items() %}
                                     <tr>
@@ -155,11 +173,20 @@
                                     </tr>
                                 {% endif %}
                             {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="2" class="text-center text-muted">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        Current liabilities information not available
+                                    </td>
+                                </tr>
+                            {% endif %}
                             
                             <tr>
                                 <th colspan="2">Long-Term Liabilities</th>
                             </tr>
-                            {% for liability in data.balance_sheet.liabilities.long_term_liabilities %}
+                            {% if data.balance_sheet is defined and data.balance_sheet.liabilities is defined and data.balance_sheet.liabilities.long_term_liabilities is defined %}
+                                {% for liability in data.balance_sheet.liabilities.long_term_liabilities %}
                                 {% if liability is mapping %}
                                     {% for key, value in liability.items() %}
                                     <tr>
