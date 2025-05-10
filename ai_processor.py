@@ -27,6 +27,114 @@ model = genai.GenerativeModel('models/gemini-1.5-flash')
 # Maximum number of retries for API calls
 MAX_RETRIES = 5
 
+def ensure_response_structure(response_data, report_type):
+    """
+    Ensure AI response has proper structure expected by templates
+    
+    Args:
+        response_data (dict): Raw data from AI
+        report_type (str): Type of report (balance_sheet, income_statement, cash_flow, analysis)
+        
+    Returns:
+        dict: Data with guaranteed structure
+    """
+    result = response_data.copy() if isinstance(response_data, dict) else {}
+    
+    # Common structure for fallback/error cases
+    base_structure = {
+        "error": None,
+        "generated_at": datetime.now().isoformat(),
+        "summary": "AI analysis results may be incomplete. Please try again later.",
+        "insights": ["The financial data is currently being processed."],
+        "recommendations": ["Consider refreshing or trying a different report."]
+    }
+    
+    if report_type == "balance_sheet":
+        # Ensure balance_sheet structure exists
+        if "balance_sheet" not in result or not isinstance(result["balance_sheet"], dict):
+            result["balance_sheet"] = {}
+        
+        # Ensure assets structure
+        if "assets" not in result["balance_sheet"] or not isinstance(result["balance_sheet"]["assets"], dict):
+            result["balance_sheet"]["assets"] = {"current_assets": [], "non_current_assets": []}
+        elif "current_assets" not in result["balance_sheet"]["assets"]:
+            result["balance_sheet"]["assets"]["current_assets"] = []
+        elif "non_current_assets" not in result["balance_sheet"]["assets"]:
+            result["balance_sheet"]["assets"]["non_current_assets"] = []
+            
+        # Ensure liabilities structure
+        if "liabilities" not in result["balance_sheet"] or not isinstance(result["balance_sheet"]["liabilities"], dict):
+            result["balance_sheet"]["liabilities"] = {"current_liabilities": [], "long_term_liabilities": []}
+        elif "current_liabilities" not in result["balance_sheet"]["liabilities"]:
+            result["balance_sheet"]["liabilities"]["current_liabilities"] = []
+        elif "long_term_liabilities" not in result["balance_sheet"]["liabilities"]:
+            result["balance_sheet"]["liabilities"]["long_term_liabilities"] = []
+            
+        # Ensure equity exists
+        if "equity" not in result["balance_sheet"]:
+            result["balance_sheet"]["equity"] = []
+    
+    elif report_type == "income_statement":
+        # Ensure income_statement structure exists
+        if "income_statement" not in result or not isinstance(result["income_statement"], dict):
+            result["income_statement"] = {
+                "revenue": 0,
+                "cost_of_goods_sold": 0,
+                "gross_profit": 0,
+                "operating_expenses": [],
+                "operating_income": 0,
+                "other_income_expenses": [],
+                "income_before_taxes": 0,
+                "taxes": 0,
+                "net_income": 0
+            }
+        
+        # Add empty ratios if missing
+        if "ratios" not in result:
+            result["ratios"] = {}
+    
+    elif report_type == "cash_flow":
+        # Ensure cash_flow structure exists
+        if "cash_flow" not in result or not isinstance(result["cash_flow"], dict):
+            result["cash_flow"] = {
+                "operating_activities": [],
+                "investing_activities": [],
+                "financing_activities": [],
+                "net_change": 0
+            }
+        
+        # Ensure comparisons structure for charts
+        if "comparisons" not in result or not isinstance(result["comparisons"], dict):
+            result["comparisons"] = {
+                "periods": ["Q1", "Q2", "Q3", "Q4"],
+                "components": {
+                    "operating_cash_flow": {"values": [0, 0, 0, 0], "trend": "stable"},
+                    "investing_cash_flow": {"values": [0, 0, 0, 0], "trend": "stable"},
+                    "financing_cash_flow": {"values": [0, 0, 0, 0], "trend": "stable"}
+                }
+            }
+    
+    elif report_type == "analysis":
+        # Ensure analysis has all required sections
+        for key in ["profitability", "liquidity", "efficiency", "solvency", "growth"]:
+            if key not in result:
+                result[key] = {"metrics": {}, "insights": []}
+        
+        # Ensure charts data exists
+        if "charts_data" not in result:
+            result["charts_data"] = {
+                "revenue_trend": {"labels": [], "data": []},
+                "expense_breakdown": {"labels": [], "data": []},
+                "profit_margins": {"labels": [], "data": []}
+            }
+    
+    # Apply base structure for missing fields
+    for key, value in base_structure.items():
+        if key not in result:
+            result[key] = value
+    
+    return result
+
 def optimize_data_for_tokens(file_data):
     """
     Optimize data for token usage to avoid rate limits
@@ -278,6 +386,9 @@ def generate_balance_sheet(file_data):
         # Add generation metadata
         result["generated_at"] = datetime.now().isoformat()
         result["source_format"] = file_data.get('format')
+        
+        # Ensure proper structure for template rendering
+        result = ensure_response_structure(result, "balance_sheet")
         
         return result
     
