@@ -545,13 +545,64 @@ def generate_income_statement(financial_data):
             )
         }
         
-        # Return properly nested structure for template
+        # Generate a summary for the income statement
+        summary = f"Your income statement shows total revenue of ${total_revenue:,.2f} with net income of ${net_income:,.2f}."
+        
+        if total_revenue > 0:
+            profit_margin = (net_income / total_revenue) * 100
+            summary += f" Your profit margin is {profit_margin:.1f}%."
+            
+            if profit_margin > 15:
+                summary += " This is a strong performance compared to industry averages."
+            elif profit_margin > 8:
+                summary += " This is a healthy performance within industry norms."
+            else:
+                summary += " There may be opportunities to improve profitability."
+        
+        # Add recommendations based on performance
+        recommendations = []
+        
+        if cost_of_goods_sold > 0 and total_revenue > 0:
+            cogs_ratio = (cost_of_goods_sold / total_revenue) * 100
+            if cogs_ratio > 70:
+                recommendations.append("Consider strategies to reduce cost of goods sold, which is currently high relative to revenue.")
+            else:
+                recommendations.append("Your cost of goods sold is at a good level. Continue monitoring to maintain this efficiency.")
+        
+        if total_operating_expenses > 0 and total_revenue > 0:
+            expense_ratio = (total_operating_expenses / total_revenue) * 100
+            if expense_ratio > 30:
+                recommendations.append("Look for opportunities to optimize operating expenses, which represent a significant portion of revenue.")
+            else:
+                recommendations.append("Your operating expense ratio is healthy. Continue with your efficient operations management.")
+        
+        # Add standard recommendations
+        recommendations.append("Compare performance across quarters to identify trends and seasonal patterns.")
+        recommendations.append("Review pricing strategy to ensure optimal profit margins across all products/services.")
+        
+        # Return properly structured report with all components
         return {
-            'income_statement': income_statement
+            'income_statement': income_statement,
+            'insights': income_statement['insights'],
+            'recommendations': recommendations,
+            'summary': summary
         }
     
     except Exception as e:
         logger.error(f"Error generating income statement: {str(e)}")
+        # Create fallback content
+        fallback_insights = [
+            "We encountered an error while generating your income statement.",
+            "This might happen if your financial data doesn't contain standard revenue and expense categories.",
+            "Try uploading data with clearer income and expense classifications."
+        ]
+        
+        fallback_recommendations = [
+            "Review your financial data format to ensure it includes proper revenue and expense categories.",
+            "Try uploading a different CSV file with standard income statement categorization.",
+            "Ensure your data includes transaction types (Income/Expense) for proper classification."
+        ]
+        
         return {
             'income_statement': {
                 'revenue': 0,
@@ -563,9 +614,12 @@ def generate_income_statement(financial_data):
                 'income_before_taxes': 0,
                 'taxes': 0,
                 'net_income': 0,
-                'insights': [f"Error generating income statement: {str(e)}"],
+                'insights': fallback_insights,
                 'error': str(e)
-            }
+            },
+            'insights': fallback_insights,
+            'recommendations': fallback_recommendations,
+            'summary': "Error processing income statement data. Please check your data format and try again."
         }
 
 def generate_income_statement_insights(revenue, gross_profit, operating_income, net_income):
@@ -730,13 +784,57 @@ def generate_cash_flow(financial_data):
             )
         }
         
-        # Return properly nested structure for template
+        # Generate recommendations based on cash flow data
+        recommendations = []
+        
+        # Create a summary of the cash flow statement
+        summary = f"Your cash flow statement shows a net change of ${net_change_in_cash:,.2f} for the period."
+        
+        if net_cash_from_operating > 0:
+            summary += f" You have positive operating cash flow of ${net_cash_from_operating:,.2f}, "
+            recommendations.append("Maintain your positive operating cash flow by continuing efficient collection and payment practices.")
+        else:
+            summary += f" Your operating cash flow is ${net_cash_from_operating:,.2f}, "
+            recommendations.append("Focus on improving your operating cash flow through better receivables management and cost control.")
+        
+        # Add info about investing/financing
+        if net_cash_from_investing < 0 and abs(net_cash_from_investing) > 0.2 * abs(net_cash_from_operating):
+            summary += f"with significant investment activities of ${net_cash_from_investing:,.2f}."
+            recommendations.append("Monitor return on your investments to ensure they generate adequate future cash flows.")
+        elif net_cash_from_financing != 0:
+            summary += f"with financing activities of ${net_cash_from_financing:,.2f}."
+            if net_cash_from_financing > 0:
+                recommendations.append("Use your new financing strategically to generate positive future cash flows.")
+            else:
+                recommendations.append("Your debt reduction/dividend payments show financial strength. Continue managing obligations effectively.")
+        
+        # Add general recommendations
+        recommendations.append("Regularly compare your cash flow across periods to identify trends and patterns.")
+        recommendations.append("Maintain a cash reserve to handle unexpected financial challenges or opportunities.")
+        
+        # Return properly structured report with all components
         return {
-            'cash_flow_statement': cash_flow_statement
+            'cash_flow_statement': cash_flow_statement,
+            'insights': cash_flow_statement['insights'],
+            'recommendations': recommendations,
+            'summary': summary
         }
     
     except Exception as e:
         logger.error(f"Error generating cash flow: {str(e)}")
+        # Create fallback content
+        fallback_insights = [
+            "We encountered an error while generating your cash flow statement.",
+            "This might happen if your financial data doesn't contain proper transaction categorization.",
+            "Try uploading data with clearer transaction types and categories."
+        ]
+        
+        fallback_recommendations = [
+            "Review your financial data format to ensure transactions have clear categories.",
+            "Try uploading a different CSV file with standard cash flow categorization.",
+            "Ensure your data includes transaction dates for proper period analysis."
+        ]
+        
         return {
             'cash_flow_statement': {
                 'operating_activities': {},
@@ -748,9 +846,12 @@ def generate_cash_flow(financial_data):
                 'net_cash_from_financing': 0,
                 'net_change_in_cash': 0,
                 'ending_cash': 0,
-                'insights': [f"Error generating cash flow statement: {str(e)}"],
+                'insights': fallback_insights,
                 'error': str(e)
-            }
+            },
+            'insights': fallback_insights,
+            'recommendations': fallback_recommendations,
+            'summary': "Error processing cash flow data. Please check your data format and try again."
         }
 
 def generate_cash_flow_insights(operating, investing, financing, net_change):
