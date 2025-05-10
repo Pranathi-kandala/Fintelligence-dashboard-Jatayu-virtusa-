@@ -85,8 +85,13 @@ def register_routes(app):
             # Get file extension
             file_ext = os.path.splitext(filename)[1].lower().replace('.', '')
             
-            # Save file temporarily
-            temp_path = os.path.join('/tmp', filename)
+            # Save file temporarily in a cross-platform way
+            # Create a temp directory in the application folder if it doesn't exist
+            temp_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'temp')
+            os.makedirs(temp_dir, exist_ok=True)
+            
+            # Use the temp directory to save the file
+            temp_path = os.path.join(temp_dir, filename)
             file.save(temp_path)
             
             # Create file upload record

@@ -2,6 +2,16 @@
 
 This guide will help you set up and run the Fintelligence application on your Windows machine.
 
+## Windows Compatibility
+
+This application has been specially adapted to work seamlessly on Windows by:
+
+1. Using cross-platform file paths with `os.path.join()` instead of hard-coded Unix paths
+2. Creating application-specific temp and uploads directories instead of using the system temp folder
+3. Supporting path normalization to handle both forward slashes (/) and backslashes (\)
+4. Adding dotenv support for easier environment variable management
+5. Using relative paths for database connections to support SQLite as a fallback
+
 ## Prerequisites
 
 1. Python 3.10 or higher installed 
