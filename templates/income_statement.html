@@ -110,12 +110,16 @@
                             <tr class="table-light">
                                 <th>Cost of Goods Sold</th>
                                 <td class="text-end">
-                                    {% if data.income_statement.cogs is mapping %}
-                                        {% for key, value in data.income_statement.cogs.items() %}
-                                            {{ key|replace('_', ' ')|title }}: {{ value if value is string else "${:,.2f}".format(value|float) }}<br>
-                                        {% endfor %}
+                                    {% if data.income_statement is defined and data.income_statement.cogs is defined %}
+                                        {% if data.income_statement.cogs is mapping %}
+                                            {% for key, value in data.income_statement.cogs.items() %}
+                                                {{ key|replace('_', ' ')|title }}: {{ value if value is string else "${:,.2f}".format(value|float) }}<br>
+                                            {% endfor %}
+                                        {% else %}
+                                            ${{ "{:,.2f}".format(data.income_statement.cogs|float) }}
+                                        {% endif %}
                                     {% else %}
-                                        ${{ "{:,.2f}".format(data.income_statement.cogs|float) }}
+                                        $0.00
                                     {% endif %}
                                 </td>
                             </tr>
@@ -124,12 +128,16 @@
                             <tr class="table-primary">
                                 <th>Gross Profit</th>
                                 <td class="text-end">
-                                    {% if data.income_statement.gross_profit is mapping %}
-                                        {% for key, value in data.income_statement.gross_profit.items() %}
-                                            {{ key|replace('_', ' ')|title }}: {{ value if value is string else "${:,.2f}".format(value|float) }}<br>
-                                        {% endfor %}
+                                    {% if data.income_statement is defined and data.income_statement.gross_profit is defined %}
+                                        {% if data.income_statement.gross_profit is mapping %}
+                                            {% for key, value in data.income_statement.gross_profit.items() %}
+                                                {{ key|replace('_', ' ')|title }}: {{ value if value is string else "${:,.2f}".format(value|float) }}<br>
+                                            {% endfor %}
+                                        {% else %}
+                                            ${{ "{:,.2f}".format(data.income_statement.gross_profit|float) }}
+                                        {% endif %}
                                     {% else %}
-                                        ${{ "{:,.2f}".format(data.income_statement.gross_profit|float) }}
+                                        $0.00
                                     {% endif %}
                                 </td>
                             </tr>

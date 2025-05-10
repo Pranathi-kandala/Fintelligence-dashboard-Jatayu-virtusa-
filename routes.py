@@ -260,7 +260,7 @@ def register_routes(app):
                     if 'income_statement' not in report_data:
                         report_data['income_statement'] = {}
                     # Add revenue and other required fields
-                    for field in ['revenue', 'expenses', 'net_income']:
+                    for field in ['revenue', 'cogs', 'gross_profit', 'expenses', 'operating_income', 'net_income']:
                         if field not in report_data.get('income_statement', {}):
                             report_data['income_statement'][field] = 0
                     # Add ratios field if missing
@@ -388,7 +388,7 @@ def register_routes(app):
                 if 'income_statement' not in report_data:
                     report_data['income_statement'] = {}
                 # Add revenue and other required fields
-                for field in ['revenue', 'expenses', 'net_income']:
+                for field in ['revenue', 'cogs', 'gross_profit', 'expenses', 'operating_income', 'net_income']:
                     if field not in report_data.get('income_statement', {}):
                         report_data['income_statement'][field] = 0
                 # Add ratios field if missing
