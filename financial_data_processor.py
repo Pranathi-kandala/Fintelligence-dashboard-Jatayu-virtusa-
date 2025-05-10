@@ -189,31 +189,49 @@ def generate_balance_sheet(financial_data):
             logger.error("No financial data provided for balance sheet")
             return None
         
+        logger.debug(f"Generating balance sheet from data: {type(financial_data)}")
+        
         # Extract data for balance sheet calculation
         accounts = financial_data.get('by_account', {})
         
-        # Calculate assets
+        # Calculate assets and liabilities
         current_assets = {}
         non_current_assets = {}
+        current_liabilities = {}
+        long_term_liabilities = {}
         
         # Cash accounts are typically considered current assets
         for account_name, account_data in accounts.items():
+            # Debug log the account data to see what we're working with
+            logger.debug(f"Processing account: {account_name}, data: {type(account_data)}")
+            
             # Make sure we're dealing with a proper number for net, not a dict
             net_value = account_data.get('net', 0)
-            if isinstance(net_value, dict):
-                # If it's somehow a dict, try to get a numerical value
-                logger.warning(f"Account {account_name} net value is a dict: {net_value}")
-                net_value = 0
+            if not isinstance(net_value, (int, float)):
+                # If it's not a number, force it to be a safe value
+                logger.warning(f"Account {account_name} net value is not a number: {type(net_value)} - {net_value}")
+                # Try to extract a value if it's a dict
+                if isinstance(net_value, dict) and 'net' in net_value:
+                    net_value = net_value.get('net', 0)
+                else:
+                    net_value = 0
             
+            # Now categorize the account based on its name
             if 'cash' in account_name.lower() or 'bank' in account_name.lower() or 'savings' in account_name.lower():
-                current_assets[account_name] = net_value
+                current_assets[account_name] = max(0, net_value)  # Only consider positive values as assets
             elif 'receivable' in account_name.lower():
-                current_assets[account_name] = net_value
+                current_assets[account_name] = max(0, net_value)
             elif 'equipment' in account_name.lower() or 'investment' in account_name.lower():
-                non_current_assets[account_name] = net_value
+                non_current_assets[account_name] = max(0, net_value)
+            elif 'credit card' in account_name.lower():
+                # Credit cards typically have negative balances when there's debt
+                if net_value < 0:
+                    current_liabilities[account_name] = -net_value  # Convert to positive for liabilities
+                else:
+                    current_assets[account_name] = net_value  # A positive credit card balance is an asset
             else:
                 # Default to current assets if we can't determine and value is positive
-                if isinstance(net_value, (int, float)) and net_value > 0:
+                if net_value > 0:
                     current_assets[account_name] = net_value
         
         # Calculate totals
@@ -221,36 +239,52 @@ def generate_balance_sheet(financial_data):
         total_non_current_assets = sum(non_current_assets.values())
         total_assets = total_current_assets + total_non_current_assets
         
-        # Calculate liabilities (simplified)
-        current_liabilities = {}
-        long_term_liabilities = {}
-        
+        # Process additional accounts for liabilities (beyond what we've already done in the assets section)
         for account_name, account_data in accounts.items():
+            # Skip accounts we've already processed
+            if (account_name in current_assets or 
+                account_name in non_current_assets or 
+                account_name in current_liabilities):
+                continue
+                
             # Ensure net value is a number
             net_value = account_data.get('net', 0)
-            if isinstance(net_value, dict):
-                logger.warning(f"Account {account_name} net value is a dict: {net_value}")
-                net_value = 0
-                
-            if 'payable' in account_name.lower():
-                if isinstance(net_value, (int, float)) and net_value < 0:
-                    current_liabilities[account_name] = -net_value
+            if not isinstance(net_value, (int, float)):
+                if isinstance(net_value, dict) and 'net' in net_value:
+                    net_value = net_value.get('net', 0)
                 else:
-                    current_liabilities[account_name] = 0
+                    logger.warning(f"Account {account_name} net value is not a number: {type(net_value)}")
+                    net_value = 0
+                
+            # Only add to liabilities if the name suggests a liability and the value is negative
+            if 'payable' in account_name.lower() or 'loan' in account_name.lower() or 'debt' in account_name.lower():
+                if net_value < 0:
+                    current_liabilities[account_name] = -net_value  # Convert to positive for liabilities
+                    
+            # If negative value but not clearly categorized, assume it's a liability
+            elif net_value < 0:
+                # If it doesn't clearly fit elsewhere, categorize based on negative value
+                current_liabilities[f"Other liability ({account_name})"] = -net_value
         
         # For long term debt, look at transactions with debt-related categories
         categories = financial_data.get('by_category', {})
         for category_name, category_data in categories.items():
+            # Debug log to see what we're processing
+            logger.debug(f"Processing category: {category_name}, data: {type(category_data)}")
+            
             # Ensure net value is a number
             category_net = category_data.get('net', 0)
-            if isinstance(category_net, dict):
-                logger.warning(f"Category {category_name} net value is a dict: {category_net}")
-                category_net = 0
+            if not isinstance(category_net, (int, float)):
+                if isinstance(category_net, dict) and 'net' in category_net:
+                    category_net = category_net.get('net', 0)
+                else:
+                    logger.warning(f"Category {category_name} net value is not a number: {type(category_net)}")
+                    category_net = 0
                 
             if any(term in category_name.lower() for term in ['loan', 'debt', 'mortgage']):
                 # Assume it's a long-term liability
-                if isinstance(category_net, (int, float)) and category_net < 0:
-                    long_term_liabilities[category_name] = -category_net
+                if category_net < 0:
+                    long_term_liabilities[category_name] = -category_net  # Convert to positive for liabilities
                 else:
                     long_term_liabilities[category_name] = 0
         
@@ -261,6 +295,9 @@ def generate_balance_sheet(financial_data):
         
         # Calculate equity (Assets - Liabilities)
         equity = total_assets - total_liabilities
+        
+        # Log the final calculated values
+        logger.debug(f"Balance Sheet Totals - Assets: {total_assets}, Liabilities: {total_liabilities}, Equity: {equity}")
         
         # Create balance sheet structure
         balance_sheet = {
@@ -281,7 +318,7 @@ def generate_balance_sheet(financial_data):
             'total_assets': total_assets,
             'generated_at': datetime.now().isoformat(),
             'insights': generate_balance_sheet_insights(
-                total_assets, total_liabilities, equity, current_assets, current_liabilities
+                total_assets, total_liabilities, equity, current_assets, total_current_liabilities
             )
         }
         
@@ -292,13 +329,14 @@ def generate_balance_sheet(financial_data):
     
     except Exception as e:
         logger.error(f"Error generating balance sheet: {str(e)}")
+        # Provide error details but also ensure we return a valid structure
         return {
             'balance_sheet': {
                 'assets': {'current_assets': {}, 'non_current_assets': {}, 'total': 0},
                 'liabilities': {'current_liabilities': {}, 'long_term_liabilities': {}, 'total': 0},
-                'equity': {'total': 0},
+                'equity': {'retained_earnings': 0, 'total': 0},
                 'total_assets': 0,
-                'insights': [f"Error generating balance sheet: {str(e)}"],
+                'insights': ["We encountered an error while generating your balance sheet. This might happen if your financial data doesn't contain typical balance sheet accounts."],
                 'error': str(e)
             }
         }
