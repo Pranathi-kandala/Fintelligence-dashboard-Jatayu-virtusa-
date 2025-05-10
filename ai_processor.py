@@ -426,7 +426,7 @@ Please explain this concept clearly, even though I don't have specific financial
         # Call Gemini API for the response
         response = call_gemini_chat(prompt)
         
-        # If response fails, fall back to a simple response
+        # If response fails, provide a helpful fallback response
         if not response or response.startswith("Error:"):
             if "cash flow" in user_query.lower() or "cashflow" in user_query.lower():
                 return "Cash flow refers to the movement of money in and out of a business. It shows whether you have enough money to pay your bills. Positive cash flow means more money coming in than going out, which is good for business health. There are three types: operating (from core business), investing (from assets), and financing (from loans or investments)."
