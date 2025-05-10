@@ -294,7 +294,8 @@
             </div>
             <div class="card-body">
                 <div class="row">
-                    {% for key, value in data.ratios.items() %}
+                    {% if data is defined and data.ratios is defined %}
+                        {% for key, value in data.ratios.items() %}
                     <div class="col-md-4 col-sm-6 mb-3">
                         <div class="card h-100">
                             <div class="card-body text-center">
@@ -313,7 +314,13 @@
                             </div>
                         </div>
                     </div>
-                    {% endfor %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="col-12 text-center text-muted">
+                            <i class="fas fa-info-circle me-2"></i>
+                            No profitability ratios available for this report
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
