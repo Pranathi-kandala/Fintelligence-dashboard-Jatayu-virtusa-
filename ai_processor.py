@@ -20,8 +20,9 @@ if not gemini_api_key:
 genai.configure(api_key=gemini_api_key)
 
 # Set up the model with retry mechanism
+# Use the standard model which has higher rate limits than Pro
 # Use the stable release to avoid breaking changes
-model = genai.GenerativeModel('gemini-1.5-pro')
+model = genai.GenerativeModel('gemini-pro')
 
 # Maximum number of retries for API calls
 MAX_RETRIES = 5
