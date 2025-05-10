@@ -412,11 +412,17 @@
             </div>
             <div class="card-body">
                 <ul class="list-group list-group-flush">
-                    {% for insight in data.insights %}
-                    <li class="list-group-item">
-                        <i class="fas fa-lightbulb text-warning me-2"></i> {{ insight }}
-                    </li>
-                    {% endfor %}
+                    {% if data is defined and data.insights is defined %}
+                        {% for insight in data.insights %}
+                        <li class="list-group-item">
+                            <i class="fas fa-lightbulb text-warning me-2"></i> {{ insight }}
+                        </li>
+                        {% endfor %}
+                    {% else %}
+                        <li class="list-group-item">
+                            <i class="fas fa-info-circle text-muted me-2"></i> No insights available for this report
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
@@ -429,11 +435,17 @@
             </div>
             <div class="card-body">
                 <ul class="list-group list-group-flush">
-                    {% for rec in data.recommendations %}
-                    <li class="list-group-item">
-                        <i class="fas fa-check-circle text-success me-2"></i> {{ rec }}
-                    </li>
-                    {% endfor %}
+                    {% if data is defined and data.recommendations is defined %}
+                        {% for rec in data.recommendations %}
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle text-success me-2"></i> {{ rec }}
+                        </li>
+                        {% endfor %}
+                    {% else %}
+                        <li class="list-group-item">
+                            <i class="fas fa-info-circle text-muted me-2"></i> No recommendations available for this report
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>

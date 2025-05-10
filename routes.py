@@ -263,6 +263,9 @@ def register_routes(app):
                     for field in ['revenue', 'expenses', 'net_income']:
                         if field not in report_data.get('income_statement', {}):
                             report_data['income_statement'][field] = 0
+                    # Add ratios field if missing
+                    if 'ratios' not in report_data:
+                        report_data['ratios'] = {}
                     # Add insights and recommendations if missing
                     if 'insights' not in report_data:
                         report_data['insights'] = ["Income statement analysis is pending."]
