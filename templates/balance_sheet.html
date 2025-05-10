@@ -275,7 +275,8 @@
             </div>
             <div class="card-body">
                 <div class="row">
-                    {% for key, value in data.ratios.items() %}
+                    {% if data is defined and data.ratios is defined %}
+                        {% for key, value in data.ratios.items() %}
                     <div class="col-md-4 col-sm-6 mb-3">
                         <div class="card h-100">
                             <div class="card-body text-center">
@@ -290,7 +291,13 @@
                             </div>
                         </div>
                     </div>
-                    {% endfor %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="col-12 text-center text-muted">
+                            <i class="fas fa-info-circle me-2"></i>
+                            No financial ratios available for this report
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -306,11 +313,17 @@
             </div>
             <div class="card-body">
                 <ul class="list-group list-group-flush">
-                    {% for insight in data.insights %}
-                    <li class="list-group-item">
-                        <i class="fas fa-lightbulb text-warning me-2"></i> {{ insight }}
-                    </li>
-                    {% endfor %}
+                    {% if data is defined and data.insights is defined %}
+                        {% for insight in data.insights %}
+                        <li class="list-group-item">
+                            <i class="fas fa-lightbulb text-warning me-2"></i> {{ insight }}
+                        </li>
+                        {% endfor %}
+                    {% else %}
+                        <li class="list-group-item">
+                            <i class="fas fa-info-circle text-muted me-2"></i> No insights available for this report
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>

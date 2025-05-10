@@ -246,6 +246,9 @@ def register_routes(app):
                         report_data['balance_sheet']['total_assets'] = 0
                     if 'total_liabilities' not in report_data.get('balance_sheet', {}):
                         report_data['balance_sheet']['total_liabilities'] = 0
+                    # Add ratios field if missing
+                    if 'ratios' not in report_data:
+                        report_data['ratios'] = {}
                     # Add insights and recommendations if missing
                     if 'insights' not in report_data:
                         report_data['insights'] = ["Balance sheet analysis is pending."]
@@ -368,6 +371,9 @@ def register_routes(app):
                     report_data['balance_sheet']['total_assets'] = 0
                 if 'total_liabilities' not in report_data.get('balance_sheet', {}):
                     report_data['balance_sheet']['total_liabilities'] = 0
+                # Add ratios field if missing
+                if 'ratios' not in report_data:
+                    report_data['ratios'] = {}
                 # Add insights and recommendations if missing
                 if 'insights' not in report_data:
                     report_data['insights'] = ["Balance sheet analysis is pending."]
