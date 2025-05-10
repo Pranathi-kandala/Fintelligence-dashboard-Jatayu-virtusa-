@@ -12,6 +12,8 @@ import csv
 import re
 import time
 import random
+import google.generativeai as genai
+import requests
 
 # Import the financial data processor functions
 from financial_data_processor import (
@@ -31,8 +33,79 @@ logger = logging.getLogger('fintelligence')
 gemini_api_key = os.environ.get("GEMINI_API_KEY", "")
 if gemini_api_key:
     logger.info(f"Using Gemini API key: {gemini_api_key[:4]}...{gemini_api_key[-3:]} (length: {len(gemini_api_key)})")
+    
+    # Configure the Gemini API
+    genai.configure(api_key=gemini_api_key)
+    
+    # Set up the model
+    # the newest Gemini model is "gemini-1.5-pro" which was released after March 2023
+    generation_config = {
+        "temperature": 0.2,
+        "top_p": 0.95,
+        "top_k": 64,
+        "max_output_tokens": 8192,
+    }
+    
+    # Initialize the model
+    try:
+        gemini_model = genai.GenerativeModel(model_name="gemini-1.5-pro", 
+                                            generation_config=generation_config)
+        logger.info("Successfully initialized Gemini model")
+    except Exception as e:
+        logger.error(f"Error initializing Gemini model: {str(e)}")
+        gemini_model = None
 else:
     logger.warning("GEMINI_API_KEY environment variable not set")
+    gemini_model = None
+
+def call_gemini_chat(prompt, chat_history=None):
+    """
+    Call Gemini API for chat responses with retry logic
+    
+    Args:
+        prompt (str): The user's question
+        chat_history (list, optional): Previous chat history for context
+        
+    Returns:
+        str: The AI response
+    """
+    if not gemini_api_key or not gemini_model:
+        return "Sorry, the Gemini API is not configured. Please ensure the API key is set properly."
+    
+    max_retries = 3
+    retry_delay = 2
+    
+    for attempt in range(max_retries):
+        try:
+            # Create context with financial expertise
+            financial_expert_prompt = """You are an AI-powered financial advisor assistant for Fintelligence.
+            You specialize in explaining financial concepts and analyzing financial data.
+            When explaining financial terms, be clear, concise, and use simple language.
+            When analyzing data, focus on actionable insights and patterns.
+            Be helpful, professional, and answer in simple terms that anyone can understand."""
+            
+            # Add any financial data context if provided
+            if chat_history:
+                chat = gemini_model.start_chat(history=chat_history)
+                response = chat.send_message(prompt)
+            else:
+                # For the first message, include the expert prompt
+                messages = [financial_expert_prompt, prompt]
+                response = gemini_model.generate_content(messages)
+            
+            return response.text
+            
+        except Exception as e:
+            logger.error(f"Error calling Gemini API (attempt {attempt+1}/{max_retries}): {str(e)}")
+            if "rate limit" in str(e).lower():
+                logger.warning(f"Rate limit hit, retrying in {retry_delay} seconds")
+                time.sleep(retry_delay)
+                retry_delay *= 2  # Exponential backoff
+            else:
+                # For other errors, return a fallback response
+                return f"I encountered an error while processing your question. Please try again or ask something different. Technical details: {str(e)}"
+    
+    return "I'm sorry, but I'm experiencing high traffic at the moment. Please try asking your question again in a moment."
 
 def optimize_data_for_tokens(file_data):
     """
@@ -279,7 +352,7 @@ def generate_analysis(file_data):
 
 def process_chat_query(user_query, file_data):
     """
-    Process a user query about financial data
+    Process a user query about financial data using Gemini AI
     
     Args:
         user_query (str): User's financial question
@@ -293,40 +366,92 @@ def process_chat_query(user_query, file_data):
         if not user_query:
             return "Please provide a question about your financial data."
         
-        if not file_data or not isinstance(file_data, list) or len(file_data) == 0:
-            return "No financial data available. Please upload financial data first."
+        # Prepare financial context for Gemini
+        financial_context = ""
         
-        # Process most recent file data
-        recent_file = file_data[0]
-        financial_data = optimize_data_for_tokens(recent_file.get('data', {}))
-        
-        # Generate response based on financial data and question
-        response = ""
-        question_lower = user_query.lower()
-        
-        if financial_data and isinstance(financial_data, dict):
-            # Extract key financial metrics
-            income = financial_data.get('income', 0)
-            expenses = financial_data.get('expenses', 0)
-            net_income = financial_data.get('net_income', 0)
+        if file_data and isinstance(file_data, list) and len(file_data) > 0:
+            # Process most recent file data
+            recent_file = file_data[0]
+            financial_data = optimize_data_for_tokens(recent_file.get('data', {}))
             
-            # Revenue questions
-            if any(term in question_lower for term in ['revenue', 'income', 'earnings', 'sales']):
-                response = f"Based on your financial data, your total revenue is ${income:,.2f}. "
+            if financial_data and isinstance(financial_data, dict):
+                # Extract key financial metrics
+                income = financial_data.get('income', 0)
+                expenses = financial_data.get('expenses', 0)
+                net_income = income - expenses  # Calculate in case it's not provided
                 
-                # Add category breakdown if available
+                # Build context for Gemini
+                financial_context = f"""
+                Financial data context:
+                - Total Revenue: ${income:,.2f}
+                - Total Expenses: ${expenses:,.2f}
+                - Net Income: ${net_income:,.2f}
+                """
+                
+                # Add account information
+                accounts = financial_data.get('by_account', {})
+                if accounts:
+                    financial_context += "- Top Account Balances:\n"
+                    top_accounts = sorted(accounts.items(), key=lambda x: abs(x[1].get('net', 0) if isinstance(x[1], dict) else 0), reverse=True)[:3]
+                    for acct, data in top_accounts:
+                        net_value = data.get('net', 0) if isinstance(data, dict) else 0
+                        financial_context += f"  * {acct}: ${net_value:,.2f}\n"
+                
+                # Add category information
                 categories = financial_data.get('by_category', {})
-                income_categories = {k: v for k, v in categories.items() if v.get('income', 0) > 0}
-                
-                if income_categories:
-                    top_categories = sorted(income_categories.items(), key=lambda x: x[1].get('income', 0), reverse=True)[:3]
-                    response += "Your top revenue categories are "
-                    response += ", ".join([f"{cat} (${data.get('income', 0):,.2f})" for cat, data in top_categories])
-                    response += "."
-            
-            # Expense questions
-            elif any(term in question_lower for term in ['expense', 'cost', 'spending']):
-                response = f"Based on your financial data, your total expenses are ${expenses:,.2f}. "
+                if categories:
+                    top_expenses = {}
+                    for cat, data in categories.items():
+                        if isinstance(data, dict) and data.get('expenses', 0) > 0:
+                            top_expenses[cat] = data.get('expenses', 0)
+                    
+                    if top_expenses:
+                        financial_context += "- Top Expense Categories:\n"
+                        for cat, amt in sorted(top_expenses.items(), key=lambda x: x[1], reverse=True)[:3]:
+                            financial_context += f"  * {cat}: ${amt:,.2f}\n"
+        
+        # Create appropriate prompt for Gemini based on whether we have financial data
+        if financial_context:
+            prompt = f"""I'd like you to answer this financial question: "{user_query}"
+
+Here's the relevant financial data:
+{financial_context}
+
+Please provide a helpful, accurate response based on this data. If this is asking about specifics that aren't in the data, focus on the information provided."""
+        else:
+            prompt = f"""I'd like you to answer this financial question: "{user_query}"
+
+Please explain this concept clearly, even though I don't have specific financial data to share. Provide a helpful explanation using simple terms."""
+        
+        # Call Gemini API for the response
+        response = call_gemini_chat(prompt)
+        
+        # If response fails, fall back to a simple response
+        if not response or response.startswith("Error:"):
+            if "cash flow" in user_query.lower() or "cashflow" in user_query.lower():
+                return "Cash flow refers to the movement of money in and out of a business. It shows whether you have enough money to pay your bills. Positive cash flow means more money coming in than going out, which is good for business health. There are three types: operating (from core business), investing (from assets), and financing (from loans or investments)."
+            elif "balance sheet" in user_query.lower():
+                return "A balance sheet shows what a company owns (assets), what it owes (liabilities), and the difference (equity) at a specific point in time. It follows the formula: Assets = Liabilities + Equity. This helps understand a company's financial position."
+            elif "income statement" in user_query.lower():
+                return "An income statement shows your revenue, expenses, and profit/loss over a period of time. It follows the simple formula: Revenue - Expenses = Profit (or Loss). This helps track your business performance."
+            else:
+                return "I apologize, but I couldn't process your query through our AI system. Your question was about financial topics, and I'd be happy to try answering again or you could rephrase your question."
+        
+        # Return the AI's response
+        return response
+    
+    except Exception as e:
+        logger.error(f"Error processing chat query: {str(e)}")
+        # Provide a helpful fallback response if there's an error
+        if "what is" in user_query.lower() or "explain" in user_query.lower():
+            if "cash flow" in user_query.lower() or "cashflow" in user_query.lower():
+                return "Cash flow refers to the movement of money in and out of a business. It shows whether you have enough money to pay your bills. Positive cash flow means more money coming in than going out, which is good for business health."
+            elif "balance sheet" in user_query.lower():
+                return "A balance sheet shows what a company owns (assets), what it owes (liabilities), and the difference (equity) at a specific point in time. It follows the formula: Assets = Liabilities + Equity."
+            elif "income statement" in user_query.lower():
+                return "An income statement shows your revenue, expenses, and profit/loss over a period of time. It follows the simple formula: Revenue - Expenses = Profit (or Loss)."
+        
+        return f"I'm sorry, I encountered an error while analyzing your question. Please try again or ask something different."
                 
                 # Add category breakdown if available
                 categories = financial_data.get('by_category', {})
