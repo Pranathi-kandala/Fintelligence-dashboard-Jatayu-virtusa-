@@ -198,16 +198,23 @@ def generate_balance_sheet(financial_data):
         
         # Cash accounts are typically considered current assets
         for account_name, account_data in accounts.items():
-            if 'cash' in account_name.lower() or 'bank' in account_name.lower():
-                current_assets[account_name] = account_data['net']
+            # Make sure we're dealing with a proper number for net, not a dict
+            net_value = account_data.get('net', 0)
+            if isinstance(net_value, dict):
+                # If it's somehow a dict, try to get a numerical value
+                logger.warning(f"Account {account_name} net value is a dict: {net_value}")
+                net_value = 0
+            
+            if 'cash' in account_name.lower() or 'bank' in account_name.lower() or 'savings' in account_name.lower():
+                current_assets[account_name] = net_value
             elif 'receivable' in account_name.lower():
-                current_assets[account_name] = account_data['net']
+                current_assets[account_name] = net_value
             elif 'equipment' in account_name.lower() or 'investment' in account_name.lower():
-                non_current_assets[account_name] = account_data['net']
+                non_current_assets[account_name] = net_value
             else:
-                # Default to current assets if we can't determine
-                if account_data['net'] > 0:
-                    current_assets[account_name] = account_data['net']
+                # Default to current assets if we can't determine and value is positive
+                if isinstance(net_value, (int, float)) and net_value > 0:
+                    current_assets[account_name] = net_value
         
         # Calculate totals
         total_current_assets = sum(current_assets.values())
@@ -219,17 +226,33 @@ def generate_balance_sheet(financial_data):
         long_term_liabilities = {}
         
         for account_name, account_data in accounts.items():
+            # Ensure net value is a number
+            net_value = account_data.get('net', 0)
+            if isinstance(net_value, dict):
+                logger.warning(f"Account {account_name} net value is a dict: {net_value}")
+                net_value = 0
+                
             if 'payable' in account_name.lower():
-                current_liabilities[account_name] = -account_data['net'] if account_data['net'] < 0 else 0
+                if isinstance(net_value, (int, float)) and net_value < 0:
+                    current_liabilities[account_name] = -net_value
+                else:
+                    current_liabilities[account_name] = 0
         
         # For long term debt, look at transactions with debt-related categories
         categories = financial_data.get('by_category', {})
         for category_name, category_data in categories.items():
+            # Ensure net value is a number
+            category_net = category_data.get('net', 0)
+            if isinstance(category_net, dict):
+                logger.warning(f"Category {category_name} net value is a dict: {category_net}")
+                category_net = 0
+                
             if any(term in category_name.lower() for term in ['loan', 'debt', 'mortgage']):
                 # Assume it's a long-term liability
-                long_term_liabilities[category_name] = (
-                    -category_data['net'] if category_data['net'] < 0 else 0
-                )
+                if isinstance(category_net, (int, float)) and category_net < 0:
+                    long_term_liabilities[category_name] = -category_net
+                else:
+                    long_term_liabilities[category_name] = 0
         
         # Calculate totals
         total_current_liabilities = sum(current_liabilities.values())
@@ -284,40 +307,76 @@ def generate_balance_sheet_insights(assets, liabilities, equity, current_assets,
     """Generate insights for the balance sheet"""
     insights = []
     
+    # Add a general insight
+    insights.append(f"Your balance sheet shows total assets of ${assets:,.2f} with liabilities at ${liabilities:,.2f}.")
+    
     # Debt to equity ratio
     if equity > 0:
-        debt_to_equity = liabilities / equity
-        if debt_to_equity < 0.5:
-            insights.append(f"Debt-to-equity ratio is {debt_to_equity:.2f}, indicating low leverage and financial risk.")
-        elif debt_to_equity < 1.5:
-            insights.append(f"Debt-to-equity ratio is {debt_to_equity:.2f}, which is within a healthy range.")
-        else:
-            insights.append(f"Debt-to-equity ratio is {debt_to_equity:.2f}, suggesting relatively high leverage.")
+        try:
+            debt_to_equity = liabilities / equity
+            if debt_to_equity < 0.5:
+                insights.append(f"Debt-to-equity ratio is {debt_to_equity:.2f}, indicating low leverage and financial risk.")
+            elif debt_to_equity < 1.5:
+                insights.append(f"Debt-to-equity ratio is {debt_to_equity:.2f}, which is within a healthy range.")
+            else:
+                insights.append(f"Debt-to-equity ratio is {debt_to_equity:.2f}, suggesting relatively high leverage.")
+        except Exception as e:
+            # Add fallback insight in case of calculation error
+            insights.append("Debt-to-equity ratio calculation could not be completed with current data.")
     
     # Current ratio
     if current_liabilities > 0:
-        current_ratio = sum(current_assets.values()) / current_liabilities
-        if current_ratio > 2:
-            insights.append(f"Current ratio of {current_ratio:.2f} indicates strong short-term liquidity.")
-        elif current_ratio > 1:
-            insights.append(f"Current ratio of {current_ratio:.2f} shows adequate ability to cover short-term obligations.")
-        else:
-            insights.append(f"Current ratio of {current_ratio:.2f} suggests possible short-term liquidity challenges.")
+        try:
+            current_assets_sum = sum(current_assets.values())
+            current_ratio = current_assets_sum / current_liabilities
+            if current_ratio > 2:
+                insights.append(f"Current ratio of {current_ratio:.2f} indicates strong short-term liquidity.")
+            elif current_ratio > 1:
+                insights.append(f"Current ratio of {current_ratio:.2f} shows adequate ability to cover short-term obligations.")
+            else:
+                insights.append(f"Current ratio of {current_ratio:.2f} suggests possible short-term liquidity challenges.")
+            
+            insights.append(f"Your current assets of ${current_assets_sum:,.2f} are available to cover your short-term liabilities of ${current_liabilities:,.2f}.")
+        except Exception as e:
+            # Add fallback insight in case of calculation error
+            insights.append("Current ratio calculation could not be completed with current data.")
     
     # Asset composition
     if assets > 0:
-        current_assets_pct = sum(current_assets.values()) / assets * 100
-        insights.append(f"Current assets represent {current_assets_pct:.1f}% of total assets.")
+        try:
+            current_assets_sum = sum(current_assets.values())
+            current_assets_pct = current_assets_sum / assets * 100
+            insights.append(f"Current assets represent {current_assets_pct:.1f}% of your total assets.")
+            
+            # Add info about major assets
+            if current_assets:
+                top_assets = sorted(current_assets.items(), key=lambda x: x[1], reverse=True)[:3]
+                insights.append("Your major current assets include: " + ", ".join([f"{name}: ${value:,.2f}" for name, value in top_assets]))
+        except Exception as e:
+            # Add fallback insight in case of calculation error
+            insights.append("Asset composition analysis could not be completed with current data.")
     
     # Equity to assets
     if assets > 0:
-        equity_to_assets = equity / assets * 100
-        if equity_to_assets > 50:
-            insights.append(f"Equity to assets ratio of {equity_to_assets:.1f}% indicates strong financial position.")
-        elif equity_to_assets > 30:
-            insights.append(f"Equity to assets ratio of {equity_to_assets:.1f}% shows adequate financial stability.")
-        else:
-            insights.append(f"Equity to assets ratio of {equity_to_assets:.1f}% suggests higher financial leverage.")
+        try:
+            equity_to_assets = equity / assets * 100
+            if equity_to_assets > 50:
+                insights.append(f"Equity to assets ratio of {equity_to_assets:.1f}% indicates strong financial position.")
+            elif equity_to_assets > 30:
+                insights.append(f"Equity to assets ratio of {equity_to_assets:.1f}% shows adequate financial stability.")
+            else:
+                insights.append(f"Equity to assets ratio of {equity_to_assets:.1f}% suggests higher financial leverage.")
+        except Exception as e:
+            # Add fallback insight in case of calculation error
+            insights.append("Equity to assets ratio calculation could not be completed with current data.")
+    
+    # Make sure we always return at least some insights
+    if not insights:
+        insights = [
+            "Your balance sheet provides a snapshot of your assets, liabilities, and equity.",
+            "Consider reviewing your asset allocation for optimal financial management.",
+            "Regular balance sheet analysis helps track your long-term financial health."
+        ]
     
     return insights
 
@@ -424,38 +483,62 @@ def generate_income_statement_insights(revenue, gross_profit, operating_income, 
     """Generate insights for the income statement"""
     insights = []
     
+    # General revenue insight
+    insights.append(f"Your total revenue for the period is ${revenue:,.2f}.")
+    
+    # Profit insights
+    insights.append(f"Your gross profit is ${gross_profit:,.2f}, with operating income at ${operating_income:,.2f} and net income at ${net_income:,.2f}.")
+    
     # Profit margins
-    if revenue > 0:
-        gross_margin = (gross_profit / revenue) * 100
-        operating_margin = (operating_income / revenue) * 100
-        net_margin = (net_income / revenue) * 100
-        
-        insights.append(f"Gross profit margin is {gross_margin:.1f}%.")
-        
-        if gross_margin > 40:
-            insights.append("This is a strong gross margin, indicating efficient production/service delivery.")
-        elif gross_margin > 20:
-            insights.append("This is an average gross margin for most industries.")
-        else:
-            insights.append("This gross margin is relatively low, suggesting higher production costs.")
-        
-        insights.append(f"Operating margin is {operating_margin:.1f}%.")
-        
-        if operating_margin > 15:
-            insights.append("This is a strong operating margin, indicating good operational efficiency.")
-        elif operating_margin > 8:
-            insights.append("This is an average operating margin for most industries.")
-        else:
-            insights.append("This operating margin is relatively low, suggesting operational challenges.")
-        
-        insights.append(f"Net profit margin is {net_margin:.1f}%.")
-        
-        if net_margin > 10:
-            insights.append("This is a strong net margin, indicating overall financial health.")
-        elif net_margin > 5:
-            insights.append("This is an average net margin for most industries.")
-        else:
-            insights.append("This net margin is relatively low, suggesting profitability challenges.")
+    try:
+        if revenue > 0:
+            gross_margin = (gross_profit / revenue) * 100
+            operating_margin = (operating_income / revenue) * 100
+            net_margin = (net_income / revenue) * 100
+            
+            insights.append(f"Gross profit margin is {gross_margin:.1f}%.")
+            
+            if gross_margin > 40:
+                insights.append("This is a strong gross margin, indicating efficient production/service delivery.")
+            elif gross_margin > 20:
+                insights.append("This is an average gross margin for most industries.")
+            else:
+                insights.append("This gross margin is relatively low, suggesting higher production costs.")
+            
+            insights.append(f"Operating margin is {operating_margin:.1f}%.")
+            
+            if operating_margin > 15:
+                insights.append("This is a strong operating margin, indicating good operational efficiency.")
+            elif operating_margin > 8:
+                insights.append("This is an average operating margin for most industries.")
+            else:
+                insights.append("This operating margin is relatively low, suggesting operational challenges.")
+            
+            insights.append(f"Net profit margin is {net_margin:.1f}%.")
+            
+            if net_margin > 10:
+                insights.append("This is a strong net margin, indicating overall financial health.")
+            elif net_margin > 5:
+                insights.append("This is an average net margin for most industries.")
+            else:
+                insights.append("This net margin is relatively low, suggesting profitability challenges.")
+    except Exception as e:
+        # Fallback insights if calculations fail
+        insights.append("Margin calculations could not be computed with the current data.")
+    
+    # Add some strategic insights
+    if net_income > 0:
+        insights.append("Your business is profitable. Consider strategies to increase revenue or reduce costs to further improve your profit margins.")
+    else:
+        insights.append("Your business is currently operating at a loss. Focus on increasing revenue streams and optimizing your cost structure to achieve profitability.")
+    
+    # Ensure we have at least some insights
+    if len(insights) < 3:
+        insights.extend([
+            "Regular income statement analysis is crucial for monitoring your business performance.",
+            "Compare your current performance with previous periods to identify trends.",
+            "Break down your revenue sources to identify which products or services are most profitable."
+        ])
     
     return insights
 
@@ -585,37 +668,64 @@ def generate_cash_flow_insights(operating, investing, financing, net_change):
     """Generate insights for the cash flow statement"""
     insights = []
     
-    # Operating cash flow
-    if operating > 0:
-        insights.append(f"Positive operating cash flow of ${operating:,.2f} indicates healthy core business operations.")
-    else:
-        insights.append(f"Negative operating cash flow of ${operating:,.2f} may indicate operational challenges.")
+    # General overview
+    insights.append(f"Your cash flow shows a net change of ${net_change:,.2f} for the period.")
     
-    # Investing cash flow
-    if investing < 0:
-        insights.append(f"Negative investing cash flow of ${investing:,.2f} indicates investment in growth.")
-    else:
-        insights.append(f"Positive investing cash flow of ${investing:,.2f} may indicate selling of assets.")
-    
-    # Financing cash flow
-    if financing > 0:
-        insights.append(f"Positive financing cash flow of ${financing:,.2f} indicates raising capital.")
-    else:
-        insights.append(f"Negative financing cash flow of ${financing:,.2f} indicates debt repayment or dividends.")
-    
-    # Net change
-    if net_change > 0:
-        insights.append(f"Overall positive cash flow of ${net_change:,.2f} strengthens liquidity position.")
-    else:
-        insights.append(f"Overall negative cash flow of ${net_change:,.2f} may require attention to cash management.")
-    
-    # Cash flow adequacy
-    if operating > 0 and investing < 0:
-        coverage = abs(operating / investing) if investing != 0 else float('inf')
-        if coverage > 1:
-            insights.append(f"Operating cash flow covers {coverage:.1f}x of investing activities, indicating sustainable growth.")
+    try:
+        # Operating cash flow
+        if operating > 0:
+            insights.append(f"Positive operating cash flow of ${operating:,.2f} indicates healthy core business operations.")
         else:
-            insights.append(f"Operating cash flow covers only {coverage:.1f}x of investing activities, suggesting external financing needs.")
+            insights.append(f"Negative operating cash flow of ${operating:,.2f} may indicate operational challenges.")
+        
+        # Investing cash flow
+        if investing < 0:
+            insights.append(f"Negative investing cash flow of ${investing:,.2f} indicates investment in growth.")
+        else:
+            insights.append(f"Positive investing cash flow of ${investing:,.2f} may indicate selling of assets.")
+        
+        # Financing cash flow
+        if financing > 0:
+            insights.append(f"Positive financing cash flow of ${financing:,.2f} indicates raising capital.")
+        else:
+            insights.append(f"Negative financing cash flow of ${financing:,.2f} indicates debt repayment or dividends.")
+        
+        # Net change
+        if net_change > 0:
+            insights.append(f"Overall positive cash flow of ${net_change:,.2f} strengthens your liquidity position.")
+        else:
+            insights.append(f"Overall negative cash flow of ${net_change:,.2f} may require attention to cash management.")
+        
+        # Cash flow adequacy
+        if operating > 0 and investing < 0:
+            coverage = abs(operating / investing) if investing != 0 else float('inf')
+            if coverage > 1:
+                insights.append(f"Operating cash flow covers {coverage:.1f}x of investing activities, indicating sustainable growth.")
+            else:
+                insights.append(f"Operating cash flow covers only {coverage:.1f}x of investing activities, suggesting external financing needs.")
+    except Exception as e:
+        # Fallback insights if calculations fail
+        insights.append("Cash flow metric calculations could not be computed with the current data.")
+    
+    # Strategic insights
+    if net_change > 0:
+        insights.append("Your positive cash flow position provides opportunities for business expansion, debt reduction, or shareholder returns.")
+    else:
+        insights.append("Focus on improving cash flow by accelerating collections, managing inventory efficiently, and reviewing payment terms.")
+    
+    # Add recommendations based on operating cash flow
+    if operating > 0:
+        insights.append("Your positive operating cash flow is a good indicator of business sustainability. Maintain efficient working capital management.")
+    else:
+        insights.append("Work on improving your operating cash flow through better receivables management and cost control measures.")
+    
+    # Ensure we have at least some insights
+    if len(insights) < 3:
+        insights.extend([
+            "Cash flow analysis helps you understand your business's ability to generate and use cash.",
+            "Monitor cash flow trends over time to identify seasonal patterns or growth opportunities.",
+            "A strong cash position provides flexibility to weather economic downturns."
+        ])
     
     return insights
 
@@ -806,34 +916,74 @@ def generate_recommendations(metrics, trends):
     """Generate financial recommendations"""
     recommendations = []
     
-    # Profitability recommendations
-    profitability = metrics.get('profitability', {})
-    if 'net_margin' in profitability:
-        net_margin = profitability['net_margin']
-        if net_margin < 0.05:
-            recommendations.append("Focus on improving net margin through cost control and pricing strategy.")
-        elif net_margin < 0.1:
-            recommendations.append("Consider strategic initiatives to enhance profit margins.")
+    # Standard recommendations that should always be included
+    standard_recommendations = [
+        "Regularly review your financial performance against industry benchmarks.",
+        "Maintain detailed financial records to track your business's financial health over time."
+    ]
     
-    # Liquidity recommendations
-    liquidity = metrics.get('liquidity', {})
-    if 'current_ratio' in liquidity:
-        current_ratio = liquidity['current_ratio']
-        if current_ratio < 1:
-            recommendations.append("Improve short-term liquidity to better cover current obligations.")
-        elif current_ratio > 3:
-            recommendations.append("Consider utilizing excess liquid assets for growth or shareholder returns.")
+    try:
+        # Profitability recommendations
+        profitability = metrics.get('profitability', {})
+        if 'net_margin' in profitability:
+            net_margin = profitability['net_margin']
+            if net_margin < 0.05:
+                recommendations.append("Focus on improving net margin through cost control and pricing strategy.")
+                recommendations.append("Analyze your product/service mix to identify and grow high-margin offerings.")
+            elif net_margin < 0.1:
+                recommendations.append("Consider strategic initiatives to enhance profit margins.")
+                recommendations.append("Explore opportunities to streamline operations and reduce overhead costs.")
+            else:
+                recommendations.append("Maintain your strong profit margins by continuing to monitor costs and pricing.")
+        
+        # Liquidity recommendations
+        liquidity = metrics.get('liquidity', {})
+        if 'current_ratio' in liquidity:
+            current_ratio = liquidity['current_ratio']
+            if current_ratio < 1:
+                recommendations.append("Improve short-term liquidity to better cover current obligations.")
+                recommendations.append("Consider negotiating extended payment terms with suppliers or accelerating customer collections.")
+            elif current_ratio > 3:
+                recommendations.append("Consider utilizing excess liquid assets for growth opportunities or shareholder returns.")
+                recommendations.append("Review your cash management strategy to ensure idle funds are earning competitive returns.")
+            else:
+                recommendations.append("Your liquidity position is balanced. Continue monitoring cash flow regularly.")
+        
+        # Efficiency recommendations
+        efficiency = metrics.get('efficiency', {})
+        if 'asset_turnover' in efficiency:
+            asset_turnover = efficiency['asset_turnover']
+            if asset_turnover < 0.5:
+                recommendations.append("Evaluate asset utilization to improve revenue generation efficiency.")
+                recommendations.append("Consider divesting underperforming assets or finding ways to increase their productivity.")
+            else:
+                recommendations.append("Your asset efficiency is strong. Continue leveraging assets effectively for revenue generation.")
+    except Exception as e:
+        # Add generic recommendations if metric-based ones fail
+        recommendations.append("Review your revenue streams and cost structure to identify opportunities for improvement.")
+        recommendations.append("Conduct a detailed analysis of your expenses to identify potential cost-saving opportunities.")
     
-    # Efficiency recommendations
-    efficiency = metrics.get('efficiency', {})
-    if 'asset_turnover' in efficiency:
-        asset_turnover = efficiency['asset_turnover']
-        if asset_turnover < 0.5:
-            recommendations.append("Evaluate asset utilization to improve revenue generation efficiency.")
+    # Add trend-based recommendations
+    if trends and len(trends) > 0:
+        if "increasing" in trends[0].lower():
+            recommendations.append("Capitalize on your positive growth trend by reinvesting in business expansion.")
+        elif "decreasing" in trends[0].lower():
+            recommendations.append("Address the declining trend by evaluating market conditions and adjusting your business strategy.")
+        else:
+            recommendations.append("While performance is stable, explore new markets or products to drive future growth.")
     
-    # Add default recommendation if none found
-    if not recommendations:
-        recommendations.append("Continue monitoring financial performance and maintain current strategies.")
+    # Include the standard recommendations
+    recommendations.extend(standard_recommendations)
+    
+    # Ensure we have at least a minimum number of recommendations
+    if len(recommendations) < 4:
+        additional_recommendations = [
+            "Build a financial forecast to anticipate future cash needs and opportunities.",
+            "Review your pricing strategy to ensure it aligns with market conditions and costs.",
+            "Diversify revenue streams to mitigate risk and create multiple growth avenues.",
+            "Implement regular financial reviews to catch issues early and capitalize on opportunities."
+        ]
+        recommendations.extend(additional_recommendations[:4-len(recommendations)])
     
     return recommendations
 
@@ -842,45 +992,66 @@ def generate_summary(metrics, trends):
     # Create a concise summary
     profitability = metrics.get('profitability', {})
     liquidity = metrics.get('liquidity', {})
+    efficiency = metrics.get('efficiency', {})
     
     summary_parts = []
     
-    # Profitability summary
-    if 'net_margin' in profitability:
-        net_margin = profitability['net_margin']
-        if net_margin > 0.1:
-            summary_parts.append("strong profitability")
-        elif net_margin > 0.05:
-            summary_parts.append("adequate profitability")
-        elif net_margin > 0:
-            summary_parts.append("marginal profitability")
-        else:
-            summary_parts.append("operating at a loss")
+    try:
+        # Overall financial health statement
+        summary_parts.append("Based on the analysis of your financial data")
+        
+        # Profitability summary
+        if 'net_margin' in profitability:
+            net_margin = profitability['net_margin']
+            if net_margin > 0.1:
+                summary_parts.append("your business shows strong profitability with a net margin above 10%")
+            elif net_margin > 0.05:
+                summary_parts.append("your business has adequate profitability with a net margin between 5-10%")
+            elif net_margin > 0:
+                summary_parts.append("your business has marginal profitability with a net margin below 5%")
+            else:
+                summary_parts.append("your business is currently operating at a loss")
+        
+        # Liquidity summary
+        if 'current_ratio' in liquidity:
+            current_ratio = liquidity['current_ratio']
+            if current_ratio > 2:
+                summary_parts.append("you maintain healthy liquidity with a strong current ratio above 2")
+            elif current_ratio > 1:
+                summary_parts.append("you have adequate liquidity with a current ratio above 1")
+            else:
+                summary_parts.append("you have limited liquidity which may impact short-term obligations")
+        
+        # Efficiency summary
+        if 'asset_turnover' in efficiency:
+            asset_turnover = efficiency['asset_turnover']
+            if asset_turnover > 1:
+                summary_parts.append("your asset utilization is excellent")
+            elif asset_turnover > 0.5:
+                summary_parts.append("your asset utilization is adequate")
+            else:
+                summary_parts.append("your asset utilization could be improved")
+        
+        # Trend summary
+        if trends:
+            if any("increasing" in trend.lower() for trend in trends[:2]):
+                summary_parts.append("the business shows a positive growth trend")
+            elif any("decreasing" in trend.lower() for trend in trends[:2]):
+                summary_parts.append("the business shows a declining trend requiring attention")
+            else:
+                summary_parts.append("overall performance appears stable")
+    except Exception as e:
+        # Provide a simple summary if calculations fail
+        return "Financial analysis completed based on your financial data. Review the detailed reports for specific insights."
     
-    # Liquidity summary
-    if 'current_ratio' in liquidity:
-        current_ratio = liquidity['current_ratio']
-        if current_ratio > 2:
-            summary_parts.append("healthy liquidity")
-        elif current_ratio > 1:
-            summary_parts.append("adequate liquidity")
-        else:
-            summary_parts.append("limited liquidity")
-    
-    # Trend summary
-    trend_summary = ""
-    if trends:
-        if "increasing" in trends[0]:
-            trend_summary = "positive growth trend"
-        elif "decreasing" in trends[0]:
-            trend_summary = "declining trend"
-        else:
-            trend_summary = "stable performance"
-    
-    if trend_summary:
-        summary_parts.append(trend_summary)
-    
-    if summary_parts:
-        return f"Financial analysis indicates {', '.join(summary_parts)}."
+    # Format the summary
+    if len(summary_parts) > 1:
+        # First part is the intro
+        intro = summary_parts[0]
+        details = summary_parts[1:]
+        
+        # Join with commas and end with period
+        formatted_details = ", ".join(details)
+        return f"{intro}, {formatted_details}."
     else:
-        return "Financial analysis completed based on provided data."
+        return "Financial analysis completed based on the provided data. Review the detailed reports for specific insights."
