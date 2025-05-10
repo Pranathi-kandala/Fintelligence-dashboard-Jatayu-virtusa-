@@ -7,9 +7,11 @@ from datetime import datetime
 import logging
 import time
 import random
+import re  # For regular expressions in JSON cleaning
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG, 
+                   format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger('fintelligence')
 
 # Configure the Gemini API
@@ -403,7 +405,7 @@ def generate_balance_sheet(file_data):
 
 def fix_json_content(response_text):
     """
-    Try to extract valid JSON from response text
+    Try to extract valid JSON from response text with advanced cleaning
     
     Args:
         response_text (str): Raw response text from API
@@ -421,11 +423,61 @@ def fix_json_content(response_text):
             raise json.JSONDecodeError("No JSON found in response", response_text, 0)
             
         json_str = response_text[start_idx:end_idx]
-        return json.loads(json_str)
-    except json.JSONDecodeError as json_err:
-        logger.error(f"JSON parse error: {str(json_err)}")
+        
+        # First attempt - direct parsing
+        try:
+            return json.loads(json_str)
+        except json.JSONDecodeError:
+            # Failed - try cleaning the JSON string
+            pass
+        
+        # Advanced JSON cleaning - replace common issues
+        # Replace single quotes with double quotes (but not inside strings)
+        cleaned_str = json_str
+        
+        # Replace JavaScript-style trailing commas in objects and arrays
+        cleaned_str = re.sub(r',\s*}', '}', cleaned_str)
+        cleaned_str = re.sub(r',\s*\]', ']', cleaned_str)
+        
+        # Replace unquoted property names
+        cleaned_str = re.sub(r'([{,]\s*)([a-zA-Z0-9_]+)(\s*:)', r'\1"\2"\3', cleaned_str)
+        
+        # Fix missing quotes around string values
+        cleaned_str = re.sub(r':\s*([a-zA-Z][a-zA-Z0-9_]*)\s*([,}])', r': "\1"\2', cleaned_str)
+        
+        # Try parsing with the cleaned string
+        try:
+            return json.loads(cleaned_str)
+        except json.JSONDecodeError:
+            # Still failed - do a more aggressive cleaning
+            pass
+        
+        # Last resort - manual recursive JSON structure from text
+        try:
+            # Use a safer approach with AST literal evaluation
+            # This handles nested structures with proper typing
+            import ast
+            
+            # Replace NaN, Infinity with valid JSON values
+            cleaned_str = cleaned_str.replace('NaN', '"NaN"').replace('Infinity', '"Infinity"')
+            
+            # Try to salvage by converting to Python dict syntax and evaluate
+            # Convert JSON to Python dict syntax
+            py_dict_str = cleaned_str.replace('null', 'None').replace('true', 'True').replace('false', 'False')
+            result = ast.literal_eval(py_dict_str)
+            return result
+        except Exception:
+            # All cleanup attempts failed
+            logger.error("All JSON cleanup attempts failed")
+            return {
+                "error": "Failed to parse AI response. Please try again.",
+                "raw_response": response_text[:500]  # Truncate for safety
+            }
+            
+    except Exception as e:
+        logger.error(f"JSON parsing error: {str(e)}")
         return {
-            "error": "Failed to parse AI response. Please try again.",
+            "error": f"Failed to parse AI response: {str(e)}",
             "raw_response": response_text[:500]  # Truncate for safety
         }
 
@@ -441,20 +493,101 @@ def process_ai_response(response_text, report_type, file_data):
     Returns:
         dict: Structured and validated response
     """
-    # Extract JSON from response
-    logger.debug("Processing AI response")
+    try:
+        # Detect and handle empty responses
+        if not response_text or response_text.strip() == "":
+            logger.error("Empty response received from AI")
+            raise ValueError("Empty response received from AI")
+        
+        logger.debug("Processing AI response")
+        
+        # Parse JSON content with our enhanced JSON cleaning
+        result = fix_json_content(response_text)
+        
+        # Log parsing result for debugging
+        logger.debug(f"Parsed response into JSON structure with keys: {list(result.keys())}")
+        
+        # Add generation metadata
+        result["generated_at"] = datetime.now().isoformat()
+        if isinstance(file_data, dict) and 'format' in file_data:
+            result["source_format"] = file_data.get('format')
+        
+        # Ensure proper structure for template rendering
+        result = ensure_response_structure(result, report_type)
+        
+        # Create standard report structure expected by templates
+        # These are required to show numeric values in reports
+        if report_type == 'balance_sheet':
+            # Ensure we have assets, liabilities and equity with numeric values
+            if 'assets' not in result or not isinstance(result['assets'], dict):
+                result['assets'] = {'current_assets': {}, 'non_current_assets': {}, 'total': 0.0}
+            
+            if 'liabilities' not in result or not isinstance(result['liabilities'], dict):
+                result['liabilities'] = {'current_liabilities': {}, 'non_current_liabilities': {}, 'total': 0.0}
+                
+            if 'equity' not in result or not isinstance(result['equity'], dict):
+                result['equity'] = {'total': 0.0}
+        
+        elif report_type == 'income_statement':
+            # Ensure revenue and expenses sections exist with numeric values
+            if 'revenue' not in result or not isinstance(result['revenue'], dict):
+                result['revenue'] = {'total': 0.0}
+                
+            if 'expenses' not in result or not isinstance(result['expenses'], dict):
+                result['expenses'] = {'total': 0.0}
+                
+            if 'profit_loss' not in result or not isinstance(result['profit_loss'], dict):
+                result['profit_loss'] = {'gross_profit': 0.0, 'operating_profit': 0.0, 'net_profit': 0.0}
+        
+        elif report_type == 'cash_flow':
+            # Ensure cash flow sections exist with numeric values
+            if 'operating_activities' not in result or not isinstance(result['operating_activities'], dict):
+                result['operating_activities'] = {'total': 0.0}
+                
+            if 'investing_activities' not in result or not isinstance(result['investing_activities'], dict):
+                result['investing_activities'] = {'total': 0.0}
+                
+            if 'financing_activities' not in result or not isinstance(result['financing_activities'], dict):
+                result['financing_activities'] = {'total': 0.0}
+                
+            if 'summary' not in result or not isinstance(result['summary'], dict):
+                result['summary'] = {'beginning_cash': 0.0, 'net_change': 0.0, 'ending_cash': 0.0}
+        
+        return result
     
-    # Parse JSON content with error handling
-    result = fix_json_content(response_text)
-    
-    # Add generation metadata
-    result["generated_at"] = datetime.now().isoformat()
-    result["source_format"] = file_data.get('format')
-    
-    # Ensure proper structure for template rendering
-    result = ensure_response_structure(result, report_type)
-    
-    return result
+    except Exception as e:
+        logger.error(f"Error processing AI response: {str(e)}")
+        
+        # Create fallback structure with error information
+        fallback = {
+            "error": f"Failed to process AI response: {str(e)}",
+            "generated_at": datetime.now().isoformat()
+        }
+        
+        if report_type == 'balance_sheet':
+            fallback['assets'] = {'total': 0.0}
+            fallback['liabilities'] = {'total': 0.0}
+            fallback['equity'] = {'total': 0.0}
+            fallback['insights'] = ["Error processing data. Please try again."]
+        
+        elif report_type == 'income_statement':
+            fallback['revenue'] = {'total': 0.0}
+            fallback['expenses'] = {'total': 0.0}
+            fallback['profit_loss'] = {'gross_profit': 0.0, 'net_profit': 0.0}
+            fallback['insights'] = ["Error processing data. Please try again."]
+        
+        elif report_type == 'cash_flow':
+            fallback['operating_activities'] = {'total': 0.0}
+            fallback['investing_activities'] = {'total': 0.0}
+            fallback['financing_activities'] = {'total': 0.0}
+            fallback['summary'] = {'net_change': 0.0}
+            fallback['insights'] = ["Error processing data. Please try again."]
+        
+        elif report_type == 'analysis':
+            fallback['overview'] = {"financial_health": "Analysis error"}
+            fallback['recommendations'] = ["Please try generating the analysis again."]
+        
+        return fallback
 
 def generate_income_statement(file_data):
     """
