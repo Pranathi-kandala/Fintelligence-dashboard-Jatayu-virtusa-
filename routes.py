@@ -238,6 +238,9 @@ def register_routes(app):
                         report_data['insights'] = ["Analysis of cash flow patterns is pending."]
                     if 'recommendations' not in report_data:
                         report_data['recommendations'] = ["Review your cash flow statement for further insights."]
+                    # Add summary if missing
+                    if 'summary' not in report_data:
+                        report_data['summary'] = "Your cash flow statement shows the movement of cash in and out of your business during the reporting period."
                         
                 elif report_type == 'balance_sheet':
                     # Add balance_sheet field if missing
@@ -285,6 +288,9 @@ def register_routes(app):
                         report_data['insights'] = ["Income statement analysis is pending."]
                     if 'recommendations' not in report_data:
                         report_data['recommendations'] = ["Review your income statement for further insights."]
+                    # Add summary if missing
+                    if 'summary' not in report_data:
+                        report_data['summary'] = "Your income statement shows your revenue, expenses, and profitability for the reporting period."
                 
                 # Save report to database - safely handle JSON serialization
                 try:
