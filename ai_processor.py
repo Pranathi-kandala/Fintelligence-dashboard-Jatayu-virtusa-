@@ -452,153 +452,22 @@ Please explain this concept clearly, even though I don't have specific financial
                 return "An income statement shows your revenue, expenses, and profit/loss over a period of time. It follows the simple formula: Revenue - Expenses = Profit (or Loss)."
         
         return f"I'm sorry, I encountered an error while analyzing your question. Please try again or ask something different."
-                
-                # Add category breakdown if available
-                categories = financial_data.get('by_category', {})
-                expense_categories = {k: v for k, v in categories.items() if v.get('expenses', 0) > 0}
-                
-                if expense_categories:
-                    top_categories = sorted(expense_categories.items(), key=lambda x: x[1].get('expenses', 0), reverse=True)[:3]
-                    response += "Your top expense categories are "
-                    response += ", ".join([f"{cat} (${data.get('expenses', 0):,.2f})" for cat, data in top_categories])
-                    response += "."
-            
-            # Profit questions
-            elif any(term in question_lower for term in ['profit', 'margin', 'profitability']):
-                profit_margin = (net_income / income) * 100 if income > 0 else 0
-                response = f"Your net income is ${net_income:,.2f} with a profit margin of {profit_margin:.1f}%. "
-                
-                if profit_margin > 20:
-                    response += "This is a strong profit margin compared to industry averages."
-                elif profit_margin > 10:
-                    response += "This is a good profit margin within normal industry ranges."
-                elif profit_margin > 0:
-                    response += "This is a positive but below-average profit margin."
-                else:
-                    response += "You are currently operating at a loss."
-            
-            # Time series questions
-            elif any(term in question_lower for term in ['trend', 'growth', 'over time', 'monthly', 'quarterly']):
-                months = financial_data.get('by_month', {})
-                quarters = financial_data.get('quarters', {})
-                
-                if months:
-                    sorted_months = sorted(months.keys())
-                    if len(sorted_months) > 1:
-                        first_month = months[sorted_months[0]]
-                        last_month = months[sorted_months[-1]]
-                        
-                        first_income = first_month.get('income', 0)
-                        last_income = last_month.get('income', 0)
-                        
-                        if first_income > 0:
-                            growth_rate = ((last_income - first_income) / first_income) * 100
-                            response = f"Your revenue growth from {sorted_months[0]} to {sorted_months[-1]} was {growth_rate:.1f}%. "
-                        
-                        response += f"Your most recent monthly revenue was ${last_income:,.2f}."
-                
-                elif quarters:
-                    response = "Quarterly financial data is available. "
-                    sorted_quarters = sorted(quarters.keys())
-                    
-                    if len(sorted_quarters) > 1:
-                        quarters_income = [quarters[q].get('income', 0) for q in sorted_quarters]
-                        
-                        response += f"Revenue for {sorted_quarters[-1]} was ${quarters_income[-1]:,.2f}, "
-                        
-                        if quarters_income[-1] > quarters_income[-2]:
-                            increase = ((quarters_income[-1] - quarters_income[-2]) / quarters_income[-2]) * 100
-                            response += f"up {increase:.1f}% from the previous quarter."
-                        else:
-                            decrease = ((quarters_income[-2] - quarters_income[-1]) / quarters_income[-2]) * 100
-                            response += f"down {decrease:.1f}% from the previous quarter."
-            
-            # Account questions
-            elif any(term in question_lower for term in ['account', 'accounts', 'cash']):
-                accounts = financial_data.get('by_account', {})
-                
-                if accounts:
-                    # List top accounts by net value
-                    top_accounts = sorted(accounts.items(), key=lambda x: abs(x[1].get('net', 0)), reverse=True)[:3]
-                    
-                    response = "Your top account balances are: "
-                    response += ", ".join([f"{acct}: ${data.get('net', 0):,.2f}" for acct, data in top_accounts])
-                    response += "."
-                else:
-                    response = "Account-specific information is not available in your financial data."
-            
-            # Default response for other questions
-            else:
-                response = f"Based on your financial data, your total revenue is ${income:,.2f} and total expenses are ${expenses:,.2f}, resulting in a net income of ${net_income:,.2f}."
-                
-                if income > 0:
-                    profit_margin = (net_income / income) * 100
-                    response += f" Your profit margin is {profit_margin:.1f}%."
-        else:
-            # Check if it's a general finance question that can be answered without specific data
-            query_lower = user_query.lower()
-            
-            # Provide general explanations for common financial terms
-            if "what is" in query_lower or "explain" in query_lower or "define" in query_lower or "how does" in query_lower:
-                
-                # Cashflow related questions
-                if "cash flow" in query_lower or "cashflow" in query_lower:
-                    return "Cash flow refers to the net amount of cash moving in and out of a business during a specific period. Positive cash flow indicates more money coming in than going out, while negative cash flow means more money is leaving than coming in. Cash flow is divided into three categories: operating (from core business activities), investing (from assets and investments), and financing (from debt and equity financing). Healthy cash flow is essential for business sustainability and growth, regardless of profitability."
-                
-                # Balance sheet related questions
-                elif "balance sheet" in query_lower:
-                    return "A balance sheet is a financial statement that reports a company's assets, liabilities, and equity at a specific point in time. It provides a snapshot of what a company owns (assets), what it owes (liabilities), and the value that's left for shareholders (equity). The fundamental accounting equation that governs a balance sheet is: Assets = Liabilities + Equity. Balance sheets help assess a company's financial position, liquidity, and solvency."
-                
-                # Income statement related questions
-                elif "income statement" in query_lower or "profit and loss" in query_lower or "p&l" in query_lower:
-                    return "An income statement, also known as a profit and loss statement (P&L), shows a company's revenues, expenses, and profits over a specific period. Unlike the balance sheet, which presents a snapshot at a point in time, the income statement covers a range of time (quarter, year). It follows a simple formula: Revenue - Expenses = Profit/Loss. Income statements help evaluate a company's profitability, operational efficiency, and performance trends."
-                
-                # Revenue related questions
-                elif "revenue" in query_lower or "sales" in query_lower or "income" in query_lower:
-                    return "Revenue, or sales, represents the total amount of money generated from selling products or services before any expenses are deducted. It's the top line of an income statement and a fundamental indicator of a company's market success. Revenue growth often signals business expansion, increased market share, or improved pricing strategies, though it doesn't necessarily indicate profitability without considering associated costs."
-                
-                # Expense related questions
-                elif "expense" in query_lower or "cost" in query_lower or "expenditure" in query_lower:
-                    return "Expenses are the costs incurred by a business to generate revenue. They include operating expenses (like rent, salaries, utilities), cost of goods sold (direct costs of products), and non-operating expenses (like interest payments). Understanding and managing expenses is crucial for profitability. Expenses are categorized as fixed (constant regardless of business activity) or variable (changing with business volume), and proper expense management directly impacts bottom-line profit."
-                
-                # Profit related questions
-                elif "profit" in query_lower or "margin" in query_lower or "net income" in query_lower:
-                    return "Profit represents the financial gain when revenue exceeds expenses. There are several types of profit on an income statement: Gross profit (Revenue - Cost of goods sold), Operating profit (Gross profit - Operating expenses), and Net profit (Operating profit - Taxes and interest). Profit margins express profit as a percentage of revenue, allowing comparison across different sized companies or time periods. Improving profit requires either increasing revenue, decreasing costs, or both."
-                
-                # Asset related questions
-                elif "asset" in query_lower:
-                    return "Assets are resources owned by a company that have economic value and are expected to provide future benefits. They appear on the balance sheet and are categorized as current assets (convertible to cash within a year, like inventory) or non-current assets (long-term, like property and equipment). Assets can be tangible (physical) or intangible (non-physical, like patents). The management of assets directly impacts a company's operational efficiency, liquidity, and overall financial health."
-                
-                # Liability related questions
-                elif "liability" in query_lower or "debt" in query_lower:
-                    return "Liabilities are financial obligations or debts a company owes to others. They appear on the balance sheet and represent claims against the company's assets. Liabilities are categorized as current (due within a year, like accounts payable) or non-current (long-term, like mortgages). They play a crucial role in assessing a company's financial risk, solvency, and leverage. While debt can provide capital for growth, excessive liabilities may lead to financial distress."
-                
-                # ROI related questions
-                elif "roi" in query_lower or "return on investment" in query_lower:
-                    return "Return on Investment (ROI) measures the profitability of an investment relative to its cost. It's calculated as: ROI = (Net Profit / Cost of Investment) × 100%. A positive ROI indicates a profitable investment, while a negative ROI shows a loss. ROI helps evaluate investment efficiency and compare different investment opportunities. However, it doesn't account for time value of money or risk factors, which are considered in more comprehensive metrics like IRR or NPV."
-            
-            # Default response if no specific pattern is matched
-            response = "I couldn't find specific information in your financial data to answer this question accurately. For personalized insights, please try asking about your revenue, expenses, profits, or specific accounts in your data."
-        
-        return response
-    
-    except Exception as e:
-        logger.error(f"Error processing chat query: {str(e)}")
-        return f"I'm sorry, I encountered an error while analyzing your financial data: {str(e)}. Please try again with a different question or upload a different financial dataset."
 
-def explain_ai_decision(report_type, report_data):
+def explain_ai_decision(report_type, data):
     """
-    Generate an explanation of how the AI reached its conclusions for a report
+    Generate a natural language explanation of how the AI generated a specific report
     
     Args:
         report_type (str): Type of report (balance_sheet, income_statement, cash_flow, analysis)
-        report_data (dict): Report data generated by the AI
+        data (dict): The report data for which explanation is requested
         
     Returns:
-        dict: Explanation of AI decision process
+        dict: Explanation data with process description, confidence level, limitations, and next steps
     """
     try:
-        # Create an explanation based on the report type and data
+        logger.debug(f"Generating explanation for {report_type} report")
+        
+        # Initialize explanation structure
         explanation = {
             "process": [],
             "confidence": "medium",
@@ -606,94 +475,67 @@ def explain_ai_decision(report_type, report_data):
             "next_steps": []
         }
         
-        # General process steps for all report types
-        explanation["process"].append("Extracted financial transaction data from your uploaded file.")
-        explanation["process"].append("Identified transaction types, accounts, categories, and dates.")
+        # Generate explanation based on report type
+        if report_type == "balance_sheet":
+            # Process description for balance sheet
+            explanation["process"].append("The AI analyzed your financial data to identify assets, liabilities, and equity.")
+            explanation["process"].append("Assets were categorized as current (cash, accounts receivable) or non-current (property, equipment).")
+            explanation["process"].append("Liabilities were categorized as short-term (accounts payable) or long-term (loans, mortgages).")
+            explanation["process"].append("Equity was calculated as the difference between total assets and total liabilities.")
+            
+            # Check data quality to determine confidence
+            if data and 'balance_sheet' in data:
+                bs = data['balance_sheet']
+                if bs.get('assets', {}).get('total', 0) > 0 and bs.get('liabilities', {}).get('total', 0) > 0:
+                    explanation["confidence"] = "high"
+            
+        elif report_type == "income_statement":
+            # Process description for income statement
+            explanation["process"].append("The AI analyzed your financial transactions to identify revenue and expense items.")
+            explanation["process"].append("Revenue was categorized by source (sales, services, other income).")
+            explanation["process"].append("Expenses were categorized by type (cost of goods, operating expenses, taxes).")
+            explanation["process"].append("Net income was calculated by subtracting all expenses from total revenue.")
+            
+            # Check data quality to determine confidence
+            if data and 'income_statement' in data:
+                is_data = data['income_statement']
+                if is_data.get('revenue', 0) > 0 and isinstance(is_data.get('operating_expenses'), dict):
+                    explanation["confidence"] = "high"
+            
+        elif report_type == "cash_flow":
+            # Process description for cash flow
+            explanation["process"].append("The AI analyzed your financial data to track cash movements across operating, investing, and financing activities.")
+            explanation["process"].append("Operating cash flow was derived from core business operations.")
+            explanation["process"].append("Investing cash flow was calculated from asset purchases/sales.")
+            explanation["process"].append("Financing cash flow was identified from debt and equity transactions.")
+            explanation["process"].append("The net change in cash was determined by combining all three categories.")
+            
+            # Check data quality to determine confidence
+            if data and 'cash_flow_statement' in data:
+                cf = data['cash_flow_statement']
+                if cf.get('operating_activities') and cf.get('net_change_in_cash') is not None:
+                    explanation["confidence"] = "high"
+            
+        elif report_type == "analysis":
+            # Process description for financial analysis
+            explanation["process"].append("The AI conducted a comprehensive analysis of your financial data across multiple statements.")
+            explanation["process"].append("Key financial metrics were calculated for profitability, liquidity, and efficiency.")
+            explanation["process"].append("Historical data was analyzed to identify trends and patterns.")
+            explanation["process"].append("Insights and recommendations were generated based on identified strengths and weaknesses.")
+            
+            # Check data quality to determine confidence
+            if data and 'analysis' in data:
+                analysis = data['analysis']
+                if analysis.get('key_metrics') and analysis.get('recommendations'):
+                    explanation["confidence"] = "high"
+            
+        # Limitations
+        explanation["limitations"].append("Analysis is based solely on the financial data provided.")
+        explanation["limitations"].append("Industry benchmarks and economic context are not included in the analysis.")
         
-        # Report-specific process steps
-        if report_type == 'balance_sheet':
-            explanation["process"].append("Classified accounts as assets or liabilities based on transaction patterns.")
-            explanation["process"].append("Calculated current and non-current asset values from account balances.")
-            explanation["process"].append("Identified liability obligations and categorized as short or long-term.")
-            explanation["process"].append("Calculated equity as the difference between assets and liabilities.")
-            
-            # Confidence based on data quality
-            data = report_data.get('balance_sheet', {})
-            assets = data.get('assets', {}).get('total', 0)
-            
-            if assets > 0:
-                explanation["confidence"] = "high"
-            
-            # Limitations
-            explanation["limitations"].append("Asset and liability classification was based on account names and transaction patterns.")
-            explanation["limitations"].append("Long-term assets and depreciation were estimated from available data.")
-            
-            # Next steps
-            explanation["next_steps"].append("Verify asset and liability classifications for accuracy.")
-            explanation["next_steps"].append("Review equity calculations and ensure all accounts are properly categorized.")
-            
-        elif report_type == 'income_statement':
-            explanation["process"].append("Identified revenue and expense transactions from financial data.")
-            explanation["process"].append("Calculated gross profit by separating cost of goods sold from other expenses.")
-            explanation["process"].append("Categorized operating and non-operating expenses based on transaction types.")
-            explanation["process"].append("Estimated tax implications to calculate net income after taxes.")
-            
-            # Confidence based on data quality
-            data = report_data.get('income_statement', {})
-            revenue = data.get('revenue', 0)
-            
-            if revenue > 0:
-                explanation["confidence"] = "high"
-            
-            # Limitations
-            explanation["limitations"].append("Cost of goods sold was estimated based on transaction categories.")
-            explanation["limitations"].append("Tax calculations are estimates and may not reflect actual tax obligations.")
-            
-            # Next steps
-            explanation["next_steps"].append("Review expense categorizations for accuracy.")
-            explanation["next_steps"].append("Verify revenue recognition and expense allocation to periods.")
-            
-        elif report_type == 'cash_flow':
-            explanation["process"].append("Separated cash flow activities into operating, investing, and financing categories.")
-            explanation["process"].append("Calculated beginning and ending cash balances based on transaction data.")
-            explanation["process"].append("Determined net cash flow from each activity type based on transaction patterns.")
-            explanation["process"].append("Reconciled cash flow statements with income and balance sheet data.")
-            
-            # Confidence based on data quality
-            data = report_data.get('cash_flow_statement', {})
-            operating = data.get('net_cash_from_operating', 0)
-            
-            if operating != 0:
-                explanation["confidence"] = "high"
-            
-            # Limitations
-            explanation["limitations"].append("Cash flow categorization was based on transaction descriptions and categories.")
-            explanation["limitations"].append("Non-cash transactions may not be fully reflected in the cash flow statement.")
-            
-            # Next steps
-            explanation["next_steps"].append("Verify cash flow activity classifications.")
-            explanation["next_steps"].append("Reconcile cash flow data with bank statements and other financial records.")
-            
-        elif report_type == 'analysis':
-            explanation["process"].append("Calculated key financial metrics including profitability, liquidity, and efficiency ratios.")
-            explanation["process"].append("Analyzed financial trends over time using monthly and quarterly data.")
-            explanation["process"].append("Compared performance metrics to identify strengths and improvement areas.")
-            explanation["process"].append("Generated actionable recommendations based on financial health indicators.")
-            
-            # Confidence based on data quality
-            data = report_data.get('analysis', {})
-            metrics = data.get('key_metrics', {})
-            
-            if metrics and len(metrics) > 0:
-                explanation["confidence"] = "high"
-            
-            # Limitations
-            explanation["limitations"].append("Analysis is based solely on the financial data provided.")
-            explanation["limitations"].append("Industry benchmarks and economic context are not included in the analysis.")
-            
-            # Next steps
-            explanation["next_steps"].append("Consider the recommendations in light of your specific business context.")
-            explanation["next_steps"].append("Review the analysis periodically as new financial data becomes available.")
+        # Next steps
+        explanation["next_steps"].append("Consider the recommendations in light of your specific business context.")
+        explanation["next_steps"].append("Review the analysis periodically as new financial data becomes available.")
         
         return explanation
     
