@@ -524,10 +524,14 @@ def process_ai_response(response_text, report_type, file_data):
                 result['assets'] = {'current_assets': {}, 'non_current_assets': {}, 'total': 0.0}
             
             if 'liabilities' not in result or not isinstance(result['liabilities'], dict):
-                result['liabilities'] = {'current_liabilities': {}, 'non_current_liabilities': {}, 'total': 0.0}
+                result['liabilities'] = {'current_liabilities': {}, 'long_term_liabilities': {}, 'total': 0.0}
                 
             if 'equity' not in result or not isinstance(result['equity'], dict):
                 result['equity'] = {'total': 0.0}
+                
+            # Add required field for the template
+            if 'total_assets' not in result:
+                result['total_assets'] = result['assets'].get('total', 0.0)
                 
             # Create the expected nested structure for the balance_sheet template
             final_result = {
@@ -556,6 +560,10 @@ def process_ai_response(response_text, report_type, file_data):
                 
             if 'profit_loss' not in result or not isinstance(result['profit_loss'], dict):
                 result['profit_loss'] = {'gross_profit': 0.0, 'operating_profit': 0.0, 'net_profit': 0.0}
+                
+            # Add taxes field required by the template
+            if 'taxes' not in result:
+                result['taxes'] = 0.0
                 
             # Create the expected nested structure for the income_statement template
             final_result = {
@@ -587,6 +595,25 @@ def process_ai_response(response_text, report_type, file_data):
                 
             if 'summary' not in result or not isinstance(result['summary'], dict):
                 result['summary'] = {'beginning_cash': 0.0, 'net_change': 0.0, 'ending_cash': 0.0}
+                
+            # Add required fields for template
+            if 'beginning_cash' not in result:
+                result['beginning_cash'] = 0.0
+                
+            if 'ending_cash' not in result:
+                result['ending_cash'] = 0.0
+                
+            if 'net_cash_from_operating' not in result:
+                result['net_cash_from_operating'] = 0.0
+                
+            if 'net_cash_from_investing' not in result:
+                result['net_cash_from_investing'] = 0.0
+                
+            if 'net_cash_from_financing' not in result:
+                result['net_cash_from_financing'] = 0.0
+                
+            if 'net_change_in_cash' not in result:
+                result['net_change_in_cash'] = 0.0
                 
             # Create the expected nested structure for the cash_flow template
             final_result = {
@@ -629,6 +656,7 @@ def process_ai_response(response_text, report_type, file_data):
                 "assets": {'current_assets': {}, 'non_current_assets': {}, 'total': 0.0},
                 "liabilities": {'current_liabilities': {}, 'long_term_liabilities': {}, 'total': 0.0},
                 "equity": {'total': 0.0},
+                "total_assets": 0.0,  # Add field required by template
                 "insights": ["Error processing data. Please try again."],
                 "generated_at": datetime.now().isoformat(),
                 "error": base_fallback["error"]
@@ -647,6 +675,7 @@ def process_ai_response(response_text, report_type, file_data):
                 "revenue": {'total': 0.0},
                 "expenses": {'total': 0.0},
                 "profit_loss": {'gross_profit': 0.0, 'net_profit': 0.0},
+                "taxes": 0.0,  # Add taxes field required by the template
                 "insights": ["Error processing data. Please try again."],
                 "generated_at": datetime.now().isoformat(),
                 "error": base_fallback["error"]
@@ -666,6 +695,13 @@ def process_ai_response(response_text, report_type, file_data):
                 "investing_activities": {'total': 0.0},
                 "financing_activities": {'total': 0.0},
                 "summary": {'beginning_cash': 0.0, 'net_change': 0.0, 'ending_cash': 0.0},
+                # Add additional required fields for template
+                "beginning_cash": 0.0,
+                "ending_cash": 0.0,
+                "net_cash_from_operating": 0.0,
+                "net_cash_from_investing": 0.0,
+                "net_cash_from_financing": 0.0,
+                "net_change_in_cash": 0.0,
                 "insights": ["Error processing data. Please try again."],
                 "generated_at": datetime.now().isoformat(),
                 "error": base_fallback["error"]
