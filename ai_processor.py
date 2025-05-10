@@ -34,14 +34,33 @@ def call_gemini_with_retry(prompt):
         prompt (str): The prompt text to send to the API
         
     Returns:
-        response: The API response
+        response: The API response or an error response object with text and is_error properties
     """
+    from collections import namedtuple
+    
+    # Check if we have already determined that we're rate limited
+    # This helps prevent repeatedly hitting the API when we know it's rate limited
+    rate_limited_env = os.environ.get("GEMINI_RATE_LIMITED", "").lower()
+    if rate_limited_env in ["true", "1", "yes"]:
+        # We're already known to be rate limited, return early
+        logger.warning("Using cached rate limit status - avoiding API call")
+        ErrorResponse = namedtuple('ErrorResponse', ['text', 'is_error'])
+        return ErrorResponse(
+            text='The AI service is currently experiencing high demand. Please try again in a few minutes.',
+            is_error=True
+        )
+    
     # Debug log the API key configuration - hide sensitive data
     current_api_key = os.environ.get("GEMINI_API_KEY", "")
     if current_api_key:
         logger.info(f"Using Gemini API key: {current_api_key[:4]}...{current_api_key[-4:]} (length: {len(current_api_key)})")
     else:
         logger.error("No Gemini API key is configured!")
+        ErrorResponse = namedtuple('ErrorResponse', ['text', 'is_error'])
+        return ErrorResponse(
+            text='API configuration is missing. Please contact the administrator.',
+            is_error=True
+        )
         
     # Update the configuration just to be sure we have the latest key
     genai.configure(api_key=current_api_key)
@@ -52,10 +71,13 @@ def call_gemini_with_retry(prompt):
             # Add small jitter to avoid thundering herd problem
             if retries > 0:
                 jitter = random.uniform(1.0, 3.0)
-                time.sleep(2**retries + jitter)  # Exponential backoff with jitter
+                time.sleep(min(5, 2**retries + jitter))  # Exponential backoff with jitter, capped at 5s
                 
+            # Try to get the response with a reasonable timeout
+            # Note: No direct timeout parameter, but we'll limit retries 
             response = model.generate_content(prompt)
             return response
+            
         except Exception as e:
             error_message = str(e)
             retries += 1
@@ -63,36 +85,57 @@ def call_gemini_with_retry(prompt):
             logger.error(f"Gemini API error: {error_message}")
             
             # Determine if we have rate limit error or other error
-            is_rate_limit = "quota" in error_message.lower() or "429" in error_message
+            is_rate_limit = "quota" in error_message.lower() or "rate" in error_message.lower() or "429" in error_message
+            
+            if is_rate_limit:
+                # Set a global flag that we're rate limited to prevent further calls
+                os.environ["GEMINI_RATE_LIMITED"] = "true"
+                
+                # Reset the flag after 2 minutes (in a separate thread to avoid blocking)
+                def reset_rate_limit_flag():
+                    import time
+                    time.sleep(120)  # Sleep for 2 minutes
+                    os.environ["GEMINI_RATE_LIMITED"] = "false"
+                
+                import threading
+                reset_thread = threading.Thread(target=reset_rate_limit_flag)
+                reset_thread.daemon = True  # Don't let this keep the app running
+                reset_thread.start()
             
             if retries < MAX_RETRIES:
                 if is_rate_limit:
-                    # For rate limits - use longer delay
-                    wait_time = min(30, 5 * (2 ** retries))
+                    # For rate limits - use shorter delay to avoid worker timeouts
+                    wait_time = min(10, 2 * retries)  # Cap at 10 seconds
                     logger.warning(f"Rate limit exceeded, retrying ({retries}/{MAX_RETRIES}) in {wait_time}s...")
                 else:
-                    # For other errors - use shorter delay
-                    wait_time = 2 + random.uniform(0.5, 2.0)
+                    # For other errors - use very short delay
+                    wait_time = 1 + random.uniform(0.1, 1.0)
                     logger.warning(f"Non-quota error, retrying ({retries}/{MAX_RETRIES}) in {wait_time}s...")
                 
                 time.sleep(wait_time)
             else:
                 # We've tried MAX_RETRIES times, give up
                 logger.error(f"Failed after {MAX_RETRIES} attempts")
+                
+                # Return an error response for any type of error
+                ErrorResponse = namedtuple('ErrorResponse', ['text', 'is_error'])
                 if is_rate_limit:
-                    # Return a named tuple as a response substitute
-                    from collections import namedtuple
-                    ErrorResponse = namedtuple('ErrorResponse', ['text', 'is_error'])
                     return ErrorResponse(
                         text='Unfortunately, we have reached our API usage limit. Please try again in a few minutes.',
                         is_error=True
                     )
                 else:
-                    # For other errors, just raise
-                    raise
+                    return ErrorResponse(
+                        text=f'An error occurred while generating the content. Please try again later.',
+                        is_error=True
+                    )
     
     # This should never be reached but just in case
-    raise Exception(f"Failed to get response from Gemini API after {MAX_RETRIES} retries")
+    ErrorResponse = namedtuple('ErrorResponse', ['text', 'is_error'])
+    return ErrorResponse(
+        text='An unexpected error occurred. Please try again later.',
+        is_error=True
+    )
 
 def generate_balance_sheet(file_data):
     """
