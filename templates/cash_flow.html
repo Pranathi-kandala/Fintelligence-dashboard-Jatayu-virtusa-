@@ -45,14 +45,20 @@
 </div>
 
 {% if data.error %}
-<div class="alert alert-danger">
-    <h4 class="alert-heading">Error Generating Cash Flow Statement</h4>
+<div class="alert alert-warning">
+    <h4 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Notice</h4>
+    {% if "API rate limit" in data.error %}
+    <p>Our AI service is currently experiencing high demand. We're showing you sample financial data until service returns to normal capacity.</p>
+    <p><small>Technical details: {{ data.error }}</small></p>
+    {% else %}
     <p>{{ data.error }}</p>
+    {% endif %}
 </div>
 {% elif data.cash_flow_statement is not defined %}
-<div class="alert alert-danger">
-    <h4 class="alert-heading">Missing Cash Flow Statement Data</h4>
-    <p>The cash flow statement data could not be properly generated. This may be due to an issue with the AI model response or incompatible financial data.</p>
+<div class="alert alert-warning">
+    <h4 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Notice</h4>
+    <p>The cash flow statement data could not be properly generated. We're showing you sample financial data instead.</p>
+    <p><small>This may be due to high AI service demand or incompatible financial data format.</small></p>
 </div>
 {% else %}
 
