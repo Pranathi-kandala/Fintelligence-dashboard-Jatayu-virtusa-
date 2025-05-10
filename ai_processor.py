@@ -27,6 +27,84 @@ model = genai.GenerativeModel('models/gemini-1.5-flash')
 # Maximum number of retries for API calls
 MAX_RETRIES = 5
 
+def prepare_data_for_ai(file_data):
+    """
+    Prepare data for AI model with token optimization to avoid rate limits
+    
+    Args:
+        file_data (dict): Raw file data from file_processor
+        
+    Returns:
+        str: Optimized data string ready for AI processing
+    """
+    # Convert file_data to string format for the prompt with token optimization
+    if file_data.get('format') == 'pdf':
+        data_str = file_data.get('text', '')
+        # Limit PDF text to reduce tokens
+        if len(data_str) > 6000:
+            logger.info(f"Reducing PDF data from {len(data_str)} to 6000 chars to optimize token usage")
+            data_str = data_str[:6000] + "... [truncated for token optimization]"
+    else:
+        logger.debug("Processing CSV/Excel data with token optimization")
+        # Safe data extraction with size limits
+        data_list = []
+        all_data = file_data.get('data', [])
+        
+        # Only use a sample of rows to stay within limits
+        row_count = len(all_data)
+        sample_size = min(30, row_count)  # Limit to 30 rows maximum
+        
+        if row_count > sample_size:
+            logger.info(f"Sampling {sample_size} rows from {row_count} total rows to optimize token usage")
+            # Take some rows from beginning, middle and end for a representative sample
+            if sample_size >= 3:
+                # Take 40% from start, 30% from middle, 30% from end
+                start_count = int(sample_size * 0.4)
+                mid_end_count = int(sample_size * 0.3)
+                
+                start_items = all_data[:start_count]
+                middle_idx = row_count // 2
+                middle_items = all_data[middle_idx:middle_idx + mid_end_count]
+                end_items = all_data[-(mid_end_count):]
+                
+                sample_data = start_items + middle_items + end_items
+            else:
+                # If very small sample, just take from start
+                sample_data = all_data[:sample_size]
+        else:
+            sample_data = all_data
+            
+        # Process the sampled data
+        for item in sample_data:
+            # Clean any potentially problematic characters
+            clean_item = {}
+            for key, value in item.items():
+                if isinstance(value, str):
+                    # Replace any characters that might cause parsing issues
+                    clean_value = value.replace('\n', ' ').replace('\r', ' ')
+                    # Limit string length for long text fields
+                    if len(clean_value) > 100:
+                        clean_value = clean_value[:100] + "..."
+                    clean_item[key] = clean_value
+                else:
+                    clean_item[key] = value
+            data_list.append(clean_item)
+        
+        # Convert to JSON with compact formatting to reduce tokens
+        try:
+            # Use compact JSON representation (no whitespace)
+            data_str = json.dumps(data_list, separators=(',', ':'), default=str)
+            # If still too large, truncate
+            if len(data_str) > 8000:
+                logger.info(f"Truncating JSON data from {len(data_str)} to 8000 chars to optimize token usage")
+                data_str = data_str[:8000] + "... [truncated for token optimization]"
+        except Exception as json_err:
+            logger.error(f"Error converting data to JSON: {str(json_err)}")
+            # Fallback to safer but still limited representation
+            data_str = str(data_list[:15])
+    
+    return data_str
+
 def call_gemini_with_retry(prompt):
     """
     Call Gemini API with retry logic for rate limits
@@ -83,7 +161,19 @@ def call_gemini_with_retry(prompt):
             
             if is_rate_limit:
                 # Set a short timeout before next retry, but don't block future attempts
-                logger.warning("Rate limit detected, but will continue trying with exponential backoff")
+                logger.warning("Rate limit detected, using alternative model for next attempt")
+                
+                # Switch to an alternative model if possible
+                current_model_name = model._model_name
+                
+                # Try switching to a different model with potentially higher limits
+                if current_model_name == 'models/gemini-1.5-pro':
+                    logger.info("Switching from gemini-1.5-pro to gemini-1.5-flash model")
+                    model = genai.GenerativeModel('models/gemini-1.5-flash')
+                elif current_model_name == 'models/gemini-1.5-flash':
+                    # If already on flash model, try the smaller 8b variant which has higher quota
+                    logger.info("Switching from gemini-1.5-flash to gemini-1.5-flash-8b model")
+                    model = genai.GenerativeModel('models/gemini-1.5-flash-8b')
             
             if retries < MAX_RETRIES:
                 if is_rate_limit:
