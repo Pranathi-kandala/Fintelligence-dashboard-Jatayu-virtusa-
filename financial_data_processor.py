@@ -322,23 +322,74 @@ def generate_balance_sheet(financial_data):
             )
         }
         
-        # Return properly nested structure for template
+        # Generate recommendations based on the balance sheet insights
+        recommendations = []
+        if equity > 0 and total_assets > 0:
+            ratio = equity / total_assets
+            if ratio < 0.3:
+                recommendations.append("Consider increasing equity position to improve financial stability.")
+            elif ratio > 0.7:
+                recommendations.append("Your equity position is strong. Consider growth opportunities.")
+            else:
+                recommendations.append("Maintain your balanced equity-to-assets ratio.")
+
+        # Add a standard recommendation
+        recommendations.append("Review your assets allocation to ensure optimal financial structure.")
+        recommendations.append("Regularly compare your balance sheet against industry benchmarks.")
+            
+        # Create a summary of the financial position
+        if total_assets > 0:
+            asset_summary = f"Your financial position shows total assets of ${total_assets:,.2f} with "
+            if total_liabilities > 0:
+                asset_summary += f"liabilities of ${total_liabilities:,.2f} and equity of ${equity:,.2f}."
+            else:
+                asset_summary += f"minimal liabilities and equity of ${equity:,.2f}."
+                
+            if total_current_assets > 0 and total_current_liabilities > 0:
+                current_ratio = total_current_assets / max(total_current_liabilities, 1)
+                if current_ratio > 1.5:
+                    asset_summary += f" You have strong liquidity with a current ratio of {current_ratio:.2f}."
+                elif current_ratio > 1:
+                    asset_summary += f" You have adequate liquidity with a current ratio of {current_ratio:.2f}."
+                else:
+                    asset_summary += f" Your liquidity may need attention with a current ratio of {current_ratio:.2f}."
+        else:
+            asset_summary = "No significant assets were found in your financial data."
+            
+        # Return properly nested structure for template with all the required elements
         return {
-            'balance_sheet': balance_sheet
+            'balance_sheet': balance_sheet,
+            'insights': balance_sheet['insights'],  # Add insights at top level for the template
+            'recommendations': recommendations,     # Add recommendations for the template
+            'summary': asset_summary               # Add summary for the template
         }
     
     except Exception as e:
         logger.error(f"Error generating balance sheet: {str(e)}")
         # Provide error details but also ensure we return a valid structure
+        error_message = f"We encountered an error while generating your balance sheet: {str(e)}"
+        fallback_insights = [
+            "We encountered an error while generating your balance sheet.",
+            "This might happen if your financial data doesn't contain typical balance sheet accounts.",
+            "Try uploading data with clear account categories like Cash, Receivables, Payables, etc."
+        ]
+        fallback_recommendations = [
+            "Review your financial data format to ensure it includes proper account categories.",
+            "Try uploading a different CSV file with standard accounting categorization."
+        ]
+        
         return {
             'balance_sheet': {
                 'assets': {'current_assets': {}, 'non_current_assets': {}, 'total': 0},
                 'liabilities': {'current_liabilities': {}, 'long_term_liabilities': {}, 'total': 0},
                 'equity': {'retained_earnings': 0, 'total': 0},
                 'total_assets': 0,
-                'insights': ["We encountered an error while generating your balance sheet. This might happen if your financial data doesn't contain typical balance sheet accounts."],
+                'insights': fallback_insights,
                 'error': str(e)
-            }
+            },
+            'insights': fallback_insights,
+            'recommendations': fallback_recommendations,
+            'summary': "Error processing financial data. Please check your data format and try again."
         }
 
 def generate_balance_sheet_insights(assets, liabilities, equity, current_assets, current_liabilities):
