@@ -64,11 +64,11 @@ Run the database setup helper script:
 python create_windows_db.py
 ```
 
-This script gives you two options:
+This script gives you three options:
 
-### Option 1: PostgreSQL (Recommended for Production)
+### Option 1: Local PostgreSQL (Recommended for Production)
 
-If you choose PostgreSQL, the script will:
+If you choose local PostgreSQL, the script will:
 1. Check if PostgreSQL is installed
 2. Ask for your PostgreSQL superuser credentials
 3. Create a new database and user for Fintelligence
@@ -82,6 +82,15 @@ If you choose SQLite, the script will:
 3. Set up a template `.env` file
 
 The SQLite database will be automatically created in the `instance` folder when you first run the application. This option requires no additional database software.
+
+### Option 3: Neon PostgreSQL (Cloud-hosted, No Local Installation)
+
+If you choose Neon PostgreSQL, the script will:
+1. Guide you through creating a Neon.tech account
+2. Help you get your connection string from the Neon dashboard
+3. Configure your application to use the Neon database
+
+This option gives you a professional PostgreSQL database without requiring local installation. For detailed instructions on setting up Neon, see the `NEON_DB_SETUP.md` file.
 
 ## Step 5: Complete Environment Setup
 
