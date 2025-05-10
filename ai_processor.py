@@ -24,7 +24,7 @@ genai.configure(api_key=gemini_api_key)
 model = genai.GenerativeModel('gemini-1.5-pro')
 
 # Maximum number of retries for API calls
-MAX_RETRIES = 3
+MAX_RETRIES = 5
 
 def call_gemini_with_retry(prompt):
     """
@@ -38,17 +38,10 @@ def call_gemini_with_retry(prompt):
     """
     from collections import namedtuple
     
-    # Check if we have already determined that we're rate limited
-    # This helps prevent repeatedly hitting the API when we know it's rate limited
-    rate_limited_env = os.environ.get("GEMINI_RATE_LIMITED", "").lower()
-    if rate_limited_env in ["true", "1", "yes"]:
-        # We're already known to be rate limited, return early
-        logger.warning("Using cached rate limit status - avoiding API call")
-        ErrorResponse = namedtuple('ErrorResponse', ['text', 'is_error'])
-        return ErrorResponse(
-            text='The AI service is currently experiencing high demand. Please try again in a few minutes.',
-            is_error=True
-        )
+    # Reset any cached rate limit status to ensure we always try with the new API key
+    if os.environ.get("GEMINI_RATE_LIMITED") in ["true", "1", "yes"]:
+        logger.info("Resetting cached rate limit status to use new API key")
+        os.environ["GEMINI_RATE_LIMITED"] = "false"
     
     # Debug log the API key configuration - hide sensitive data
     current_api_key = os.environ.get("GEMINI_API_KEY", "")
@@ -88,19 +81,8 @@ def call_gemini_with_retry(prompt):
             is_rate_limit = "quota" in error_message.lower() or "rate" in error_message.lower() or "429" in error_message
             
             if is_rate_limit:
-                # Set a global flag that we're rate limited to prevent further calls
-                os.environ["GEMINI_RATE_LIMITED"] = "true"
-                
-                # Reset the flag after 2 minutes (in a separate thread to avoid blocking)
-                def reset_rate_limit_flag():
-                    import time
-                    time.sleep(120)  # Sleep for 2 minutes
-                    os.environ["GEMINI_RATE_LIMITED"] = "false"
-                
-                import threading
-                reset_thread = threading.Thread(target=reset_rate_limit_flag)
-                reset_thread.daemon = True  # Don't let this keep the app running
-                reset_thread.start()
+                # Set a short timeout before next retry, but don't block future attempts
+                logger.warning("Rate limit detected, but will continue trying with exponential backoff")
             
             if retries < MAX_RETRIES:
                 if is_rate_limit:
