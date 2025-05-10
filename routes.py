@@ -107,7 +107,11 @@ def register_routes(app):
                 db.session.commit()
                 
                 # Store data in session for report generation
-                session['file_data'] = data
+                # Convert any numpy arrays or other non-serializable types to regular Python types
+                import json
+                # First convert to JSON and back to ensure it's serializable
+                serializable_data = json.loads(json.dumps(data, default=str))
+                session['file_data'] = serializable_data
                 session['file_id'] = file_upload.id
                 
                 flash('File uploaded and processed successfully!', 'success')
@@ -155,6 +159,16 @@ def register_routes(app):
             # Log data before processing
             logger.debug(f"File data format: {file_data.get('format', 'unknown')}")
             logger.debug(f"File data columns: {file_data.get('columns', [])}")
+            logger.debug(f"File data type: {type(file_data)}")
+            logger.debug(f"File data keys: {file_data.keys() if isinstance(file_data, dict) else 'Not a dictionary'}")
+            
+            # Make sure the data field is present - it's critical for processing
+            if isinstance(file_data, dict) and 'data' in file_data:
+                logger.debug(f"Data entries: {len(file_data['data'])}")
+                if len(file_data['data']) > 0:
+                    logger.debug(f"First data entry: {file_data['data'][0]}")
+            else:
+                logger.warning("Missing 'data' field in file_data dictionary")
             
             # Check if report already exists
             existing_report = Report.query.filter_by(
