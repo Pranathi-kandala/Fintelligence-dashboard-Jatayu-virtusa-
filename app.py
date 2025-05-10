@@ -2,6 +2,7 @@ import os
 import logging
 import jinja2
 import markupsafe
+from pathlib import Path
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
@@ -9,6 +10,13 @@ from sqlalchemy.orm import DeclarativeBase
 from flask_login import LoginManager
 from werkzeug.middleware.proxy_fix import ProxyFix
 
+# Try to load environment variables from .env file if python-dotenv is installed
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+    print("Loaded environment variables from .env file")
+except ImportError:
+    pass
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -20,16 +28,23 @@ class Base(DeclarativeBase):
 db = SQLAlchemy(model_class=Base)
 # create the app
 app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key")
+app.secret_key = os.environ.get("SECRET_KEY", os.environ.get("SESSION_SECRET", "dev-secret-key"))
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # needed for url_for to generate with https
 
-# Configure SQLite database (for simplicity)
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///fintelligence.db")
+# Create necessary folders
+uploads_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
+os.makedirs(uploads_folder, exist_ok=True)
+instance_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instance')
+os.makedirs(instance_folder, exist_ok=True)
+
+# Configure database
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///instance/fintelligence.db")
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
     "pool_pre_ping": True,
 }
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["UPLOAD_FOLDER"] = uploads_folder
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16MB max upload size
 
 # Custom template filters
