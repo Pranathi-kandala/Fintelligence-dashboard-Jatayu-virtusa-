@@ -401,6 +401,61 @@ def generate_balance_sheet(file_data):
             "generated_at": datetime.now().isoformat()
         }
 
+def fix_json_content(response_text):
+    """
+    Try to extract valid JSON from response text
+    
+    Args:
+        response_text (str): Raw response text from API
+        
+    Returns:
+        dict: Parsed JSON or error dict
+    """
+    try:
+        # Find and extract JSON content
+        start_idx = response_text.find('{')
+        end_idx = response_text.rfind('}') + 1
+        
+        if start_idx == -1 or end_idx <= 0:
+            logger.error("No valid JSON found in AI response")
+            raise json.JSONDecodeError("No JSON found in response", response_text, 0)
+            
+        json_str = response_text[start_idx:end_idx]
+        return json.loads(json_str)
+    except json.JSONDecodeError as json_err:
+        logger.error(f"JSON parse error: {str(json_err)}")
+        return {
+            "error": "Failed to parse AI response. Please try again.",
+            "raw_response": response_text[:500]  # Truncate for safety
+        }
+
+def process_ai_response(response_text, report_type, file_data):
+    """
+    Process AI response with proper error handling and structure validation
+    
+    Args:
+        response_text (str): Raw response text from API
+        report_type (str): Type of report to validate (balance_sheet, income_statement, etc.)
+        file_data (dict): Original data processed
+        
+    Returns:
+        dict: Structured and validated response
+    """
+    # Extract JSON from response
+    logger.debug("Processing AI response")
+    
+    # Parse JSON content with error handling
+    result = fix_json_content(response_text)
+    
+    # Add generation metadata
+    result["generated_at"] = datetime.now().isoformat()
+    result["source_format"] = file_data.get('format')
+    
+    # Ensure proper structure for template rendering
+    result = ensure_response_structure(result, report_type)
+    
+    return result
+
 def generate_income_statement(file_data):
     """
     Generate an income statement from financial data using Gemini AI
@@ -457,32 +512,8 @@ def generate_income_statement(file_data):
     """
     
     try:
-        # Convert file_data to string format for the prompt with safer handling
-        if file_data.get('format') == 'pdf':
-            data_str = file_data.get('text', '')
-        else:
-            logger.debug("Processing CSV/Excel data for AI")
-            # Safe data extraction
-            data_list = []
-            for item in file_data.get('data', []):
-                # Clean any potentially problematic characters
-                clean_item = {}
-                for key, value in item.items():
-                    if isinstance(value, str):
-                        # Replace any characters that might cause parsing issues
-                        clean_value = value.replace('\n', ' ').replace('\r', ' ')
-                        clean_item[key] = clean_value
-                    else:
-                        clean_item[key] = value
-                data_list.append(clean_item)
-            
-            # Convert to JSON safely
-            try:
-                data_str = json.dumps(data_list, indent=2, default=str)
-            except Exception as json_err:
-                logger.error(f"Error converting data to JSON: {str(json_err)}")
-                # Fallback to safer representation
-                data_str = str(data_list)
+        # Use token-optimized data preparation
+        data_str = optimize_data_for_tokens(file_data)
         
         logger.debug("Preparing prompt for Gemini AI")
         full_prompt = prompt + "\n" + data_str
@@ -490,34 +521,8 @@ def generate_income_statement(file_data):
         # Call Gemini API with retry logic
         response = call_gemini_with_retry(full_prompt)
         
-        # Extract JSON from response
-        response_text = response.text
-        logger.debug("Received response from Gemini AI")
-        
-        # Handle potential formatting issues in the response
-        try:
-            start_idx = response_text.find('{')
-            end_idx = response_text.rfind('}') + 1
-            
-            if start_idx == -1 or end_idx <= 0:
-                logger.error("No valid JSON found in AI response")
-                raise json.JSONDecodeError("No JSON found in response", response_text, 0)
-                
-            json_str = response_text[start_idx:end_idx]
-            result = json.loads(json_str)
-        except json.JSONDecodeError as json_err:
-            logger.error(f"JSON parse error: {str(json_err)}")
-            # Fallback if JSON parsing fails
-            result = {
-                "income_statement": {
-                    "error": "Failed to parse AI response. Please try again."
-                },
-                "raw_response": response_text[:500]  # Truncate for safety
-            }
-        
-        # Add generation metadata
-        result["generated_at"] = datetime.now().isoformat()
-        result["source_format"] = file_data.get('format')
+        # Process the response with our common function
+        result = process_ai_response(response.text, "income_statement", file_data)
         
         return result
     
