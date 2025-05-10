@@ -86,23 +86,24 @@
                                 <th colspan="2">Revenue</th>
                             </tr>
                             
-                            {% if data.income_statement.revenue is mapping %}
-                                {% for key, value in data.income_statement.revenue.items() %}
-                                <tr>
-                                    <td>{{ key|replace('_', ' ')|title }}</td>
-                                    <td class="text-end">{{ value if value is string else "${:,.2f}".format(value|float) }}</td>
-                                </tr>
-                                {% endfor %}
+                            {% if data.income_statement is defined and data.income_statement.revenue is defined %}
+                                {% if data.income_statement.revenue is mapping %}
+                                    {% for key, value in data.income_statement.revenue.items() %}
+                                    <tr>
+                                        <td>{{ key|replace('_', ' ')|title }}</td>
+                                        <td class="text-end">{{ value if value is string else "${:,.2f}".format(value|float) }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td>Total Revenue</td>
+                                        <td class="text-end">${{ "{:,.2f}".format(data.income_statement.revenue|float) }}</td>
+                                    </tr>
+                                {% endif %}
                             {% else %}
                                 <tr>
                                     <td>Total Revenue</td>
-                                    <td class="text-end">
-                                        {% if data.income_statement and data.income_statement.revenue is defined %}
-                                            ${{ "{:,.2f}".format(data.income_statement.revenue|float) }}
-                                        {% else %}
-                                            $0.00
-                                        {% endif %}
-                                    </td>
+                                    <td class="text-end">$0.00</td>
                                 </tr>
                             {% endif %}
                             

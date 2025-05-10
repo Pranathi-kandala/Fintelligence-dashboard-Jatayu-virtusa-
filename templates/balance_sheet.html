@@ -144,8 +144,10 @@
                             <tr class="table-primary">
                                 <th>Total Assets</th>
                                 <th class="text-end">
-                                    {% if data.balance_sheet.total_assets is defined %}
+                                    {% if data.balance_sheet is defined and data.balance_sheet.total_assets is defined %}
                                         ${{ "{:,.2f}".format(data.balance_sheet.total_assets|float) }}
+                                    {% else %}
+                                        $0.00
                                     {% endif %}
                                 </th>
                             </tr>
