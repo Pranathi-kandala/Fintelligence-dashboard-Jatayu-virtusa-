@@ -20,9 +20,9 @@ if not gemini_api_key:
 genai.configure(api_key=gemini_api_key)
 
 # Set up the model with retry mechanism
-# Use the standard model which has higher rate limits than Pro
-# Use the stable release to avoid breaking changes
-model = genai.GenerativeModel('gemini-pro')
+# Using a "flash" model which has much higher rate limits than "pro"
+# While slightly less powerful, it should still handle financial analysis
+model = genai.GenerativeModel('models/gemini-1.5-flash')
 
 # Maximum number of retries for API calls
 MAX_RETRIES = 5

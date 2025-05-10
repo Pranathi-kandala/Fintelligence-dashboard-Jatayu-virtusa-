@@ -18,8 +18,8 @@ logger.info(f"Testing API key: {gemini_api_key[:4]}...{gemini_api_key[-4:]} (len
 genai.configure(api_key=gemini_api_key)
 
 try:
-    # Try with a simple model and minimal prompt to test the key
-    model = genai.GenerativeModel('gemini-pro')
+    # Try with the flash model which has higher rate limits
+    model = genai.GenerativeModel('models/gemini-1.5-flash')
     response = model.generate_content("Hello, please respond with the text 'API key is working' if you can see this message.")
     print("API Response:", response.text)
     logger.info("API key test successful!")
