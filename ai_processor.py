@@ -410,7 +410,50 @@ def process_chat_query(user_query, file_data):
                     profit_margin = (net_income / income) * 100
                     response += f" Your profit margin is {profit_margin:.1f}%."
         else:
-            response = "I couldn't find enough information in your financial data to answer this question accurately."
+            # Check if it's a general finance question that can be answered without specific data
+            query_lower = user_query.lower()
+            
+            # Provide general explanations for common financial terms
+            if "what is" in query_lower or "explain" in query_lower or "define" in query_lower or "how does" in query_lower:
+                
+                # Cashflow related questions
+                if "cash flow" in query_lower or "cashflow" in query_lower:
+                    return "Cash flow refers to the net amount of cash moving in and out of a business during a specific period. Positive cash flow indicates more money coming in than going out, while negative cash flow means more money is leaving than coming in. Cash flow is divided into three categories: operating (from core business activities), investing (from assets and investments), and financing (from debt and equity financing). Healthy cash flow is essential for business sustainability and growth, regardless of profitability."
+                
+                # Balance sheet related questions
+                elif "balance sheet" in query_lower:
+                    return "A balance sheet is a financial statement that reports a company's assets, liabilities, and equity at a specific point in time. It provides a snapshot of what a company owns (assets), what it owes (liabilities), and the value that's left for shareholders (equity). The fundamental accounting equation that governs a balance sheet is: Assets = Liabilities + Equity. Balance sheets help assess a company's financial position, liquidity, and solvency."
+                
+                # Income statement related questions
+                elif "income statement" in query_lower or "profit and loss" in query_lower or "p&l" in query_lower:
+                    return "An income statement, also known as a profit and loss statement (P&L), shows a company's revenues, expenses, and profits over a specific period. Unlike the balance sheet, which presents a snapshot at a point in time, the income statement covers a range of time (quarter, year). It follows a simple formula: Revenue - Expenses = Profit/Loss. Income statements help evaluate a company's profitability, operational efficiency, and performance trends."
+                
+                # Revenue related questions
+                elif "revenue" in query_lower or "sales" in query_lower or "income" in query_lower:
+                    return "Revenue, or sales, represents the total amount of money generated from selling products or services before any expenses are deducted. It's the top line of an income statement and a fundamental indicator of a company's market success. Revenue growth often signals business expansion, increased market share, or improved pricing strategies, though it doesn't necessarily indicate profitability without considering associated costs."
+                
+                # Expense related questions
+                elif "expense" in query_lower or "cost" in query_lower or "expenditure" in query_lower:
+                    return "Expenses are the costs incurred by a business to generate revenue. They include operating expenses (like rent, salaries, utilities), cost of goods sold (direct costs of products), and non-operating expenses (like interest payments). Understanding and managing expenses is crucial for profitability. Expenses are categorized as fixed (constant regardless of business activity) or variable (changing with business volume), and proper expense management directly impacts bottom-line profit."
+                
+                # Profit related questions
+                elif "profit" in query_lower or "margin" in query_lower or "net income" in query_lower:
+                    return "Profit represents the financial gain when revenue exceeds expenses. There are several types of profit on an income statement: Gross profit (Revenue - Cost of goods sold), Operating profit (Gross profit - Operating expenses), and Net profit (Operating profit - Taxes and interest). Profit margins express profit as a percentage of revenue, allowing comparison across different sized companies or time periods. Improving profit requires either increasing revenue, decreasing costs, or both."
+                
+                # Asset related questions
+                elif "asset" in query_lower:
+                    return "Assets are resources owned by a company that have economic value and are expected to provide future benefits. They appear on the balance sheet and are categorized as current assets (convertible to cash within a year, like inventory) or non-current assets (long-term, like property and equipment). Assets can be tangible (physical) or intangible (non-physical, like patents). The management of assets directly impacts a company's operational efficiency, liquidity, and overall financial health."
+                
+                # Liability related questions
+                elif "liability" in query_lower or "debt" in query_lower:
+                    return "Liabilities are financial obligations or debts a company owes to others. They appear on the balance sheet and represent claims against the company's assets. Liabilities are categorized as current (due within a year, like accounts payable) or non-current (long-term, like mortgages). They play a crucial role in assessing a company's financial risk, solvency, and leverage. While debt can provide capital for growth, excessive liabilities may lead to financial distress."
+                
+                # ROI related questions
+                elif "roi" in query_lower or "return on investment" in query_lower:
+                    return "Return on Investment (ROI) measures the profitability of an investment relative to its cost. It's calculated as: ROI = (Net Profit / Cost of Investment) × 100%. A positive ROI indicates a profitable investment, while a negative ROI shows a loss. ROI helps evaluate investment efficiency and compare different investment opportunities. However, it doesn't account for time value of money or risk factors, which are considered in more comprehensive metrics like IRR or NPV."
+            
+            # Default response if no specific pattern is matched
+            response = "I couldn't find specific information in your financial data to answer this question accurately. For personalized insights, please try asking about your revenue, expenses, profits, or specific accounts in your data."
         
         return response
     
