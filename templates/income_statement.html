@@ -183,7 +183,11 @@
                                             {{ key|replace('_', ' ')|title }}: {{ value if value is string else "${:,.2f}".format(value|float) }}<br>
                                         {% endfor %}
                                     {% else %}
-                                        ${{ "{:,.2f}".format(data.income_statement.operating_income|float) }}
+                                        {% if data.income_statement is defined and data.income_statement.operating_income is defined %}
+                                            ${{ "{:,.2f}".format(data.income_statement.operating_income|float) }}
+                                        {% else %}
+                                            $0.00
+                                        {% endif %}
                                     {% endif %}
                                 </td>
                             </tr>
@@ -193,14 +197,14 @@
                                 <th colspan="2">Other Income/Expenses</th>
                             </tr>
                             
-                            {% if data.income_statement.other_income_expenses is mapping %}
+                            {% if data.income_statement is defined and data.income_statement.other_income_expenses is defined and data.income_statement.other_income_expenses is mapping %}
                                 {% for key, value in data.income_statement.other_income_expenses.items() %}
                                 <tr>
                                     <td>{{ key|replace('_', ' ')|title }}</td>
                                     <td class="text-end">{{ value if value is string else "${:,.2f}".format(value|float) }}</td>
                                 </tr>
                                 {% endfor %}
-                            {% elif data.income_statement.other_income_expenses is iterable and data.income_statement.other_income_expenses is not string %}
+                            {% elif data.income_statement is defined and data.income_statement.other_income_expenses is defined and data.income_statement.other_income_expenses is iterable and data.income_statement.other_income_expenses is not string %}
                                 {% for item in data.income_statement.other_income_expenses %}
                                     {% if item is mapping %}
                                         {% for key, value in item.items() %}
@@ -218,7 +222,13 @@
                             {% else %}
                                 <tr>
                                     <td>Total Other Income/Expenses</td>
-                                    <td class="text-end">${{ "{:,.2f}".format(data.income_statement.other_income_expenses|float) }}</td>
+                                    <td class="text-end">
+                                        {% if data.income_statement is defined and data.income_statement.other_income_expenses is defined %}
+                                            ${{ "{:,.2f}".format(data.income_statement.other_income_expenses|float) }}
+                                        {% else %}
+                                            $0.00
+                                        {% endif %}
+                                    </td>
                                 </tr>
                             {% endif %}
                             
@@ -226,12 +236,16 @@
                             <tr class="table-primary">
                                 <th>Net Income Before Tax</th>
                                 <td class="text-end">
-                                    {% if data.income_statement.net_income_before_tax is mapping %}
+                                    {% if data.income_statement is defined and data.income_statement.net_income_before_tax is defined and data.income_statement.net_income_before_tax is mapping %}
                                         {% for key, value in data.income_statement.net_income_before_tax.items() %}
                                             {{ key|replace('_', ' ')|title }}: {{ value if value is string else "${:,.2f}".format(value|float) }}<br>
                                         {% endfor %}
                                     {% else %}
-                                        ${{ "{:,.2f}".format(data.income_statement.net_income_before_tax|float) }}
+                                        {% if data.income_statement is defined and data.income_statement.net_income_before_tax is defined %}
+                                            ${{ "{:,.2f}".format(data.income_statement.net_income_before_tax|float) }}
+                                        {% else %}
+                                            $0.00
+                                        {% endif %}
                                     {% endif %}
                                 </td>
                             </tr>
