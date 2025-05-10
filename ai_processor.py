@@ -139,7 +139,7 @@ def ensure_response_structure(response_data, report_type):
 
 def optimize_data_for_tokens(file_data):
     """
-    Optimize data for token usage to avoid rate limits and reduce memory usage
+    Optimize data for token usage to avoid rate limits
     
     Args:
         file_data (dict): Raw financial data from file processor
@@ -147,99 +147,113 @@ def optimize_data_for_tokens(file_data):
     Returns:
         str: Optimized data string for AI processing
     """
-    # Convert file_data to string format with token optimization
-    if file_data.get('format') == 'pdf':
-        data_str = file_data.get('text', '')
-        # Limit PDF text to reduce tokens even further
-        if len(data_str) > 4000:  # Reduced from 6000
-            logger.info(f"Reducing PDF data from {len(data_str)} to 4000 chars for token optimization")
-            data_str = data_str[:4000] + "... [truncated for token optimization]"
-    else:
-        logger.debug("Processing CSV/Excel data with token optimization")
-        # Safe data extraction with size limits
-        data_list = []
-        all_data = file_data.get('data', [])
+    try:
+        if not file_data:
+            return "No data available"
+            
+        # For PDF files
+        if file_data.get('format') == 'pdf':
+            text = file_data.get('text', '')
+            # Truncate long text
+            if len(text) > 4000:
+                return text[:4000] + "... [truncated]"
+            return text
+            
+        # For CSV/Excel files
+        elif file_data.get('format') in ['csv', 'xlsx']:
+            data = file_data.get('data', [])
+            columns = file_data.get('columns', [])
+            
+            # Collect financial stats
+            stats = {
+                'total_records': len(data),
+                'income_total': 0,
+                'expense_total': 0,
+                'by_category': {},
+                'by_account': {},
+                'date_range': {'start': None, 'end': None}
+            }
+            
+            # Process data for stats (use all data for stats)
+            for item in data:
+                try:
+                    # Track income/expense totals
+                    if 'Amount' in item and 'Type' in item:
+                        amount = float(item['Amount']) if isinstance(item['Amount'], (int, float, str)) else 0
+                        if item['Type'] == 'Income':
+                            stats['income_total'] += amount
+                        elif item['Type'] == 'Expense':
+                            stats['expense_total'] -= amount  # Convert to negative for consistency
+                    
+                    # Track by category
+                    if 'Category' in item and 'Amount' in item:
+                        category = str(item['Category'])
+                        amount = float(item['Amount']) if isinstance(item['Amount'], (int, float, str)) else 0
+                        if category not in stats['by_category']:
+                            stats['by_category'][category] = 0
+                        if item.get('Type') == 'Income':
+                            stats['by_category'][category] += amount
+                        else:
+                            stats['by_category'][category] -= amount
+                    
+                    # Track by account
+                    if 'Account' in item and 'Amount' in item:
+                        account = str(item['Account'])
+                        amount = float(item['Amount']) if isinstance(item['Amount'], (int, float, str)) else 0
+                        if account not in stats['by_account']:
+                            stats['by_account'][account] = 0
+                        if item.get('Type') == 'Income':
+                            stats['by_account'][account] += amount
+                        else:
+                            stats['by_account'][account] -= amount
+                    
+                    # Track date range
+                    if 'Date' in item:
+                        date_str = str(item['Date'])
+                        if not stats['date_range']['start'] or date_str < stats['date_range']['start']:
+                            stats['date_range']['start'] = date_str
+                        if not stats['date_range']['end'] or date_str > stats['date_range']['end']:
+                            stats['date_range']['end'] = date_str
+                except:
+                    continue  # Skip problems
+            
+            # Use a sample for detailed data (10 records max)
+            MAX_SAMPLE = 10
+            sample = data[:MAX_SAMPLE] if len(data) > MAX_SAMPLE else data
+            
+            # Clean sample data
+            clean_sample = []
+            for item in sample:
+                clean_item = {}
+                for key in ['Date', 'Account', 'Category', 'Description', 'Amount', 'Type']:
+                    if key in item:
+                        value = item[key]
+                        if isinstance(value, str):
+                            # Clean string values
+                            clean_value = str(value).replace('\n', ' ').replace('\r', ' ')
+                            if len(clean_value) > 50:  # Limit field length
+                                clean_value = clean_value[:50] + "..."
+                            clean_item[key] = clean_value
+                        else:
+                            clean_item[key] = value
+                clean_sample.append(clean_item)
+            
+            # Create final result
+            result = {
+                'stats': stats,
+                'sample': clean_sample,
+                'columns': columns
+            }
+            
+            return json.dumps(result, separators=(',', ':'), default=str)
         
-        # Only use a smaller sample of rows to stay within limits
-        row_count = len(all_data)
-        sample_size = min(20, row_count)  # Reduced from 30 to 20 rows maximum
-        
-        if row_count > sample_size:
-            logger.info(f"Sampling {sample_size} rows from {row_count} total rows for token optimization")
-            # Take rows from beginning only for financial data - simplify sampling
-            sample_data = all_data[:sample_size]
+        # Default fallback
         else:
-            sample_data = all_data
+            return json.dumps({"error": "Unsupported file format", "format": file_data.get('format')})
             
-        # Calculate financial summaries for better analysis with less data
-        income_total = 0
-        expense_total = 0
-        categories = {}
-        
-        # Process all data for summary statistics but only include sample in final output
-        for item in all_data:
-            try:
-                if 'Type' in item and 'Amount' in item:
-                    amount = float(item['Amount']) if isinstance(item['Amount'], (int, float, str)) else 0
-                    if item['Type'] == 'Income':
-                        income_total += amount
-                    elif item['Type'] == 'Expense':
-                        expense_total += amount
-                
-                if 'Category' in item and 'Amount' in item:
-                    category = item['Category']
-                    amount = float(item['Amount']) if isinstance(item['Amount'], (int, float, str)) else 0
-                    if category not in categories:
-                        categories[category] = 0
-                    categories[category] += amount
-            except (ValueError, TypeError) as e:
-                logger.warning(f"Error processing item for summary: {e}")
-                
-        # Process the sampled data
-        for item in sample_data:
-            # Clean any potentially problematic characters
-            clean_item = {}
-            # Only process essential fields to reduce memory usage
-            for key in ['Date', 'Account', 'Category', 'Description', 'Amount', 'Type']:
-                if key in item:
-                    value = item[key]
-                    if isinstance(value, str):
-                        # Replace any characters that might cause parsing issues
-                        clean_value = value.replace('\n', ' ').replace('\r', ' ')
-                        # Limit string length
-                        if len(clean_value) > 100:
-                            clean_value = clean_value[:100] + "..."
-                        clean_item[key] = clean_value
-                    else:
-                        clean_item[key] = value
-            
-            data_list.append(clean_item)
-            for key, value in item.items():
-                if isinstance(value, str):
-                    # Replace any characters that might cause parsing issues
-                    clean_value = value.replace('\n', ' ').replace('\r', ' ')
-                    # Limit string length for long text fields
-                    if len(clean_value) > 100:
-                        clean_value = clean_value[:100] + "..."
-                    clean_item[key] = clean_value
-                else:
-                    clean_item[key] = value
-            data_list.append(clean_item)
-        
-        # Convert to JSON with compact formatting to reduce tokens
-        try:
-            # Use compact JSON representation (no whitespace)
-            data_str = json.dumps(data_list, separators=(',', ':'), default=str)
-            # If still too large, truncate
-            if len(data_str) > 8000:
-                logger.info(f"Truncating JSON data from {len(data_str)} to 8000 chars for token optimization")
-                data_str = data_str[:8000] + "... [truncated for token optimization]"
-        except Exception as json_err:
-            logger.error(f"Error converting data to JSON: {str(json_err)}")
-            # Fallback to safer but still limited representation
-            data_str = str(data_list[:15])
-    
-    return data_str
+    except Exception as e:
+        logger.error(f"Error in optimize_data_for_tokens: {str(e)}")
+        return json.dumps({"error": f"Error processing data: {str(e)}"})
 
 def call_gemini_with_retry(prompt):
     """
