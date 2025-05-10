@@ -200,6 +200,14 @@
                                     </tr>
                                 {% endif %}
                             {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="2" class="text-center text-muted">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        Long-term liabilities information not available
+                                    </td>
+                                </tr>
+                            {% endif %}
                             
                             <!-- Total Liabilities -->
                             <tr class="table-primary">

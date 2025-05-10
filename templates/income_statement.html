@@ -139,14 +139,14 @@
                                 <th colspan="2">Operating Expenses</th>
                             </tr>
                             
-                            {% if data.income_statement.operating_expenses is mapping %}
+                            {% if data.income_statement is defined and data.income_statement.operating_expenses is defined and data.income_statement.operating_expenses is mapping %}
                                 {% for key, value in data.income_statement.operating_expenses.items() %}
                                 <tr>
                                     <td>{{ key|replace('_', ' ')|title }}</td>
                                     <td class="text-end">{{ value if value is string else "${:,.2f}".format(value|float) }}</td>
                                 </tr>
                                 {% endfor %}
-                            {% elif data.income_statement.operating_expenses is iterable and data.income_statement.operating_expenses is not string %}
+                            {% elif data.income_statement is defined and data.income_statement.operating_expenses is defined and data.income_statement.operating_expenses is iterable and data.income_statement.operating_expenses is not string %}
                                 {% for expense in data.income_statement.operating_expenses %}
                                     {% if expense is mapping %}
                                         {% for key, value in expense.items() %}
@@ -164,7 +164,13 @@
                             {% else %}
                                 <tr>
                                     <td>Total Operating Expenses</td>
-                                    <td class="text-end">${{ "{:,.2f}".format(data.income_statement.operating_expenses|float) }}</td>
+                                    <td class="text-end">
+                                        {% if data.income_statement is defined and data.income_statement.operating_expenses is defined %}
+                                            ${{ "{:,.2f}".format(data.income_statement.operating_expenses|float) }}
+                                        {% else %}
+                                            $0.00
+                                        {% endif %}
+                                    </td>
                                 </tr>
                             {% endif %}
                             
@@ -172,7 +178,7 @@
                             <tr class="table-primary">
                                 <th>Operating Income</th>
                                 <td class="text-end">
-                                    {% if data.income_statement.operating_income is mapping %}
+                                    {% if data.income_statement is defined and data.income_statement.operating_income is defined and data.income_statement.operating_income is mapping %}
                                         {% for key, value in data.income_statement.operating_income.items() %}
                                             {{ key|replace('_', ' ')|title }}: {{ value if value is string else "${:,.2f}".format(value|float) }}<br>
                                         {% endfor %}

@@ -235,6 +235,17 @@ def register_routes(app):
                             'current_assets': [],
                             'non_current_assets': []
                         }
+                    # Add nested liabilities structure if missing
+                    if 'liabilities' not in report_data.get('balance_sheet', {}):
+                        report_data['balance_sheet']['liabilities'] = {
+                            'current_liabilities': [],
+                            'long_term_liabilities': []
+                        }
+                    # Add total values if missing
+                    if 'total_assets' not in report_data.get('balance_sheet', {}):
+                        report_data['balance_sheet']['total_assets'] = 0
+                    if 'total_liabilities' not in report_data.get('balance_sheet', {}):
+                        report_data['balance_sheet']['total_liabilities'] = 0
                     # Add insights and recommendations if missing
                     if 'insights' not in report_data:
                         report_data['insights'] = ["Balance sheet analysis is pending."]
@@ -346,6 +357,17 @@ def register_routes(app):
                         'current_assets': [],
                         'non_current_assets': []
                     }
+                # Add nested liabilities structure if missing
+                if 'liabilities' not in report_data.get('balance_sheet', {}):
+                    report_data['balance_sheet']['liabilities'] = {
+                        'current_liabilities': [],
+                        'long_term_liabilities': []
+                    }
+                # Add total values if missing
+                if 'total_assets' not in report_data.get('balance_sheet', {}):
+                    report_data['balance_sheet']['total_assets'] = 0
+                if 'total_liabilities' not in report_data.get('balance_sheet', {}):
+                    report_data['balance_sheet']['total_liabilities'] = 0
                 # Add insights and recommendations if missing
                 if 'insights' not in report_data:
                     report_data['insights'] = ["Balance sheet analysis is pending."]
