@@ -109,38 +109,49 @@
                                 <th colspan="2">Cash Flows from Operating Activities</th>
                             </tr>
                             
-                            {% if data.cash_flow_statement.operating_activities is mapping %}
-                                {% for key, value in data.cash_flow_statement.operating_activities.items() %}
+                            {% if data.cash_flow_statement is defined and data.cash_flow_statement.operating_activities is defined %}
+                                {% if data.cash_flow_statement.operating_activities is mapping %}
+                                    {% for key, value in data.cash_flow_statement.operating_activities.items() %}
+                                    <tr>
+                                        <td>{{ key|replace('_', ' ')|title }}</td>
+                                        <td class="text-end">{{ value if value is string else "${:,.2f}".format(value|float) }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                {% elif data.cash_flow_statement.operating_activities is iterable and data.cash_flow_statement.operating_activities is not string %}
+                                    {% for item in data.cash_flow_statement.operating_activities %}
+                                        {% if item is mapping %}
+                                            {% for key, value in item.items() %}
+                                            <tr>
+                                                <td>{{ key|replace('_', ' ')|title }}</td>
+                                                <td class="text-end">{{ value if value is string else "${:,.2f}".format(value|float) }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        {% else %}
+                                            <tr>
+                                                <td colspan="2">{{ item }}</td>
+                                            </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            {% else %}
                                 <tr>
-                                    <td>{{ key|replace('_', ' ')|title }}</td>
-                                    <td class="text-end">{{ value if value is string else "${:,.2f}".format(value|float) }}</td>
+                                    <td colspan="2" class="text-center text-muted">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        Operating activities information not available
+                                    </td>
                                 </tr>
-                                {% endfor %}
-                            {% elif data.cash_flow_statement.operating_activities is iterable and data.cash_flow_statement.operating_activities is not string %}
-                                {% for item in data.cash_flow_statement.operating_activities %}
-                                    {% if item is mapping %}
-                                        {% for key, value in item.items() %}
-                                        <tr>
-                                            <td>{{ key|replace('_', ' ')|title }}</td>
-                                            <td class="text-end">{{ value if value is string else "${:,.2f}".format(value|float) }}</td>
-                                        </tr>
-                                        {% endfor %}
-                                    {% else %}
-                                        <tr>
-                                            <td colspan="2">{{ item }}</td>
-                                        </tr>
-                                    {% endif %}
-                                {% endfor %}
                             {% endif %}
                             
                             <!-- Net Cash from Operating Activities -->
                             <tr class="table-primary">
                                 <th>Net Cash from Operating Activities</th>
                                 <td class="text-end">
-                                    {% if data.cash_flow_statement.net_cash_from_operating is defined %}
+                                    {% if data.cash_flow_statement is defined and data.cash_flow_statement.net_cash_from_operating is defined %}
                                         ${{ "{:,.2f}".format(data.cash_flow_statement.net_cash_from_operating|float) }}
-                                    {% elif data.cash_flow_statement.net_operating_cash_flow is defined %}
+                                    {% elif data.cash_flow_statement is defined and data.cash_flow_statement.net_operating_cash_flow is defined %}
                                         ${{ "{:,.2f}".format(data.cash_flow_statement.net_operating_cash_flow|float) }}
+                                    {% else %}
+                                        $0.00
                                     {% endif %}
                                 </td>
                             </tr>
@@ -150,28 +161,37 @@
                                 <th colspan="2">Cash Flows from Investing Activities</th>
                             </tr>
                             
-                            {% if data.cash_flow_statement.investing_activities is mapping %}
-                                {% for key, value in data.cash_flow_statement.investing_activities.items() %}
+                            {% if data.cash_flow_statement is defined and data.cash_flow_statement.investing_activities is defined %}
+                                {% if data.cash_flow_statement.investing_activities is mapping %}
+                                    {% for key, value in data.cash_flow_statement.investing_activities.items() %}
+                                    <tr>
+                                        <td>{{ key|replace('_', ' ')|title }}</td>
+                                        <td class="text-end">{{ value if value is string else "${:,.2f}".format(value|float) }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                {% elif data.cash_flow_statement.investing_activities is iterable and data.cash_flow_statement.investing_activities is not string %}
+                                    {% for item in data.cash_flow_statement.investing_activities %}
+                                        {% if item is mapping %}
+                                            {% for key, value in item.items() %}
+                                            <tr>
+                                                <td>{{ key|replace('_', ' ')|title }}</td>
+                                                <td class="text-end">{{ value if value is string else "${:,.2f}".format(value|float) }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        {% else %}
+                                            <tr>
+                                                <td colspan="2">{{ item }}</td>
+                                            </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            {% else %}
                                 <tr>
-                                    <td>{{ key|replace('_', ' ')|title }}</td>
-                                    <td class="text-end">{{ value if value is string else "${:,.2f}".format(value|float) }}</td>
+                                    <td colspan="2" class="text-center text-muted">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        Investing activities information not available
+                                    </td>
                                 </tr>
-                                {% endfor %}
-                            {% elif data.cash_flow_statement.investing_activities is iterable and data.cash_flow_statement.investing_activities is not string %}
-                                {% for item in data.cash_flow_statement.investing_activities %}
-                                    {% if item is mapping %}
-                                        {% for key, value in item.items() %}
-                                        <tr>
-                                            <td>{{ key|replace('_', ' ')|title }}</td>
-                                            <td class="text-end">{{ value if value is string else "${:,.2f}".format(value|float) }}</td>
-                                        </tr>
-                                        {% endfor %}
-                                    {% else %}
-                                        <tr>
-                                            <td colspan="2">{{ item }}</td>
-                                        </tr>
-                                    {% endif %}
-                                {% endfor %}
                             {% endif %}
                             
                             <!-- Net Cash from Investing Activities -->
