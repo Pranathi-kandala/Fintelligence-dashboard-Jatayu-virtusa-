@@ -211,9 +211,49 @@ def register_routes(app):
                 if not isinstance(report_data, dict):
                     report_data = {}
                     
-                # Add required fields if missing
-                if report_type == 'cash_flow' and 'metrics' not in report_data:
-                    report_data['metrics'] = {}
+                # Add required fields if missing - similar to view_report
+                if report_type == 'cash_flow':
+                    # Add metrics field if missing
+                    if 'metrics' not in report_data:
+                        report_data['metrics'] = {}
+                    # Add cash_flow_statement field if missing
+                    if 'cash_flow_statement' not in report_data:
+                        report_data['cash_flow_statement'] = {}
+                    # Add insights and recommendations if missing
+                    if 'insights' not in report_data:
+                        report_data['insights'] = ["Analysis of cash flow patterns is pending."]
+                    if 'recommendations' not in report_data:
+                        report_data['recommendations'] = ["Review your cash flow statement for further insights."]
+                        
+                elif report_type == 'balance_sheet':
+                    # Add balance_sheet field if missing
+                    if 'balance_sheet' not in report_data:
+                        report_data['balance_sheet'] = {}
+                    # Add nested assets structure if missing
+                    if 'assets' not in report_data.get('balance_sheet', {}):
+                        report_data['balance_sheet']['assets'] = {
+                            'current_assets': [],
+                            'non_current_assets': []
+                        }
+                    # Add insights and recommendations if missing
+                    if 'insights' not in report_data:
+                        report_data['insights'] = ["Balance sheet analysis is pending."]
+                    if 'recommendations' not in report_data:
+                        report_data['recommendations'] = ["Review your balance sheet for further insights."]
+                        
+                elif report_type == 'income_statement':
+                    # Add income_statement field if missing
+                    if 'income_statement' not in report_data:
+                        report_data['income_statement'] = {}
+                    # Add revenue and other required fields
+                    for field in ['revenue', 'expenses', 'net_income']:
+                        if field not in report_data.get('income_statement', {}):
+                            report_data['income_statement'][field] = 0
+                    # Add insights and recommendations if missing
+                    if 'insights' not in report_data:
+                        report_data['insights'] = ["Income statement analysis is pending."]
+                    if 'recommendations' not in report_data:
+                        report_data['recommendations'] = ["Review your income statement for further insights."]
                 
                 # Save report to database - safely handle JSON serialization
                 try:
@@ -295,6 +335,36 @@ def register_routes(app):
                     report_data['insights'] = ["Analysis of cash flow patterns is pending."]
                 if 'recommendations' not in report_data:
                     report_data['recommendations'] = ["Review your cash flow statement for further insights."]
+                    
+            elif report.report_type == 'balance_sheet':
+                # Add balance_sheet field if missing
+                if 'balance_sheet' not in report_data:
+                    report_data['balance_sheet'] = {}
+                # Add nested assets structure if missing
+                if 'assets' not in report_data.get('balance_sheet', {}):
+                    report_data['balance_sheet']['assets'] = {
+                        'current_assets': [],
+                        'non_current_assets': []
+                    }
+                # Add insights and recommendations if missing
+                if 'insights' not in report_data:
+                    report_data['insights'] = ["Balance sheet analysis is pending."]
+                if 'recommendations' not in report_data:
+                    report_data['recommendations'] = ["Review your balance sheet for further insights."]
+                    
+            elif report.report_type == 'income_statement':
+                # Add income_statement field if missing
+                if 'income_statement' not in report_data:
+                    report_data['income_statement'] = {}
+                # Add revenue and other required fields
+                for field in ['revenue', 'expenses', 'net_income']:
+                    if field not in report_data.get('income_statement', {}):
+                        report_data['income_statement'][field] = 0
+                # Add insights and recommendations if missing
+                if 'insights' not in report_data:
+                    report_data['insights'] = ["Income statement analysis is pending."]
+                if 'recommendations' not in report_data:
+                    report_data['recommendations'] = ["Review your income statement for further insights."]
                     
         except Exception as e:
             logger.error(f"Error parsing report data JSON: {str(e)}")

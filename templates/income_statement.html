@@ -96,7 +96,13 @@
                             {% else %}
                                 <tr>
                                     <td>Total Revenue</td>
-                                    <td class="text-end">${{ "{:,.2f}".format(data.income_statement.revenue|float) }}</td>
+                                    <td class="text-end">
+                                        {% if data.income_statement and data.income_statement.revenue is defined %}
+                                            ${{ "{:,.2f}".format(data.income_statement.revenue|float) }}
+                                        {% else %}
+                                            $0.00
+                                        {% endif %}
+                                    </td>
                                 </tr>
                             {% endif %}
                             

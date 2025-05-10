@@ -89,7 +89,8 @@
                             <tr>
                                 <th colspan="2">Current Assets</th>
                             </tr>
-                            {% for asset in data.balance_sheet.assets.current_assets %}
+                            {% if data.balance_sheet is defined and data.balance_sheet.assets is defined and data.balance_sheet.assets.current_assets is defined %}
+                                {% for asset in data.balance_sheet.assets.current_assets %}
                                 {% if asset is mapping %}
                                     {% for key, value in asset.items() %}
                                     <tr>
