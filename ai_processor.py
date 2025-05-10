@@ -122,8 +122,14 @@ def generate_balance_sheet(file_data):
         # Process the financial data
         financial_data = optimize_data_for_tokens(file_data)
         
+        # Check if we got a string error message instead of financial data
+        if isinstance(financial_data, str):
+            logger.error(f"Failed to process file data: {financial_data}")
+            raise ValueError(f"Failed to process file data: {financial_data}")
+        
         # Call the financial data processor to generate the report
-        return generate_balance_sheet(financial_data)
+        from financial_data_processor import generate_balance_sheet as generate_bs
+        return generate_bs(financial_data)
     
     except Exception as e:
         logger.error(f"Error generating balance sheet: {str(e)}")
@@ -156,8 +162,14 @@ def generate_income_statement(file_data):
         # Process the financial data
         financial_data = optimize_data_for_tokens(file_data)
         
+        # Check if we got a string error message instead of financial data
+        if isinstance(financial_data, str):
+            logger.error(f"Failed to process file data: {financial_data}")
+            raise ValueError(f"Failed to process file data: {financial_data}")
+        
         # Call the financial data processor to generate the report
-        return generate_income_statement(financial_data)
+        from financial_data_processor import generate_income_statement as generate_is
+        return generate_is(financial_data)
     
     except Exception as e:
         logger.error(f"Error generating income statement: {str(e)}")
@@ -195,8 +207,14 @@ def generate_cash_flow(file_data):
         # Process the financial data
         financial_data = optimize_data_for_tokens(file_data)
         
+        # Check if we got a string error message instead of financial data
+        if isinstance(financial_data, str):
+            logger.error(f"Failed to process file data: {financial_data}")
+            raise ValueError(f"Failed to process file data: {financial_data}")
+        
         # Call the financial data processor to generate the report
-        return generate_cash_flow(financial_data)
+        from financial_data_processor import generate_cash_flow as generate_cf
+        return generate_cf(financial_data)
     
     except Exception as e:
         logger.error(f"Error generating cash flow statement: {str(e)}")
@@ -234,7 +252,13 @@ def generate_analysis(file_data):
         # Process the financial data
         financial_data = optimize_data_for_tokens(file_data)
         
+        # Check if we got a string error message instead of financial data
+        if isinstance(financial_data, str):
+            logger.error(f"Failed to process file data: {financial_data}")
+            raise ValueError(f"Failed to process file data: {financial_data}")
+        
         # Call the financial data processor to generate the report
+        from financial_data_processor import generate_financial_analysis
         return generate_financial_analysis(financial_data)
     
     except Exception as e:
