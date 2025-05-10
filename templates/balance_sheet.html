@@ -215,8 +215,10 @@
                             <tr class="table-primary">
                                 <th>Total Liabilities</th>
                                 <th class="text-end">
-                                    {% if data.balance_sheet.total_liabilities is defined %}
+                                    {% if data.balance_sheet is defined and data.balance_sheet.total_liabilities is defined %}
                                         ${{ "{:,.2f}".format(data.balance_sheet.total_liabilities|float) }}
+                                    {% else %}
+                                        $0.00
                                     {% endif %}
                                 </th>
                             </tr>
@@ -226,27 +228,38 @@
                                 <th colspan="2">Equity</th>
                             </tr>
                             
-                            {% for item in data.balance_sheet.equity %}
-                                {% if item is mapping %}
-                                    {% for key, value in item.items() %}
-                                    <tr>
-                                        <td>{{ key }}</td>
-                                        <td class="text-end">{{ value if value is string else "${:,.2f}".format(value|float) }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                {% else %}
-                                    <tr>
-                                        <td colspan="2">{{ item }}</td>
-                                    </tr>
-                                {% endif %}
-                            {% endfor %}
+                            {% if data.balance_sheet is defined and data.balance_sheet.equity is defined %}
+                                {% for item in data.balance_sheet.equity %}
+                                    {% if item is mapping %}
+                                        {% for key, value in item.items() %}
+                                        <tr>
+                                            <td>{{ key }}</td>
+                                            <td class="text-end">{{ value if value is string else "${:,.2f}".format(value|float) }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="2">{{ item }}</td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="2" class="text-center text-muted">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        Equity information not available
+                                    </td>
+                                </tr>
+                            {% endif %}
                             
                             <!-- Total Equity -->
                             <tr class="table-primary">
                                 <th>Total Equity</th>
                                 <th class="text-end">
-                                    {% if data.balance_sheet.total_equity is defined %}
+                                    {% if data.balance_sheet is defined and data.balance_sheet.total_equity is defined %}
                                         ${{ "{:,.2f}".format(data.balance_sheet.total_equity|float) }}
+                                    {% else %}
+                                        $0.00
                                     {% endif %}
                                 </th>
                             </tr>
@@ -255,8 +268,10 @@
                             <tr class="table-success">
                                 <th>Total Liabilities and Equity</th>
                                 <th class="text-end">
-                                    {% if data.balance_sheet.total_liabilities_and_equity is defined %}
+                                    {% if data.balance_sheet is defined and data.balance_sheet.total_liabilities_and_equity is defined %}
                                         ${{ "{:,.2f}".format(data.balance_sheet.total_liabilities_and_equity|float) }}
+                                    {% else %}
+                                        $0.00
                                     {% endif %}
                                 </th>
                             </tr>

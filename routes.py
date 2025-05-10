@@ -369,11 +369,18 @@ def register_routes(app):
                         'current_liabilities': [],
                         'long_term_liabilities': []
                     }
+                # Add equity section if missing
+                if 'equity' not in report_data.get('balance_sheet', {}):
+                    report_data['balance_sheet']['equity'] = []
                 # Add total values if missing
                 if 'total_assets' not in report_data.get('balance_sheet', {}):
                     report_data['balance_sheet']['total_assets'] = 0
                 if 'total_liabilities' not in report_data.get('balance_sheet', {}):
                     report_data['balance_sheet']['total_liabilities'] = 0
+                if 'total_equity' not in report_data.get('balance_sheet', {}):
+                    report_data['balance_sheet']['total_equity'] = 0
+                if 'total_liabilities_and_equity' not in report_data.get('balance_sheet', {}):
+                    report_data['balance_sheet']['total_liabilities_and_equity'] = 0
                 # Add ratios field if missing
                 if 'ratios' not in report_data:
                     report_data['ratios'] = {}
