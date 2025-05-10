@@ -139,7 +139,7 @@ def ensure_response_structure(response_data, report_type):
 
 def optimize_data_for_tokens(file_data):
     """
-    Optimize data for token usage to avoid rate limits
+    Optimize data for token usage to avoid rate limits and reduce memory usage
     
     Args:
         file_data (dict): Raw financial data from file processor
@@ -150,44 +150,70 @@ def optimize_data_for_tokens(file_data):
     # Convert file_data to string format with token optimization
     if file_data.get('format') == 'pdf':
         data_str = file_data.get('text', '')
-        # Limit PDF text to reduce tokens
-        if len(data_str) > 6000:
-            logger.info(f"Reducing PDF data from {len(data_str)} to 6000 chars for token optimization")
-            data_str = data_str[:6000] + "... [truncated for token optimization]"
+        # Limit PDF text to reduce tokens even further
+        if len(data_str) > 4000:  # Reduced from 6000
+            logger.info(f"Reducing PDF data from {len(data_str)} to 4000 chars for token optimization")
+            data_str = data_str[:4000] + "... [truncated for token optimization]"
     else:
         logger.debug("Processing CSV/Excel data with token optimization")
         # Safe data extraction with size limits
         data_list = []
         all_data = file_data.get('data', [])
         
-        # Only use a sample of rows to stay within limits
+        # Only use a smaller sample of rows to stay within limits
         row_count = len(all_data)
-        sample_size = min(30, row_count)  # Limit to 30 rows maximum
+        sample_size = min(20, row_count)  # Reduced from 30 to 20 rows maximum
         
         if row_count > sample_size:
             logger.info(f"Sampling {sample_size} rows from {row_count} total rows for token optimization")
-            # Take some rows from beginning, middle and end for a representative sample
-            if sample_size >= 3:
-                # Take 40% from start, 30% from middle, 30% from end
-                start_count = int(sample_size * 0.4)
-                mid_end_count = int(sample_size * 0.3)
-                
-                start_items = all_data[:start_count]
-                middle_idx = row_count // 2
-                middle_items = all_data[middle_idx:middle_idx + mid_end_count]
-                end_items = all_data[-(mid_end_count):]
-                
-                sample_data = start_items + middle_items + end_items
-            else:
-                # If very small sample, just take from start
-                sample_data = all_data[:sample_size]
+            # Take rows from beginning only for financial data - simplify sampling
+            sample_data = all_data[:sample_size]
         else:
             sample_data = all_data
             
+        # Calculate financial summaries for better analysis with less data
+        income_total = 0
+        expense_total = 0
+        categories = {}
+        
+        # Process all data for summary statistics but only include sample in final output
+        for item in all_data:
+            try:
+                if 'Type' in item and 'Amount' in item:
+                    amount = float(item['Amount']) if isinstance(item['Amount'], (int, float, str)) else 0
+                    if item['Type'] == 'Income':
+                        income_total += amount
+                    elif item['Type'] == 'Expense':
+                        expense_total += amount
+                
+                if 'Category' in item and 'Amount' in item:
+                    category = item['Category']
+                    amount = float(item['Amount']) if isinstance(item['Amount'], (int, float, str)) else 0
+                    if category not in categories:
+                        categories[category] = 0
+                    categories[category] += amount
+            except (ValueError, TypeError) as e:
+                logger.warning(f"Error processing item for summary: {e}")
+                
         # Process the sampled data
         for item in sample_data:
             # Clean any potentially problematic characters
             clean_item = {}
+            # Only process essential fields to reduce memory usage
+            for key in ['Date', 'Account', 'Category', 'Description', 'Amount', 'Type']:
+                if key in item:
+                    value = item[key]
+                    if isinstance(value, str):
+                        # Replace any characters that might cause parsing issues
+                        clean_value = value.replace('\n', ' ').replace('\r', ' ')
+                        # Limit string length
+                        if len(clean_value) > 100:
+                            clean_value = clean_value[:100] + "..."
+                        clean_item[key] = clean_value
+                    else:
+                        clean_item[key] = value
+            
+            data_list.append(clean_item)
             for key, value in item.items():
                 if isinstance(value, str):
                     # Replace any characters that might cause parsing issues
