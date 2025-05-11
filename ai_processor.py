@@ -424,21 +424,37 @@ Please provide a helpful, accurate response based on this data. If this is askin
 Please explain this concept clearly, even though I don't have specific financial data to share. Provide a helpful explanation using simple terms."""
         
         # Call Gemini API for the response
-        response = call_gemini_chat(prompt)
-        
-        # If response fails, provide a helpful fallback response
-        if not response or response.startswith("Error:"):
+        try:
+            response = call_gemini_chat(prompt)
+            
+            # Check for quota error in the response
+            if "429" in response and "quota" in response.lower():
+                logger.warning("Detected quota error in Gemini API response")
+                raise Exception("Quota exceeded for Gemini API")
+                
+            # If response fails or contains error messages, provide a helpful fallback response
+            if not response or response.startswith("Error:") or "I encountered an error" in response:
+                raise Exception("Failed to get valid response from Gemini")
+                
+            # Return the AI's response
+            return response
+            
+        except Exception as e:
+            logger.error(f"Failed to get response from Gemini API: {str(e)}")
+            
+            # Provide helpful fallbacks based on query content
             if "cash flow" in user_query.lower() or "cashflow" in user_query.lower():
                 return "Cash flow refers to the movement of money in and out of a business. It shows whether you have enough money to pay your bills. Positive cash flow means more money coming in than going out, which is good for business health. There are three types: operating (from core business), investing (from assets), and financing (from loans or investments)."
             elif "balance sheet" in user_query.lower():
                 return "A balance sheet shows what a company owns (assets), what it owes (liabilities), and the difference (equity) at a specific point in time. It follows the formula: Assets = Liabilities + Equity. This helps understand a company's financial position."
             elif "income statement" in user_query.lower():
                 return "An income statement shows your revenue, expenses, and profit/loss over a period of time. It follows the simple formula: Revenue - Expenses = Profit (or Loss). This helps track your business performance."
+            elif "quota" in str(e).lower() or "429" in str(e):
+                return "I apologize, but the AI service is currently experiencing high demand and has reached its quota limit. Please try again later or contact support if you need immediate assistance with your financial questions."
             else:
-                return "I apologize, but I couldn't process your query through our AI system. Your question was about financial topics, and I'd be happy to try answering again or you could rephrase your question."
+                return "I apologize, but I couldn't process your query through our AI system at this time. Your question was about financial topics, and I'd be happy to try answering again or you could rephrase your question."
         
-        # Return the AI's response
-        return response
+
     
     except Exception as e:
         logger.error(f"Error processing chat query: {str(e)}")
