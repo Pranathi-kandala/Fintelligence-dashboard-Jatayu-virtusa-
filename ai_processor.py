@@ -353,7 +353,7 @@ def generate_analysis(file_data):
 
 def process_chat_query(user_query, file_data):
     """
-    Process a user query about financial data using Gemini AI
+    Process a user query about financial data using available AI models
     
     Args:
         user_query (str): User's financial question
@@ -367,7 +367,7 @@ def process_chat_query(user_query, file_data):
         if not user_query:
             return "Please provide a question about your financial data."
         
-        # Prepare financial context for Gemini
+        # Prepare financial context for AI
         financial_context = ""
         
         if file_data and isinstance(file_data, list) and len(file_data) > 0:
@@ -381,7 +381,7 @@ def process_chat_query(user_query, file_data):
                 expenses = financial_data.get('expenses', 0)
                 net_income = income - expenses  # Calculate in case it's not provided
                 
-                # Build context for Gemini
+                # Build context for AI
                 financial_context = f"""
                 Financial data context:
                 - Total Revenue: ${income:,.2f}
@@ -411,7 +411,7 @@ def process_chat_query(user_query, file_data):
                         for cat, amt in sorted(top_expenses.items(), key=lambda x: x[1], reverse=True)[:3]:
                             financial_context += f"  * {cat}: ${amt:,.2f}\n"
         
-        # Create appropriate prompt for Gemini based on whether we have financial data
+        # Create appropriate prompt based on whether we have financial data
         if financial_context:
             prompt = f"""I'd like you to answer this financial question: "{user_query}"
 
@@ -424,36 +424,50 @@ Please provide a helpful, accurate response based on this data. If this is askin
 
 Please explain this concept clearly, even though I don't have specific financial data to share. Provide a helpful explanation using simple terms. Keep your answer brief and focused."""
         
-        # Call Gemini API for the response with better error handling
+        # First try using OpenAI via Replit's endpoint (no API key required)
         try:
-            # Use shorter response to stay within quota limits
-            response = call_gemini_chat(prompt)
+            # Import the OpenAI processor
+            from openai_processor import get_openai_response
             
-            # Check for quota error in the response
-            if any(error_text in str(response).lower() for error_text in ["429", "quota", "limit", "error"]):
-                logger.warning("Detected possible quota error in Gemini API response")
-                # Provide helpful fallbacks based on query content
-                if "cash flow" in user_query.lower() or "cashflow" in user_query.lower():
-                    return "Cash flow refers to the movement of money in and out of a business. It shows whether you have enough money to pay your bills. Positive cash flow means more money coming in than going out, which is good for business health. There are three types: operating (from core business), investing (from assets), and financing (from loans or investments)."
-                elif "balance sheet" in user_query.lower():
-                    return "A balance sheet shows what a company owns (assets), what it owes (liabilities), and the difference (equity) at a specific point in time. It follows the formula: Assets = Liabilities + Equity. This helps understand a company's financial position."
-                elif "income statement" in user_query.lower():
-                    return "An income statement shows your revenue, expenses, and profit/loss over a period of time. It follows the simple formula: Revenue - Expenses = Profit (or Loss). This helps track your business performance."
-                elif "ratio" in user_query.lower() or "profitability" in user_query.lower():
-                    return "Financial ratios help analyze business performance. Key profitability ratios include Gross Profit Margin (gross profit/revenue), Operating Margin (operating income/revenue), and Net Profit Margin (net income/revenue). These show how efficiently you convert revenue into profit at different levels."
-                else:
-                    return get_financial_response(user_query)
+            # Get response from OpenAI
+            logger.info("Attempting to use OpenAI processor")
+            response = get_openai_response(prompt)
+            
+            # Check for error in the response
+            if "error" in str(response).lower() or "sorry" in str(response).lower():
+                logger.warning("Detected possible error in OpenAI response, falling back to Gemini")
+                # Fall back to Gemini if OpenAI fails
+                raise Exception("OpenAI response contained an error")
                 
-            # If response fails or contains error messages, provide a helpful fallback response
-            if not response or response.startswith("Error:") or "I encountered an error" in response:
-                return get_financial_response(user_query)
-                
-            # Return the AI's response
+            # Return the OpenAI response if successful
+            logger.info("Successfully got response from OpenAI")
             return response
             
-        except Exception as e:
-            logger.error(f"Failed to get response from Gemini API: {str(e)}")
-            return get_financial_response(user_query)
+        except Exception as openai_error:
+            # Log the OpenAI error
+            logger.warning(f"OpenAI API error, falling back to Gemini: {str(openai_error)}")
+            
+            # Call Gemini API as fallback
+            try:
+                # Use shorter response to stay within quota limits
+                response = call_gemini_chat(prompt)
+                
+                # Check for quota error in the response
+                if any(error_text in str(response).lower() for error_text in ["429", "quota", "limit", "error"]):
+                    logger.warning("Detected possible quota error in Gemini API response")
+                    # Provide helpful fallbacks with our expert answers
+                    return get_financial_response(user_query)
+                    
+                # If response fails or contains error messages, provide a helpful fallback response
+                if not response or response.startswith("Error:") or "I encountered an error" in response:
+                    return get_financial_response(user_query)
+                    
+                # Return the AI's response
+                return response
+                
+            except Exception as gemini_error:
+                logger.error(f"Failed to get response from Gemini API: {str(gemini_error)}")
+                return get_financial_response(user_query)
     
     except Exception as e:
         logger.error(f"Error processing chat query: {str(e)}")
