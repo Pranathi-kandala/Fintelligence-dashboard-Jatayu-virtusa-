@@ -43,16 +43,15 @@ if gemini_api_key:
         "temperature": 0.2,
         "top_p": 0.95,
         "top_k": 64,
-        "max_output_tokens": 4096,
+        "max_output_tokens": 2048,
     }
     
     # Initialize the model
     try:
-        # We're switching to "gemini-1.0-pro" which has higher quota limits
-        # This model has more generous quota limits than gemini-1.5-pro
-        gemini_model = genai.GenerativeModel(model_name="gemini-1.0-pro", 
-                                            generation_config=generation_config)
-        logger.info("Successfully initialized Gemini model (using gemini-1.0-pro for better quota limits)")
+        # We're using the newer 'gemini-2.0-flash' model which has better quota handling
+        gemini_model = genai.GenerativeModel(model_name="gemini-2.0-flash", 
+                                          generation_config=generation_config)
+        logger.info("Successfully initialized Gemini model (using gemini-2.0-flash)")
     except Exception as e:
         logger.error(f"Error initializing Gemini model: {str(e)}")
         gemini_model = None
