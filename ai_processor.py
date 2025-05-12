@@ -424,25 +424,25 @@ Please provide a helpful, accurate response based on this data. If this is askin
 
 Please explain this concept clearly, even though I don't have specific financial data to share. Provide a helpful explanation using simple terms. Keep your answer brief and focused."""
         
-        # First try using OpenAI via Replit's endpoint (no API key required)
+        # First try using official OpenAI API
         try:
-            # Import the OpenAI processor
-            from openai_processor import get_openai_response
+            # Import the OpenAI setup
+            from openai_setup import get_openai_response
             
             # Get response from OpenAI
-            logger.info("Attempting to use OpenAI processor")
+            logger.info("Attempting to use official OpenAI API")
             response = get_openai_response(prompt)
             
-            # Check for error in the response
-            if "error" in str(response).lower() or "sorry" in str(response).lower():
-                logger.warning("Detected possible error in OpenAI response, falling back to Gemini")
+            # Check if we got a valid response
+            if response and len(response) > 0:
+                # Return the OpenAI response if successful
+                logger.info(f"Successfully got response from OpenAI API: {len(response)} chars")
+                return response
+            else:
+                logger.warning("Empty or null response from OpenAI API, falling back to Gemini")
                 # Fall back to Gemini if OpenAI fails
-                raise Exception("OpenAI response contained an error")
+                raise Exception("OpenAI response was empty or null")
                 
-            # Return the OpenAI response if successful
-            logger.info("Successfully got response from OpenAI")
-            return response
-            
         except Exception as openai_error:
             # Log the OpenAI error
             logger.warning(f"OpenAI API error, falling back to Gemini: {str(openai_error)}")
