@@ -1,0 +1,157 @@
+(venv) PS D:\FinancialIntelligenceDONOTDELETE> $env:GEMINI_API_KEY="AIzaSyA0IfrB5V9aBq3phOvDhl_mbF_yHSj-jLE"
+(venv) PS D:\FinancialIntelligenceDONOTDELETE> python main.py
+Loaded environment variables from .env file
+INFO:fintelligence:Using Gemini API key: AIza...jLE (length: 39)
+INFO:fintelligence:Successfully initialized Gemini model
+ * Serving Flask app 'app'
+ * Debug mode: on
+INFO:werkzeug:WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.29.18:5000
+INFO:werkzeug:Press CTRL+C to quit
+INFO:werkzeug: * Restarting with stat
+Loaded environment variables from .env file
+INFO:fintelligence:Using Gemini API key: AIza...jLE (length: 39)
+INFO:fintelligence:Successfully initialized Gemini model
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 765-295-375
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:02:08] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:02:08] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:02:08] "GET /static/js/main.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:02:24] "GET /register HTTP/1.1" 302 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:02:25] "GET /dashboard HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:02:25] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:02:25] "GET /static/js/main.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:02:28] "GET /upload HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:02:29] "GET /upload HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:02:30] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:02:30] "GET /static/js/main.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:02:45] "POST /upload HTTP/1.1" 302 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:02:45] "POST /upload HTTP/1.1" 302 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:02:46] "GET /report-options HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:02:46] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:02:46] "GET /static/js/main.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:02:59] "GET /chatbot HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:02:59] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:02:59] "GET /static/js/main.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:03:10] "GET /report-options HTTP/1.1" 200 -
+DEBUG:fintelligence:Generating balance_sheet report for file ID: 11
+DEBUG:fintelligence:File data format: csv
+DEBUG:fintelligence:File data columns: ['Date', 'Account', 'Category', 'Description', 'Amount', 'Type']
+DEBUG:fintelligence:File data type: <class 'dict'>
+DEBUG:fintelligence:File data keys: dict_keys(['columns', 'data', 'format', 'rows'])
+DEBUG:fintelligence:Data entries: 250
+DEBUG:fintelligence:First data entry: {'Account': 'Credit Card', 'Amount': 8044, 'Category': 'Revenue', 'Date': '2025-01-21', 'Description': 'Commission Earned', 'Type': 'Income'}
+DEBUG:fintelligence:Generating balance_sheet report for file ID: unknown
+DEBUG:fintelligence:File data format: csv
+DEBUG:fintelligence:File data columns: ['Date', 'Account', 'Category', 'Description', 'Amount', 'Type']
+DEBUG:fintelligence:Processing csv file with 250 rows
+DEBUG:fintelligence:Generating balance sheet from data: <class 'dict'>
+DEBUG:fintelligence:Processing account: Credit Card, data: <class 'dict'>
+DEBUG:fintelligence:Processing account: Accounts Receivable, data: <class 'dict'>
+DEBUG:fintelligence:Processing account: Accounts Payable, data: <class 'dict'>
+DEBUG:fintelligence:Processing account: Cash, data: <class 'dict'>
+DEBUG:fintelligence:Processing account: Bank, data: <class 'dict'>
+DEBUG:fintelligence:Processing category: Revenue, data: <class 'dict'>
+DEBUG:fintelligence:Processing category: Expense, data: <class 'dict'>
+DEBUG:fintelligence:Balance Sheet Totals - Assets: 974532.0, Liabilities: 0, Equity: 974532.0
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:03:15] "GET /generate-report/balance_sheet HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:03:15] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:03:15] "GET /static/js/main.js HTTP/1.1" 304 -
+DEBUG:fintelligence:Generating income_statement report for file ID: 11
+DEBUG:fintelligence:File data format: csv
+DEBUG:fintelligence:File data columns: ['Date', 'Account', 'Category', 'Description', 'Amount', 'Type']
+DEBUG:fintelligence:File data type: <class 'dict'>
+DEBUG:fintelligence:File data keys: dict_keys(['columns', 'data', 'format', 'rows'])
+DEBUG:fintelligence:Data entries: 250
+DEBUG:fintelligence:First data entry: {'Account': 'Credit Card', 'Amount': 8044, 'Category': 'Revenue', 'Date': '2025-01-21', 'Description': 'Commission Earned', 'Type': 'Income'}
+DEBUG:fintelligence:Generating income_statement report for file ID: unknown
+DEBUG:fintelligence:File data format: csv
+DEBUG:fintelligence:File data columns: ['Date', 'Account', 'Category', 'Description', 'Amount', 'Type']
+DEBUG:fintelligence:Processing csv file with 250 rows
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:03:22] "GET /generate-report/income_statement HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:03:23] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:03:23] "GET /static/js/main.js HTTP/1.1" 304 -
+DEBUG:fintelligence:Generating cash_flow report for file ID: 11
+DEBUG:fintelligence:File data format: csv
+DEBUG:fintelligence:File data columns: ['Date', 'Account', 'Category', 'Description', 'Amount', 'Type']
+DEBUG:fintelligence:File data type: <class 'dict'>
+DEBUG:fintelligence:File data keys: dict_keys(['columns', 'data', 'format', 'rows'])
+DEBUG:fintelligence:Data entries: 250
+DEBUG:fintelligence:First data entry: {'Account': 'Credit Card', 'Amount': 8044, 'Category': 'Revenue', 'Date': '2025-01-21', 'Description': 'Commission Earned', 'Type': 'Income'}
+DEBUG:fintelligence:Generating cash_flow report for file ID: unknown
+DEBUG:fintelligence:File data format: csv
+DEBUG:fintelligence:File data columns: ['Date', 'Account', 'Category', 'Description', 'Amount', 'Type']
+DEBUG:fintelligence:Processing csv file with 250 rows
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:03:30] "GET /generate-report/cash_flow HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:03:30] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:03:30] "GET /static/js/main.js HTTP/1.1" 304 -
+DEBUG:fintelligence:Generating analysis report for file ID: 11
+DEBUG:fintelligence:File data format: csv
+DEBUG:fintelligence:File data columns: ['Date', 'Account', 'Category', 'Description', 'Amount', 'Type']
+DEBUG:fintelligence:File data type: <class 'dict'>
+DEBUG:fintelligence:File data keys: dict_keys(['columns', 'data', 'format', 'rows'])
+DEBUG:fintelligence:Data entries: 250
+DEBUG:fintelligence:First data entry: {'Account': 'Credit Card', 'Amount': 8044, 'Category': 'Revenue', 'Date': '2025-01-21', 'Description': 'Commission Earned', 'Type': 'Income'}
+DEBUG:fintelligence:Generating analysis report for file ID: unknown
+DEBUG:fintelligence:File data format: csv
+DEBUG:fintelligence:File data columns: ['Date', 'Account', 'Category', 'Description', 'Amount', 'Type']
+DEBUG:fintelligence:Processing csv file with 250 rows
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:03:38] "GET /generate-report/analysis HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:03:38] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:03:38] "GET /static/js/main.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:03:51] "GET /chatbot HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:03:51] "GET /chatbot HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:03:51] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:03:51] "GET /static/js/main.js HTTP/1.1" 304 -
+WARNING:fintelligence:Unsupported file format: None
+ERROR:fintelligence:Error calling Gemini API (attempt 1/3): 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 55
+}
+]
+WARNING:fintelligence:Detected quota error in Gemini API response
+ERROR:fintelligence:Failed to get response from Gemini API: Quota exceeded for Gemini API
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:04:08] "POST /chatbot HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:04:08] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 18:04:08] "GET /static/js/main.js HTTP/1.1" 304 -
