@@ -604,12 +604,35 @@ def register_routes(app):
                                 'data': report_json
                             })
                 
-                ai_response = process_chat_query(user_message, file_data)
+                # Check if Gemini API key is properly configured
+                gemini_api_key = os.environ.get("GEMINI_API_KEY", "")
+                if not gemini_api_key or len(gemini_api_key) < 20:
+                    ai_response = "Sorry, the Gemini API is not configured. Please ensure the API key is set properly in your .env file."
+                else:
+                    # Process the query with fallback handling
+                    ai_response = process_chat_query(user_message, file_data)
+                    
+                    # Handle quota error responses
+                    if "429" in ai_response and "quota" in ai_response.lower():
+                        logger.warning("Detected quota error in Gemini API response")
+                        raise Exception("Quota exceeded for Gemini API")
             except Exception as e:
                 import traceback
                 logger.error(f"Error processing chat query: {str(e)}")
                 logger.error(traceback.format_exc())
-                ai_response = "I'm sorry, I encountered an error while processing your question. Please try again with a more specific query about your financial data."
+                
+                # Provide helpful fallback responses based on the query topic
+                error_msg = str(e).lower()
+                if "quota" in error_msg or "429" in error_msg:
+                    ai_response = "I apologize, but our AI service is currently experiencing high demand and has reached its quota limit. Please try again later or contact support if you need immediate assistance with your financial questions."
+                elif "cash flow" in user_message.lower() or "cashflow" in user_message.lower():
+                    ai_response = "Cash flow refers to the movement of money in and out of a business. It shows whether you have enough money to pay your bills. Positive cash flow means more money coming in than going out, which is good for business health. There are three types: operating (from core business), investing (from assets), and financing (from loans or investments)."
+                elif "balance sheet" in user_message.lower():
+                    ai_response = "A balance sheet shows what a company owns (assets), what it owes (liabilities), and the difference (equity) at a specific point in time. It follows the formula: Assets = Liabilities + Equity. This helps understand a company's financial position."
+                elif "income statement" in user_message.lower() or "profit" in user_message.lower():
+                    ai_response = "An income statement shows your revenue, expenses, and profit/loss over a period of time. It follows the simple formula: Revenue - Expenses = Profit (or Loss). This helps track your business performance."
+                else:
+                    ai_response = f"I apologize, but I couldn't process your query through our AI system at this time. This might be due to high traffic or temporary service limitations. Please try asking your question again later."
             
             # Save AI response
             ai_chat = ChatMessage(
