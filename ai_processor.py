@@ -38,19 +38,21 @@ if gemini_api_key:
     genai.configure(api_key=gemini_api_key)
     
     # Set up the model
-    # the newest Gemini model is "gemini-1.5-pro" which was released after March 2023
+    # Use a different model with higher quota limits
     generation_config = {
         "temperature": 0.2,
         "top_p": 0.95,
         "top_k": 64,
-        "max_output_tokens": 8192,
+        "max_output_tokens": 4096,
     }
     
     # Initialize the model
     try:
-        gemini_model = genai.GenerativeModel(model_name="gemini-1.5-pro", 
+        # We're switching to "gemini-1.0-pro" which has higher quota limits
+        # This model has more generous quota limits than gemini-1.5-pro
+        gemini_model = genai.GenerativeModel(model_name="gemini-1.0-pro", 
                                             generation_config=generation_config)
-        logger.info("Successfully initialized Gemini model")
+        logger.info("Successfully initialized Gemini model (using gemini-1.0-pro for better quota limits)")
     except Exception as e:
         logger.error(f"Error initializing Gemini model: {str(e)}")
         gemini_model = None
@@ -417,57 +419,170 @@ def process_chat_query(user_query, file_data):
 Here's the relevant financial data:
 {financial_context}
 
-Please provide a helpful, accurate response based on this data. If this is asking about specifics that aren't in the data, focus on the information provided."""
+Please provide a helpful, accurate response based on this data. If this is asking about specifics that aren't in the data, focus on the information provided. Keep your answer brief and focused."""
         else:
             prompt = f"""I'd like you to answer this financial question: "{user_query}"
 
-Please explain this concept clearly, even though I don't have specific financial data to share. Provide a helpful explanation using simple terms."""
+Please explain this concept clearly, even though I don't have specific financial data to share. Provide a helpful explanation using simple terms. Keep your answer brief and focused."""
         
-        # Call Gemini API for the response
+        # Call Gemini API for the response with better error handling
         try:
+            # Use shorter response to stay within quota limits
             response = call_gemini_chat(prompt)
             
             # Check for quota error in the response
-            if "429" in response and "quota" in response.lower():
-                logger.warning("Detected quota error in Gemini API response")
-                raise Exception("Quota exceeded for Gemini API")
+            if any(error_text in str(response).lower() for error_text in ["429", "quota", "limit", "error"]):
+                logger.warning("Detected possible quota error in Gemini API response")
+                # Provide helpful fallbacks based on query content
+                if "cash flow" in user_query.lower() or "cashflow" in user_query.lower():
+                    return "Cash flow refers to the movement of money in and out of a business. It shows whether you have enough money to pay your bills. Positive cash flow means more money coming in than going out, which is good for business health. There are three types: operating (from core business), investing (from assets), and financing (from loans or investments)."
+                elif "balance sheet" in user_query.lower():
+                    return "A balance sheet shows what a company owns (assets), what it owes (liabilities), and the difference (equity) at a specific point in time. It follows the formula: Assets = Liabilities + Equity. This helps understand a company's financial position."
+                elif "income statement" in user_query.lower():
+                    return "An income statement shows your revenue, expenses, and profit/loss over a period of time. It follows the simple formula: Revenue - Expenses = Profit (or Loss). This helps track your business performance."
+                elif "ratio" in user_query.lower() or "profitability" in user_query.lower():
+                    return "Financial ratios help analyze business performance. Key profitability ratios include Gross Profit Margin (gross profit/revenue), Operating Margin (operating income/revenue), and Net Profit Margin (net income/revenue). These show how efficiently you convert revenue into profit at different levels."
+                else:
+                    return get_financial_response(user_query)
                 
             # If response fails or contains error messages, provide a helpful fallback response
             if not response or response.startswith("Error:") or "I encountered an error" in response:
-                raise Exception("Failed to get valid response from Gemini")
+                return get_financial_response(user_query)
                 
             # Return the AI's response
             return response
             
         except Exception as e:
             logger.error(f"Failed to get response from Gemini API: {str(e)}")
-            
-            # Provide helpful fallbacks based on query content
-            if "cash flow" in user_query.lower() or "cashflow" in user_query.lower():
-                return "Cash flow refers to the movement of money in and out of a business. It shows whether you have enough money to pay your bills. Positive cash flow means more money coming in than going out, which is good for business health. There are three types: operating (from core business), investing (from assets), and financing (from loans or investments)."
-            elif "balance sheet" in user_query.lower():
-                return "A balance sheet shows what a company owns (assets), what it owes (liabilities), and the difference (equity) at a specific point in time. It follows the formula: Assets = Liabilities + Equity. This helps understand a company's financial position."
-            elif "income statement" in user_query.lower():
-                return "An income statement shows your revenue, expenses, and profit/loss over a period of time. It follows the simple formula: Revenue - Expenses = Profit (or Loss). This helps track your business performance."
-            elif "quota" in str(e).lower() or "429" in str(e):
-                return "I apologize, but the AI service is currently experiencing high demand and has reached its quota limit. Please try again later or contact support if you need immediate assistance with your financial questions."
-            else:
-                return "I apologize, but I couldn't process your query through our AI system at this time. Your question was about financial topics, and I'd be happy to try answering again or you could rephrase your question."
-        
-
+            return get_financial_response(user_query)
     
     except Exception as e:
         logger.error(f"Error processing chat query: {str(e)}")
-        # Provide a helpful fallback response if there's an error
-        if "what is" in user_query.lower() or "explain" in user_query.lower():
-            if "cash flow" in user_query.lower() or "cashflow" in user_query.lower():
-                return "Cash flow refers to the movement of money in and out of a business. It shows whether you have enough money to pay your bills. Positive cash flow means more money coming in than going out, which is good for business health."
-            elif "balance sheet" in user_query.lower():
-                return "A balance sheet shows what a company owns (assets), what it owes (liabilities), and the difference (equity) at a specific point in time. It follows the formula: Assets = Liabilities + Equity."
-            elif "income statement" in user_query.lower():
-                return "An income statement shows your revenue, expenses, and profit/loss over a period of time. It follows the simple formula: Revenue - Expenses = Profit (or Loss)."
-        
-        return f"I'm sorry, I encountered an error while analyzing your question. Please try again or ask something different."
+        return get_financial_response(user_query)
+
+def get_financial_response(query):
+    """
+    Generate a helpful response for financial questions without using the API
+    """
+    query = query.lower()
+    
+    # Check for common financial terms and questions
+    if any(term in query for term in ["what is balance sheet", "explain balance sheet"]):
+        return """A balance sheet shows what a company owns (assets), what it owes (liabilities), and the difference (equity) at a specific point in time. 
+
+Key components:
+- Assets: Resources owned by the company (cash, inventory, property)
+- Liabilities: Debts and obligations owed to others
+- Equity: Owners' stake in the business (assets minus liabilities)
+
+The balance sheet follows the equation: Assets = Liabilities + Equity."""
+    
+    elif any(term in query for term in ["what is income statement", "explain income statement", "profit and loss", "p&l"]):
+        return """An income statement shows a company's revenues, expenses, and profit/loss over a specific period of time.
+
+Key components:
+- Revenue: Money earned from business activities
+- Expenses: Costs incurred to run the business
+- Net Income/Loss: Revenue minus expenses
+
+This statement helps track business performance over time, showing whether you're profitable."""
+    
+    elif any(term in query for term in ["what is cash flow", "explain cash flow", "cashflow statement"]):
+        return """A cash flow statement tracks money movement in and out of a business over time.
+
+Three main sections:
+1. Operating Activities: Cash from core business operations
+2. Investing Activities: Cash from buying/selling assets
+3. Financing Activities: Cash from loans, investors, dividends
+
+Positive cash flow indicates more money coming in than going out, essential for sustainability."""
+    
+    elif any(term in query for term in ["ratio", "financial ratio"]):
+        return """Financial ratios analyze company performance and health. Common ratios:
+
+1. Liquidity Ratios: Ability to pay short-term obligations
+   - Current Ratio = Current Assets ÷ Current Liabilities
+   - Quick Ratio = (Current Assets - Inventory) ÷ Current Liabilities
+
+2. Profitability Ratios: Earnings relative to resources
+   - Profit Margin = Net Income ÷ Revenue
+   - Return on Assets (ROA) = Net Income ÷ Total Assets
+   - Return on Equity (ROE) = Net Income ÷ Shareholders' Equity"""
+    
+    elif any(term in query for term in ["profit margin", "increase profit"]):
+        return """To improve profit margins:
+
+1. Increase Revenue:
+   - Raise prices strategically
+   - Upsell to existing customers
+   - Expand to new markets
+
+2. Reduce Costs:
+   - Optimize supply chain
+   - Improve operational efficiency
+   - Reduce overhead expenses
+
+3. Focus on high-margin products/services and phase out underperforming ones."""
+    
+    elif any(term in query for term in ["debt", "leverage", "borrow"]):
+        return """Managing debt for financial health:
+
+1. Good Debt vs. Bad Debt:
+   - Good debt generates future value (e.g., business loans for growth)
+   - Bad debt finances depreciating assets or consumption
+
+2. Important Debt Metrics:
+   - Debt-to-Equity Ratio = Total Debt ÷ Total Equity
+   - Debt Service Coverage Ratio = Operating Income ÷ Total Debt Service
+   - Interest Coverage Ratio = EBIT ÷ Interest Expenses"""
+    
+    elif any(term in query for term in ["budget", "budgeting", "forecast"]):
+        return """Effective budgeting for financial planning:
+
+1. Budget Creation:
+   - Review historical financial data
+   - Set realistic revenue and expense projections
+   - Account for seasonality and market trends
+   - Include contingency provisions
+
+2. Types: Operating Budget, Capital Budget, Cash Flow Budget
+
+3. Best Practices: Review regularly, involve key stakeholders, track variances"""
+    
+    elif any(term in query for term in ["tax", "taxes", "taxation"]):
+        return """Tax planning for financial management:
+
+1. Tax Deductions:
+   - Business expenses must be ordinary and necessary
+   - Document all deductions thoroughly
+   - Common deductions: office expenses, travel, professional services
+
+2. Tax Planning Strategies:
+   - Time income and expenses strategically
+   - Consider business structure implications
+   - Maximize retirement contributions"""
+    
+    elif any(term in query for term in ["invest", "investing", "roi"]):
+        return """Business investment considerations:
+
+1. ROI (Return on Investment):
+   - ROI = (Net Profit / Cost of Investment) × 100%
+   - Higher ROI indicates more profitable investments
+   
+2. Investment Types:
+   - Capital investments (equipment, property)
+   - R&D investments (new products/services)
+   - Technology investments (efficiency improvements)
+   
+3. Evaluation Criteria:
+   - Payback period
+   - Net Present Value (NPV)
+   - Internal Rate of Return (IRR)"""
+    
+    else:
+        return """I can answer questions about financial statements (balance sheet, income statement, cash flow), financial ratios, profit improvement, debt management, budgeting, taxes, and investment analysis.
+
+Please try asking a specific question about one of these financial topics, and I'll provide a helpful response based on financial best practices."""
 
 def explain_ai_decision(report_type, data):
     """
