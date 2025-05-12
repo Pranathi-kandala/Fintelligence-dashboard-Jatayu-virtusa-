@@ -1,0 +1,89 @@
+(venv) PS D:\FinancialIntelligence> python main.py
+Loaded environment variables from .env file
+INFO:fintelligence:Using Gemini API key: AIza...g0k (length: 39)
+INFO:fintelligence:Successfully initialized Gemini model
+ * Serving Flask app 'app'
+ * Debug mode: on
+INFO:werkzeug:WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.29.18:5000
+INFO:werkzeug:Press CTRL+C to quit
+INFO:werkzeug: * Restarting with stat
+Loaded environment variables from .env file
+INFO:fintelligence:Using Gemini API key: AIza...g0k (length: 39)
+INFO:fintelligence:Successfully initialized Gemini model
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 680-596-435
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:48:29] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:48:29] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:48:29] "GET /static/js/main.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:48:32] "GET /register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:48:32] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:48:32] "GET /static/js/main.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:48:34] "GET /login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:48:34] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:48:34] "GET /static/js/main.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:48:40] "POST /login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:48:40] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:48:40] "GET /static/js/main.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:48:42] "GET /register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:48:42] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:48:42] "GET /static/js/main.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:49:09] "POST /register HTTP/1.1" 302 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:49:09] "GET /login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:49:09] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:49:09] "GET /static/js/main.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:49:12] "POST /login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:49:12] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:49:12] "GET /static/js/main.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:49:18] "POST /login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:49:18] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:49:18] "GET /static/js/main.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:49:19] "POST /login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:49:19] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:49:20] "GET /static/js/main.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:49:21] "POST /login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:49:21] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:49:21] "GET /static/js/main.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:49:32] "POST /login HTTP/1.1" 302 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:49:34] "GET /dashboard HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:49:34] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:49:34] "GET /static/js/main.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:49:38] "GET /upload HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:49:38] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:49:38] "GET /static/js/main.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:49:56] "POST /upload HTTP/1.1" 302 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:49:58] "POST /upload HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\flask\app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\werkzeug\middleware\proxy_fix.py", line 183, in __call__
+    return self.app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\flask\app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FinancialIntelligence\venv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FinancialIntelligence\routes.py", line 132, in upload
+    os.remove(temp_path)
+FileNotFoundError: [WinError 2] The system cannot find the file specified: 'D:\\FinancialIntelligence\\temp\\Updated_Realistic_Financial_Data.csv'
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:49:58] "GET /upload?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:50:00] "GET /upload?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:50:00] "GET /upload?__debugger__=yes&cmd=resource&f=console.png&s=BvP3EtjYc65oeDHI6FGv HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [12/May/2025 11:50:00] "GET /upload?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 304 -

@@ -129,7 +129,11 @@ def register_routes(app):
             
             finally:
                 # Clean up temporary file
-                os.remove(temp_path)
+                try:
+                    os.remove(temp_path)
+                except FileNotFoundError:
+                    # It's okay if the file is already gone
+                    pass
         
         return render_template('upload.html', form=form)
     
