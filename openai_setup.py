@@ -55,7 +55,10 @@ def get_openai_response(prompt):
         
         # Extract the response text
         response_text = response.choices[0].message.content
-        logger.info(f"Received response from OpenAI API of length: {len(response_text)}")
+        if response_text:
+            logger.info(f"Received response from OpenAI API of length: {len(response_text)}")
+        else:
+            logger.warning("Received empty response from OpenAI API")
         return response_text
         
     except Exception as e:
